@@ -1,0 +1,297 @@
+@keyframes fadeInUpSummary {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+.booking-middle {
+  flex: 1;
+  padding: 40px;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.booking-middle h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 24px;
+}
+
+.checkout-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.checkout-form label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937; /* gray-800 */
+}
+
+
+.checkout-form input,
+.checkout-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #111827;
+  font-family: inherit;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.checkout-form input:focus,
+.checkout-form textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+}
+
+.checkout-form textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.next-button-inline {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  width: fit-content;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  opacity: 0;
+  transform: translateY(10px) scale(0.98);
+  pointer-events: none;
+  animation: fadeInNextBtnCheckout 0.4s cubic-bezier(.4,2,.6,1) forwards;
+}
+@keyframes fadeInNextBtnCheckout {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+}
+
+.next-button-inline:hover, .next-button-inline:focus {
+  background: #e0e0e0;
+  color: #2563eb;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+  transform: scale(1.03);
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #f0f4ff; /* xanh rất nhạt */
+  color: #3b82f6;            /* xanh nước biển vừa phải (blue-500) */
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.back-button:hover {
+  background-color: #dbeafe; /* hơi đậm hơn khi hover */
+  transform: translateX(-2px);
+}
+
+.next-button-inline {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  width: fit-content;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.next-button-inline:hover {
+  background: #1d4ed8;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+@media (max-width: 768px) {
+  .booking-container {
+    flex-direction: column;
+    box-shadow: none;
+  }
+
+  .booking-left, .booking-middle {
+    border: none;
+    padding: 24px;
+  }
+
+  .booking-left {
+    background: #f7f9fb;
+  }
+}
+/* Left card: Summary box refinement */
+.booking-summary-card {
+  background-color: #f9fbff;
+  border: 1px solid #e0e7ff;
+  border-radius: 12px;
+  padding: 24px 20px;
+  color: #1e3a8a;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+  line-height: 1.6;
+}
+
+.booking-summary-card h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #3b82f6;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+.booking-summary-card p {
+  margin-bottom: 6px;
+  color: #1f2937;
+}
+
+/* Labels */
+.checkout-form label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+/* Input + textarea refinements */
+.checkout-form input,
+.checkout-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #111827;
+  font-family: inherit;
+  background-color: #fff;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.checkout-form input:focus,
+.checkout-form textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+/* Group input + button inline (Mã khuyến mãi) */
+.checkout-form .promo-code-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.checkout-form .promo-code-row input {
+  flex: 1;
+  min-width: 160px;
+}
+
+.checkout-form .promo-code-row .check-button {
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 6px;
+  white-space: nowrap;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.checkout-form .promo-code-row .check-button:hover {
+  background: #2563eb;
+}
+
+/* Final submit button */
+.next-button-inline {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 20px;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
+}
+
+.next-button-inline:hover {
+  background: #1d4ed8;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+@media (max-width: 768px) {
+  .booking-container {
+    flex-direction: column;
+    padding: 0;
+  }
+
+  .booking-left, .booking-middle {
+    padding: 20px;
+    border: none;
+  }
+
+  .checkout-form .promo-code-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .checkout-form .promo-code-row .check-button {
+    width: 100%;
+  }
+
+  .next-button-inline {
+    width: 100%;
+  }
+}

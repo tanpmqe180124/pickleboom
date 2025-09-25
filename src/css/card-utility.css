@@ -1,0 +1,46 @@
+/* Utility Card Styles for logoHomeItems (Pickleball & Café Landing Page)
+   Main colors: #2F3C54 (primary), #f1f1e6 (background)
+   Usage: Add className="card-utility" to your card container, and className="card-utility-title" to the title text.
+*/
+
+/* Updated Utility Card Styles for logoHomeItems (Gọn gàng hơn)
+   - Giảm padding, giảm kích thước logo, giảm font-size tiêu đề
+   - Vẫn giữ màu sắc và hiệu ứng hiện đại
+*/
+
+.card-utility {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f1f1e6;
+  border-radius: 1.25rem;
+  box-shadow: 0 2px 12px rgba(47, 60, 84, 0.08);
+  padding: 0.75rem 1rem;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  min-width: 180px;
+  max-width: 220px;
+}
+.card-utility:hover {
+  transform: scale(1.04);
+  box-shadow: 0 6px 24px rgba(47, 60, 84, 0.14);
+  background: #e6e6d6;
+}
+.card-utility img {
+  height: 5.5rem;
+  width: 5.5rem;
+  object-fit: contain;
+  margin-bottom: 0.75rem;
+  border-radius: 9999px;
+  border: 3px solid #2F3C54;
+  box-shadow: 0 1px 4px rgba(47, 60, 84, 0.10);
+  background: #fff;
+}
+.card-utility-title {
+  color: #2F3C54;
+  font-weight: 700;
+  font-size: 1.15rem;
+  text-align: center;
+  letter-spacing: 0.01em;
+  line-height: 1.35;
+}
