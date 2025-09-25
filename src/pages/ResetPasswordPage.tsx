@@ -5,6 +5,7 @@ import { Label } from '../components/ui/label';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { ArrowLeft, Lock, Eye, EyeOff, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { api } from '@/infrastructure/api/axiosClient';
 
 const ResetPasswordPage = () => {
   const [searchParams] = useSearchParams();
@@ -68,30 +69,19 @@ const ResetPasswordPage = () => {
       console.log('Original token:', token);
       console.log('Decoded token:', decodedToken);
       
-      const response = await fetch('https://bookingpickleball.onrender.com/api/Account/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          email: email, 
-          token: decodedToken, // Use decoded token
-          password: newPassword,
-          confirmPassword: confirmPassword
-        })
+      const response = await api.post('/Account/reset-password', { 
+        email: email, 
+        token: decodedToken, // Use decoded token
+        password: newPassword,
+        confirmPassword: confirmPassword
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setStatus("success");
-        setMessage("Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay.");
-      } else {
-        setStatus("error");
-        setMessage(data.message || "Đặt lại mật khẩu thất bại.");
-      }
-    } catch (error) {
+      setStatus("success");
+      setMessage("Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay.");
+    } catch (error: any) {
       console.error("Reset password error:", error);
       setStatus("error");
-      setMessage("Lỗi kết nối máy chủ!");
+      setMessage(error.message || "Đặt lại mật khẩu thất bại.");
     } finally {
       setIsLoading(false);
     }

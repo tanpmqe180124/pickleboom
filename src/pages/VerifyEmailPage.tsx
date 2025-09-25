@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { api } from '@/infrastructure/api/axiosClient';
 
 const VerifyEmailPage = () => {
   const [searchParams] = useSearchParams();
@@ -27,19 +28,15 @@ const VerifyEmailPage = () => {
     }
 
     // Gọi API xác minh đúng endpoint của backend
-    fetch(`https://bookingpickleball.onrender.com/api/Email/confirm-email?userId=${userId}&token=${encodeURIComponent(token)}`)
-      .then(res => {
-        if (res.ok) return res.json();
-        throw new Error("Xác minh thất bại.");
-      })
-      .then((data) => {
+    api.get(`/Email/confirm-email?userId=${userId}&token=${encodeURIComponent(token)}`)
+      .then((response) => {
         setStatus("success");
         setMessage("Xác minh email thành công! Bạn có thể đăng nhập ngay.");
       })
       .catch((error) => {
         console.error("Verification error:", error);
         setStatus("error");
-        setMessage("Xác minh thất bại hoặc liên kết đã hết hạn.");
+        setMessage(error.message || "Xác minh thất bại hoặc liên kết đã hết hạn.");
       });
   }, [searchParams, navigate]);
 

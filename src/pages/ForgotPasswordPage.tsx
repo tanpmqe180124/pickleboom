@@ -5,6 +5,7 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Mail, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { api } from '@/infrastructure/api/axiosClient';
 
 const ForgotPasswordPage = () => {
   const emailRef = useRef<HTMLInputElement>(null);
@@ -26,23 +27,14 @@ const ForgotPasswordPage = () => {
     setStatus('idle');
 
     try {
-      const response = await fetch(`https://bookingpickleball.onrender.com/api/Account/forgot-email?email=${encodeURIComponent(email)}`, {
-        method: 'POST'
-      });
+      const response = await api.post(`/Account/forgot-email?email=${encodeURIComponent(email)}`);
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setStatus('success');
-        setMessage('Email đặt lại mật khẩu đã được gửi! Vui lòng kiểm tra hộp thư của bạn.');
-      } else {
-        setStatus('error');
-        setMessage(data.message || 'Gửi email thất bại!');
-      }
-    } catch (error) {
+      setStatus('success');
+      setMessage('Email đặt lại mật khẩu đã được gửi! Vui lòng kiểm tra hộp thư của bạn.');
+    } catch (error: any) {
       console.error('Forgot password error:', error);
       setStatus('error');
-      setMessage('Lỗi kết nối máy chủ!');
+      setMessage(error.message || 'Lỗi kết nối máy chủ!');
     } finally {
       setIsLoading(false);
     }

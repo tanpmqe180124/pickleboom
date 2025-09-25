@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, Phone, Mail, Lock, Eye, EyeOff, Loader2, UserPlus } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
+import { api } from '@/infrastructure/api/axiosClient';
 
 const RegisterPage = () => {
   const nameRef = useRef<HTMLInputElement>(null);
@@ -30,20 +31,18 @@ const RegisterPage = () => {
     const confirmPassword = confirmPasswordRef.current?.value || '';
 
     try {
-      const res = await fetch('https://bookingpickleball.onrender.com/api/Account/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName, phoneNumber, email, password, confirmPassword })
+      const response = await api.post('/Account/register', { 
+        fullName, 
+        phoneNumber, 
+        email, 
+        password, 
+        confirmPassword 
       });
-      const data = await res.json();
-      if (res.ok) {
-        showSuccess('Đăng ký thành công!', 'Vui lòng kiểm tra email và nhấn vào đường dẫn xác minh để hoàn tất đăng ký tài khoản!');
-        navigate('/login');
-      } else {
-        showError('Đăng ký thất bại!', data.message || 'Vui lòng thử lại sau.');
-      }
-    } catch (err) {
-      showError('Lỗi kết nối!', 'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
+      
+      showSuccess('Đăng ký thành công!', 'Vui lòng kiểm tra email và nhấn vào đường dẫn xác minh để hoàn tất đăng ký tài khoản!');
+      navigate('/login');
+    } catch (err: any) {
+      showError('Đăng ký thất bại!', err.message || 'Vui lòng thử lại sau.');
     } finally {
       setIsLoading(false);
     }
