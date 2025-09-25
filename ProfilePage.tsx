@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Camera, User, Lock, Mail, Phone, Calendar, Save, Upload, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
+import { api } from '@/infrastructure/api/axiosClient';
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -222,12 +223,13 @@ const ProfilePage: React.FC = () => {
       // Logout user sau khi đổi password thành công
       // Vì backend đã xóa refresh token, user cần đăng nhập lại
       setTimeout(async () => {
-        // Clear tất cả auth data
+        // Clear tất cả auth data ngay lập tức
         await logout();
         
         // Clear localStorage thủ công để chắc chắn
         localStorage.removeItem('authStore');
         localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
         
         // Clear tất cả cookies
         document.cookie.split(";").forEach((c) => {
@@ -236,7 +238,11 @@ const ProfilePage: React.FC = () => {
           document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
         });
         
-        navigate('/login');
+        // Clear axios headers
+        delete api.defaults.headers.common['Authorization'];
+        
+        // Force reload để clear tất cả state
+        window.location.href = '/login';
       }, 2000);
     } catch (error: any) {
       showToast.error('Lỗi', error.message || 'Không thể đổi mật khẩu');
