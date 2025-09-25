@@ -28,64 +28,11 @@ const RegisterPage = () => {
     
     setIsLoading(true);
     
-    const fullName = nameRef.current?.value?.trim() || '';
-    const phoneNumber = phoneRef.current?.value?.trim() || '';
-    const email = emailRef.current?.value?.trim() || '';
+    const fullName = nameRef.current?.value || '';
+    const phoneNumber = phoneRef.current?.value || '';
+    const email = emailRef.current?.value || '';
     const password = passwordRef.current?.value || '';
     const confirmPassword = confirmPasswordRef.current?.value || '';
-
-    // Basic validation
-    if (!fullName) {
-      showError('Lỗi xác thực!', 'Vui lòng nhập họ và tên.');
-      setIsLoading(false);
-      return;
-    }
-
-    if (!phoneNumber) {
-      showError('Lỗi xác thực!', 'Vui lòng nhập số điện thoại.');
-      setIsLoading(false);
-      return;
-    }
-
-    // Validate Vietnamese phone number format
-    const phoneRegex = /^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}$/;
-    if (!phoneRegex.test(phoneNumber)) {
-      showError('Lỗi xác thực!', 'Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam gồm 10 chữ số.');
-      setIsLoading(false);
-      return;
-    }
-
-    if (!email) {
-      showError('Lỗi xác thực!', 'Vui lòng nhập email.');
-      setIsLoading(false);
-      return;
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      showError('Lỗi xác thực!', 'Địa chỉ email không hợp lệ.');
-      setIsLoading(false);
-      return;
-    }
-
-    if (!password) {
-      showError('Lỗi xác thực!', 'Vui lòng nhập mật khẩu.');
-      setIsLoading(false);
-      return;
-    }
-
-    if (password.length < 6) {
-      showError('Lỗi xác thực!', 'Mật khẩu phải có ít nhất 6 ký tự.');
-      setIsLoading(false);
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      showError('Lỗi xác thực!', 'Mật khẩu xác nhận không khớp.');
-      setIsLoading(false);
-      return;
-    }
 
     try {
       const response = await api.post('/Account/register', { 
@@ -101,18 +48,7 @@ const RegisterPage = () => {
       showSuccess('Đăng ký thành công!', 'Vui lòng kiểm tra email và nhấn vào đường dẫn xác minh để hoàn tất đăng ký tài khoản!');
       navigate('/login');
     } catch (err: any) {
-      console.error('Register error:', err);
-      
-      // Extract error message from response
-      let errorMessage = 'Vui lòng thử lại sau.';
-      
-      if (err.response?.data?.message) {
-        errorMessage = err.response.data.message;
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-      
-      showError('Đăng ký thất bại!', errorMessage);
+      showError('Đăng ký thất bại!', err.message || 'Vui lòng thử lại sau.');
     } finally {
       setIsLoading(false);
     }

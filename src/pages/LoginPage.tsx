@@ -35,7 +35,7 @@ const LoginPage = () => {
     const password = passwordRef.current?.value || '';
 
     try {
-      await login({ email, password });
+      await login({ Email: email, Password: password });
       showSuccess('Đăng nhập thành công!', 'Chào mừng bạn quay lại!');
       navigate('/dashboard');
     } catch (err: any) {
