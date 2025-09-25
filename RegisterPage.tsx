@@ -20,24 +20,6 @@ const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { showSuccess, showError } = useToast();
 
-  const testCORS = async () => {
-    try {
-      console.log('🔍 Testing CORS preflight...');
-      const response = await fetch('https://bookingpickleball.onrender.com/api/Account/register', {
-        method: 'OPTIONS',
-        headers: {
-          'Content-Type': 'application/json',
-          'Origin': 'https://pickleboom.vercel.app'
-        }
-      });
-      console.log('✅ CORS preflight success:', response.status);
-      return true;
-    } catch (err: any) {
-      console.error('❌ CORS preflight failed:', err.message);
-      return false;
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
@@ -46,14 +28,6 @@ const RegisterPage = () => {
     
     setIsLoading(true);
     
-    // Test CORS first
-    const corsOk = await testCORS();
-    if (!corsOk) {
-      showError('Lỗi CORS!', 'Không thể kết nối đến server do vấn đề CORS.');
-      setIsLoading(false);
-      return;
-    }
-    
     const fullName = nameRef.current?.value || '';
     const phoneNumber = phoneRef.current?.value || '';
     const email = emailRef.current?.value || '';
@@ -61,15 +35,6 @@ const RegisterPage = () => {
     const confirmPassword = confirmPasswordRef.current?.value || '';
 
     try {
-      console.log('🚀 Sending register request to:', 'https://bookingpickleball.onrender.com/api/Account/register');
-      console.log('📤 Request data:', {
-        FullName: fullName,
-        PhoneNumber: phoneNumber,
-        Email: email,
-        Password: '***',
-        ConfirmPassword: '***'
-      });
-
       const response = await api.post('/Account/register', { 
         FullName: fullName, 
         PhoneNumber: phoneNumber, 
@@ -80,39 +45,10 @@ const RegisterPage = () => {
         timeout: 10000 // 10 seconds timeout
       });
       
-      console.log('✅ Register success:', response.data);
-      
       showSuccess('Đăng ký thành công!', 'Vui lòng kiểm tra email và nhấn vào đường dẫn xác minh để hoàn tất đăng ký tài khoản!');
       navigate('/login');
     } catch (err: any) {
-      console.error('❌ Register error details:', {
-        message: err.message,
-        code: err.code,
-        status: err.status,
-        response: err.response?.data,
-        config: {
-          url: err.config?.url,
-          method: err.config?.method,
-          baseURL: err.config?.baseURL
-        }
-      });
-      
-      // Extract error message from backend response
-      let errorMessage = 'Vui lòng thử lại sau.';
-      
-      if (err.code === 'NETWORK_ERROR' || err.message === 'Network Error') {
-        errorMessage = 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng và thử lại.';
-      } else if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
-        errorMessage = 'Kết nối quá lâu. Vui lòng thử lại.';
-      } else if (err.response?.data?.Message) {
-        errorMessage = err.response.data.Message;
-      } else if (err.response?.data?.message) {
-        errorMessage = err.response.data.message;
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-      
-      showError('Đăng ký thất bại!', errorMessage);
+      showError('Đăng ký thất bại!', err.message || 'Vui lòng thử lại sau.');
     } finally {
       setIsLoading(false);
     }
