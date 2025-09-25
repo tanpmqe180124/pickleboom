@@ -25,6 +25,7 @@ interface AuthState {
   login: (credential: LoginCredential) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: UserObject | null) => void;
+  clearAll: () => void;
 }
 
 // ========== Hàm tiện ích ==========
@@ -110,11 +111,12 @@ const authStore: AuthStoreCreator = (set, get) => ({
       }
 
       setAuthToken(accessToken);
+      // localStorage.setItem('refreshToken', data.refreshToken); // Bỏ qua refreshToken
 
       set({
         user: createUserObject(data),
         token: accessToken,
-        refreshToken: null, // Refresh token được lưu trong HTTP-only cookie
+        // refreshToken: data.refreshToken, // Bỏ qua refreshToken
         isAuthenticated: true,
         isLoading: false,
       });
@@ -153,6 +155,13 @@ const authStore: AuthStoreCreator = (set, get) => ({
   },
   setUser: (user) => {
     set({ user, isAuthenticated: !!user });
+  },
+  
+  // Method để clear hoàn toàn persist storage
+  clearAll: () => {
+    clearAuthToken();
+    localStorage.removeItem('authStore');
+    set({ ...initialState, isLoading: false });
   },
 });
 

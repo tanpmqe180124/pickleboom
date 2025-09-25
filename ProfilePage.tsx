@@ -13,7 +13,7 @@ import { api } from '@/infrastructure/api/axiosClient';
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, setUser, logout } = useAuthStore();
+  const { user, setUser, logout, clearAll } = useAuthStore();
   const [profile, setProfile] = useState<UsersDto | null>(null);
   
   // Debug: Log profile state changes
@@ -224,12 +224,7 @@ const ProfilePage: React.FC = () => {
       // Vì backend đã xóa refresh token, user cần đăng nhập lại
       setTimeout(async () => {
         // Clear tất cả auth data ngay lập tức
-        await logout();
-        
-        // Clear localStorage thủ công để chắc chắn
-        localStorage.removeItem('authStore');
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
+        clearAll();
         
         // Clear tất cả cookies
         document.cookie.split(";").forEach((c) => {
