@@ -22,6 +22,10 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    // Prevent double submission
+    if (isLoading) return;
+    
     setIsLoading(true);
     
     const fullName = nameRef.current?.value || '';
@@ -37,6 +41,8 @@ const RegisterPage = () => {
         email, 
         password, 
         confirmPassword 
+      }, {
+        timeout: 10000 // 10 seconds timeout
       });
       
       showSuccess('Đăng ký thành công!', 'Vui lòng kiểm tra email và nhấn vào đường dẫn xác minh để hoàn tất đăng ký tài khoản!');
