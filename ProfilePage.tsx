@@ -12,7 +12,7 @@ import { useInViewAnimation } from '@/hooks/useInViewAnimation';
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, setUser } = useAuthStore();
+  const { user, setUser, logout } = useAuthStore();
   const [profile, setProfile] = useState<UsersDto | null>(null);
   
   // Debug: Log profile state changes
@@ -221,9 +221,22 @@ const ProfilePage: React.FC = () => {
 
       // Logout user sau khi đổi password thành công
       // Vì backend đã xóa refresh token, user cần đăng nhập lại
-      setTimeout(() => {
+      setTimeout(async () => {
+        // Clear tất cả auth data
+        await logout();
+        
+        // Clear localStorage thủ công để chắc chắn
+        localStorage.removeItem('authStore');
+        localStorage.removeItem('token');
+        
+        // Clear tất cả cookies
+        document.cookie.split(";").forEach((c) => {
+          const eqPos = c.indexOf("=");
+          const name = eqPos > -1 ? c.substr(0, eqPos) : c;
+          document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+        });
+        
         navigate('/login');
-        window.location.reload(); // Force reload để clear tất cả state
       }, 2000);
     } catch (error: any) {
       showToast.error('Lỗi', error.message || 'Không thể đổi mật khẩu');
