@@ -20,14 +20,20 @@ const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { showSuccess, showError } = useToast();
 
-  const testConnection = async () => {
+  const testCORS = async () => {
     try {
-      console.log('🔍 Testing connection to backend...');
-      const response = await api.get('/');
-      console.log('✅ Backend is reachable:', response.status);
+      console.log('🔍 Testing CORS preflight...');
+      const response = await fetch('https://bookingpickleball.onrender.com/api/Account/register', {
+        method: 'OPTIONS',
+        headers: {
+          'Content-Type': 'application/json',
+          'Origin': 'https://pickleboom.vercel.app'
+        }
+      });
+      console.log('✅ CORS preflight success:', response.status);
       return true;
     } catch (err: any) {
-      console.error('❌ Backend connection failed:', err.message);
+      console.error('❌ CORS preflight failed:', err.message);
       return false;
     }
   };
@@ -40,10 +46,10 @@ const RegisterPage = () => {
     
     setIsLoading(true);
     
-    // Test connection first
-    const isConnected = await testConnection();
-    if (!isConnected) {
-      showError('Lỗi kết nối!', 'Không thể kết nối đến server. Vui lòng thử lại sau.');
+    // Test CORS first
+    const corsOk = await testCORS();
+    if (!corsOk) {
+      showError('Lỗi CORS!', 'Không thể kết nối đến server do vấn đề CORS.');
       setIsLoading(false);
       return;
     }
@@ -55,7 +61,8 @@ const RegisterPage = () => {
     const confirmPassword = confirmPasswordRef.current?.value || '';
 
     try {
-      console.log('🚀 Sending register request:', {
+      console.log('🚀 Sending register request to:', 'https://bookingpickleball.onrender.com/api/Account/register');
+      console.log('📤 Request data:', {
         FullName: fullName,
         PhoneNumber: phoneNumber,
         Email: email,
