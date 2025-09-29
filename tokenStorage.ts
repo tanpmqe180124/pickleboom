@@ -25,7 +25,6 @@ interface AuthState {
   login: (credential: LoginCredential) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: UserObject | null) => void;
-  clearAll: () => void;
 }
 
 // ========== Hàm tiện ích ==========
@@ -102,28 +101,57 @@ const authStore: AuthStoreCreator = (set, get) => ({
 
     try {
       clearAuthToken();
-      const { data } = await api.post('Account/login', credential);
+      
+      console.log('Attempting login with credentials:', { email: credential.Email });
+      
+      // Thêm timeout cho login request
+      const loginPromise = api.post('Account/login', credential);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Login timeout')), 30000)
+      );
+      
+      const { data } = await Promise.race([loginPromise, timeoutPromise]) as any;
+      
+      console.log('Login response received:', data);
 
       // Nhận accessToken từ backend (AccessToken với chữ A viết hoa)
       const accessToken = data?.AccessToken || data?.accessToken || data?.token || data?.access_token;
       if (!accessToken) {
-        throw new Error('Invalid login response');
+        console.error('No access token in response:', data);
+        throw new Error('Invalid login response - no access token');
       }
 
       setAuthToken(accessToken);
       // localStorage.setItem('refreshToken', data.refreshToken); // Bỏ qua refreshToken
 
+      const userObject = createUserObject(data);
+      console.log('Created user object:', userObject);
+
       set({
-        user: createUserObject(data),
+        user: userObject,
         token: accessToken,
         // refreshToken: data.refreshToken, // Bỏ qua refreshToken
         isAuthenticated: true,
         isLoading: false,
       });
+      
+      console.log('Login successful, user authenticated');
     } catch (error: any) {
+      console.error('Login failed:', error);
+      
       clearAuthToken();
-      const errorMessage =
-        error?.response?.data?.message || error.message || 'Login failed';
+      
+      let errorMessage = 'Login failed';
+      
+      if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.code === 'ECONNABORTED') {
+        errorMessage = 'Request timeout. Vui lòng thử lại.';
+      } else if (!error?.response) {
+        errorMessage = 'Network Error. Vui lòng kiểm tra kết nối mạng.';
+      }
 
       set({
         ...initialState,
@@ -131,10 +159,11 @@ const authStore: AuthStoreCreator = (set, get) => ({
         isLoading: false,
       });
 
-      console.error('Login error:', {
+      console.error('Login error details:', {
         status: error?.response?.status,
         message: errorMessage,
         data: error?.response?.data,
+        code: error?.code,
       });
 
       throw new Error(errorMessage);
@@ -155,13 +184,6 @@ const authStore: AuthStoreCreator = (set, get) => ({
   },
   setUser: (user) => {
     set({ user, isAuthenticated: !!user });
-  },
-  
-  // Method để clear hoàn toàn persist storage
-  clearAll: () => {
-    clearAuthToken();
-    localStorage.removeItem('authStore');
-    set({ ...initialState, isLoading: false });
   },
 });
 
