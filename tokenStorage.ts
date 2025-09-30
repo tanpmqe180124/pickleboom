@@ -114,8 +114,8 @@ const authStore: AuthStoreCreator = (set, get) => ({
       
       console.log('Login response received:', data);
 
-      // Nhận accessToken từ backend (AccessToken nằm trong Data)
-      const accessToken = data?.Data?.AccessToken || data?.AccessToken || data?.accessToken || data?.token || data?.access_token;
+      // Nhận accessToken từ backend (AccessToken được flatten từ result.Data)
+      const accessToken = data?.AccessToken || data?.Data?.AccessToken || data?.accessToken || data?.token || data?.access_token;
       if (!accessToken) {
         console.error('No access token in response:', data);
         throw new Error('Invalid login response - no access token');
