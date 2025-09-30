@@ -60,9 +60,9 @@ export const createUserObject = (data: any): UserObject => {
   
   const userObject = {
     userId: userId,
-    role: data?.role?.toLowerCase().replace('role_', ''),
-    fullName: data?.fullName,
-    verified: data?.verified,
+    role: data?.Data?.Role?.toLowerCase(), // Backend trả về Data.Role
+    fullName: data?.Data?.FullName,
+    verified: data?.Data?.IsApproved,
   };
   
   console.log('createUserObject - Final user object:', userObject);
@@ -114,8 +114,8 @@ const authStore: AuthStoreCreator = (set, get) => ({
       
       console.log('Login response received:', data);
 
-      // Nhận accessToken từ backend (AccessToken với chữ A viết hoa)
-      const accessToken = data?.AccessToken || data?.accessToken || data?.token || data?.access_token;
+      // Nhận accessToken từ backend (AccessToken nằm trong Data)
+      const accessToken = data?.Data?.AccessToken || data?.AccessToken || data?.accessToken || data?.token || data?.access_token;
       if (!accessToken) {
         console.error('No access token in response:', data);
         throw new Error('Invalid login response - no access token');
