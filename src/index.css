@@ -201,7 +201,7 @@ body {
     gap: 0.5rem !important;
     margin-bottom: 0.5rem;
   }
-  header .col-span-3 .min-w-[140px],
+  header .col-span-3 .min-w-140px,
   header .col-span-3 .px-7 {
     min-width: 100px !important;
     padding-left: 0.5rem !important;
@@ -215,7 +215,7 @@ body {
     flex-direction: column !important;
     gap: 0.5rem !important;
   }
-  header .relative.h-[400px].w-full.bg-center {
+  header .relative.h-400px.w-full.bg-center {
     height: 180px !important;
     min-height: 120px !important;
     background-position: center 30% !important;

@@ -52,6 +52,15 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Không retry cho login request để tránh vòng lặp vô hạn
+    if (originalRequest.url?.includes('login')) {
+      return Promise.reject({
+        message: error.response?.data?.message || error.message || 'Login failed',
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+    }
+
     if (
       isUnauthorizedError(error.response?.status) &&
       !originalRequest._retry &&
@@ -84,13 +93,23 @@ api.interceptors.response.use(
       }
     }
 
+    // Xử lý timeout và network errors
     if (!error.response) {
-      return Promise.reject({ message: 'Network Error' });
+      if (error.code === 'ECONNABORTED') {
+        return Promise.reject({ 
+          message: 'Request timeout. Vui lòng thử lại.', 
+          status: 408 
+        });
+      }
+      return Promise.reject({ 
+        message: 'Network Error. Vui lòng kiểm tra kết nối mạng.', 
+        status: 0 
+      });
     }
 
     return Promise.reject({
       message:
-        error.response.data.message || error.message || 'An error occurred',
+        error.response.data?.message || error.message || 'An error occurred',
       status: error.response.status,
       data: error.response.data,
     });

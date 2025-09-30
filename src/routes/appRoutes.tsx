@@ -13,6 +13,7 @@ import Dashboard from '../pages/Dashboard';
 import VerifyEmailPage from '../pages/VerifyEmailPage';
 import ProfilePage from '../pages/ProfilePage';
 import AdminDashboard from '../pages/AdminDashboard';
+import MyBookings from '../pages/MyBookings';
 import PrivateRoute from './PrivateRoute';
 import AdminRoute from './AdminRoute';
 import SelectCourt from '../pages/SelectCourt';
@@ -33,6 +34,7 @@ const AppRoutes = () => {
       <Route element={<PrivateRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/my-bookings" element={<MyBookings />} />
       </Route>
       <Route element={<AdminRoute />}>
         <Route path="/admin" element={<AdminDashboard />} />

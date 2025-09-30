@@ -6,13 +6,23 @@ import {
   logoHomeItems,
 } from '@/constant/elementor-data';
 
-import { UserRound } from 'lucide-react';
+import { UserRound, Calendar, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Banner } from './BannerHealth';
 import { BlogCard } from './Blog';
 import { Button } from './ui/button';
+import { useAuthStore } from '@/infrastructure/storage/tokenStorage';
+import { useState } from 'react';
 
 const Header = () => {
+  const { user, isAuthenticated, logout } = useAuthStore();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+
+  const handleLogout = async () => {
+    await logout();
+    setShowUserMenu(false);
+  };
+
   return (
     <header className="h-[100px] border-b bg-primary text-primary-foreground">
       <div className="w-full py-3">
@@ -81,24 +91,72 @@ const Header = () => {
                 </Button>
               </Link>
 
-              <Link to="/login">
-                <Button
-                  asChild
-                  variant="ghost"
-                  className="hover:border-primary-dark flex min-w-[140px] items-center justify-center gap-2 rounded-full border-2 border-primary bg-gradient-to-r from-white via-blue-50 to-white px-7 py-2 font-bold text-primary shadow-md transition-all duration-200 hover:scale-105 hover:bg-primary hover:text-white hover:shadow-xl focus:bg-primary focus:text-white focus:shadow-lg"
-                >
-                  <div className="flex flex-row items-center gap-2">
+              {isAuthenticated ? (
+                <div className="relative">
+                  <Button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    variant="ghost"
+                    className="hover:border-primary-dark flex min-w-[140px] items-center justify-center gap-2 rounded-full border-2 border-primary bg-gradient-to-r from-white via-blue-50 to-white px-7 py-2 font-bold text-primary shadow-md transition-all duration-200 hover:scale-105 hover:bg-primary hover:text-white hover:shadow-xl focus:bg-primary focus:text-white focus:shadow-lg"
+                  >
                     <UserRound
                       className="text-muted-foreground transition-colors group-hover:text-white"
                       strokeWidth={1}
                       color="#000000"
                     />
                     <span className="underline-offset-4 transition-all group-hover:text-white group-hover:underline">
-                      Đăng nhập
+                      {user?.fullName || 'Tài khoản'}
                     </span>
-                  </div>
-                </Button>
-              </Link>
+                  </Button>
+                  
+                  {showUserMenu && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                      <Link
+                        to="/my-bookings"
+                        className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <Calendar className="w-4 h-4 mr-3" />
+                        Đặt sân của tôi
+                      </Link>
+                      <Link
+                        to="/profile"
+                        className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <UserRound className="w-4 h-4 mr-3" />
+                        Thông tin cá nhân
+                      </Link>
+                      <hr className="my-2" />
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center w-full px-4 py-2 text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4 mr-3" />
+                        Đăng xuất
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link to="/login">
+                  <Button
+                    asChild
+                    variant="ghost"
+                    className="hover:border-primary-dark flex min-w-[140px] items-center justify-center gap-2 rounded-full border-2 border-primary bg-gradient-to-r from-white via-blue-50 to-white px-7 py-2 font-bold text-primary shadow-md transition-all duration-200 hover:scale-105 hover:bg-primary hover:text-white hover:shadow-xl focus:bg-primary focus:text-white focus:shadow-lg"
+                  >
+                    <div className="flex flex-row items-center gap-2">
+                      <UserRound
+                        className="text-muted-foreground transition-colors group-hover:text-white"
+                        strokeWidth={1}
+                        color="#000000"
+                      />
+                      <span className="underline-offset-4 transition-all group-hover:text-white group-hover:underline">
+                        Đăng nhập
+                      </span>
+                    </div>
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </div>

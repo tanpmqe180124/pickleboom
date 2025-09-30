@@ -371,7 +371,11 @@ export const adminService = {
       if (!token) return false;
 
       const payload = JSON.parse(atob(token.split('.')[1]));
-      const role = payload.role || payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+      // Backend dùng ClaimTypes.Role = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+      const role = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+      
+      console.log('JWT payload:', payload);
+      console.log('Role from JWT:', role);
       
       return role?.toLowerCase() === 'admin';
     } catch (error) {

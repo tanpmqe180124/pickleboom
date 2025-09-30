@@ -28,17 +28,32 @@ const LoginPage = () => {
     }
   }, [isAuthenticated, navigate, verified, showSuccess]);
 
+  // Reset loading state nếu có lỗi
+  React.useEffect(() => {
+    if (error) {
+      console.log('Auth error detected:', error);
+    }
+  }, [error]);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const email = emailRef.current?.value || '';
     const password = passwordRef.current?.value || '';
 
+    if (!email || !password) {
+      showError('Lỗi đăng nhập!', 'Vui lòng nhập đầy đủ email và mật khẩu.');
+      return;
+    }
+
     try {
+      console.log('Starting login process...');
       await login({ Email: email, Password: password });
+      console.log('Login successful, navigating to dashboard...');
       showSuccess('Đăng nhập thành công!', 'Chào mừng bạn quay lại!');
       navigate('/dashboard');
     } catch (err: any) {
+      console.error('Login error in component:', err);
       showError('Đăng nhập thất bại!', err.message || 'Vui lòng kiểm tra lại thông tin đăng nhập.');
     }
   };

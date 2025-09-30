@@ -5,6 +5,7 @@ import '../css/checkout.css';
 import { ChevronLeft } from "lucide-react";
 import { useBookingStore } from '@/stores/useBookingStore';
 import { bookingService, BookingRequest } from '@/services/bookingService';
+import { paymentService } from '@/services/paymentService';
 import { useAuthStore } from '@/infrastructure/storage/tokenStorage';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
 import PayOSCheckout from '@/components/PayOSCheckout';
@@ -102,6 +103,9 @@ export default function CheckOut() {
   const [showPayOS, setShowPayOS] = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState<string>('');
   const [bookingCreated, setBookingCreated] = useState(false);
+  const [orderCode, setOrderCode] = useState<string>('');
+  const [phoneNumber, setPhoneNumber] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
   
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -123,41 +127,53 @@ export default function CheckOut() {
       return;
     }
 
+    if (!phoneNumber.trim()) {
+      setError('Vui lòng nhập số điện thoại.');
+      return;
+    }
+
+    if (!email.trim()) {
+      setError('Vui lòng nhập email.');
+      return;
+    }
+
     setIsProcessing(true);
     setError(null);
 
     try {
-      // Prepare booking request
-      const bookingRequest: BookingRequest = {
-        userID: user.userId!,
+      // Prepare payment request - Match với backend BookingRequest
+      const paymentRequest = {
         courtID: selectedCourt.id,
         bookingDate: selectedDate.toISOString().split('T')[0], // YYYY-MM-DD format
         customerName: customerName.trim(),
+        phoneNumber: phoneNumber.trim(),
+        email: email.trim(),
         amount: selectedCourt.pricePerHour,
-        timeSlots: selectedTimeSlotIds
+        timeSlots: selectedTimeSlotIds // Array of Guid strings
       };
 
-      // Call API to create booking and get payment URL
-      const response = await bookingService.createBooking(bookingRequest);
+      // Call payment service to create booking and get payment URL
+      const response = await paymentService.createPayment(paymentRequest);
       
-      if (response.statusCode === 200) {
-        console.log('Booking created successfully, showing PayOS checkout:', response.data.checkoutUrl);
-        setCheckoutUrl(response.data.checkoutUrl);
+      if (response.StatusCode === 200) {
+        console.log('Payment created successfully:', response.Data);
+        setCheckoutUrl(response.Data.checkoutUrl);
+        setOrderCode(response.Data.orderCode.toString());
         setBookingCreated(true);
         setShowPayOS(true);
       } else {
-        setError(response.message || 'Có lỗi xảy ra khi tạo đơn đặt sân.');
+        setError(response.Message || 'Có lỗi xảy ra khi tạo đơn đặt sân.');
       }
     } catch (err: any) {
-      console.error('Booking error:', err);
+      console.error('Payment error:', err);
       setError(err.message || 'Có lỗi xảy ra khi đặt sân. Vui lòng thử lại.');
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const handlePaymentSuccess = () => {
-    console.log('Payment successful!');
+  const handlePaymentSuccess = (orderCode?: string) => {
+    console.log('Payment successful!', orderCode);
     navigate('/payment/success');
   };
 
@@ -314,6 +330,8 @@ export default function CheckOut() {
                       <div className="relative">
                         <input
                           type="tel"
+                          value={phoneNumber}
+                          onChange={(e) => setPhoneNumber(e.target.value)}
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500/20"
                           placeholder="Nhập số của bạn"
                           required
@@ -328,6 +346,8 @@ export default function CheckOut() {
                       <div className="relative">
                         <input
                           type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500/20"
                           placeholder="Nhận email để xác nhận sân"
                           required
@@ -404,9 +424,11 @@ export default function CheckOut() {
 
                   <PayOSCheckout
                     checkoutUrl={checkoutUrl}
+                    orderCode={orderCode}
                     onSuccess={handlePaymentSuccess}
                     onCancel={handlePaymentCancel}
                     onExit={handlePaymentExit}
+                    showStatusCheck={true}
                   />
 
                   <div className="mt-6 text-center">

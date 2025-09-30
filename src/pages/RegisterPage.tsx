@@ -45,10 +45,21 @@ const RegisterPage = () => {
         timeout: 10000 // 10 seconds timeout
       });
       
-      showSuccess('Đăng ký thành công!', 'Vui lòng kiểm tra email và nhấn vào đường dẫn xác minh để hoàn tất đăng ký tài khoản!');
+      // Kiểm tra response từ backend
+      const message = response.data?.message || response.data?.Message || 'Đăng ký thành công!';
+      showSuccess('Đăng ký thành công!', message);
       navigate('/login');
     } catch (err: any) {
-      showError('Đăng ký thất bại!', err.message || 'Vui lòng thử lại sau.');
+      // Extract error message từ backend response
+      let errorMessage = 'Vui lòng thử lại sau.';
+      if (err.response?.data?.Message) {
+        errorMessage = err.response.data.Message;
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      showError('Đăng ký thất bại!', errorMessage);
     } finally {
       setIsLoading(false);
     }
