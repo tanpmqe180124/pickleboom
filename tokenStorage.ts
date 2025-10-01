@@ -117,27 +117,27 @@ const authStore: AuthStoreCreator = (set, get) => ({
       console.log('data.data:', data?.data);
       console.log('data.data.accessToken:', data?.data?.accessToken);
 
-      // Nhận accessToken từ backend (accessToken nằm trong data.data)
-      const accessToken = data?.data?.accessToken || data?.accessToken || data?.data?.AccessToken || data?.AccessToken || data?.token || data?.access_token;
+      // Nhận accessToken từ backend (accessToken nằm trực tiếp trong data)
+      const accessToken = data?.accessToken || data?.data?.accessToken || data?.data?.AccessToken || data?.AccessToken || data?.token || data?.access_token;
       if (!accessToken) {
         console.error('No access token in response:', data);
         throw new Error('Invalid login response - no access token');
       }
 
       setAuthToken(accessToken);
-      // localStorage.setItem('refreshToken', data.refreshToken); // Bỏ qua refreshToken
-
+      console.log('Token saved to localStorage:', localStorage.getItem('token'));
+      
       const userObject = createUserObject(data);
       console.log('Created user object:', userObject);
 
       set({
         user: userObject,
         token: accessToken,
-        // refreshToken: data.refreshToken, // Bỏ qua refreshToken
         isAuthenticated: true,
         isLoading: false,
       });
       
+      console.log('Zustand state after set:', get());
       console.log('Login successful, user authenticated');
     } catch (error: any) {
       console.error('Login failed:', error);
