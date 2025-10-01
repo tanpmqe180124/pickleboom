@@ -48,12 +48,18 @@ api.interceptors.request.use(
 
 // ===================== RESPONSE INTERCEPTOR =====================
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.config.url?.includes('login')) {
+      console.log('Login response interceptor - Original response:', response.data);
+    }
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
 
     // Không retry cho login request để tránh vòng lặp vô hạn
     if (originalRequest.url?.includes('login')) {
+      console.log('Login request error interceptor:', error.response?.data);
       return Promise.reject({
         message: error.response?.data?.message || error.message || 'Login failed',
         status: error.response?.status,
