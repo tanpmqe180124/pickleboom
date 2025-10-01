@@ -113,9 +113,12 @@ const authStore: AuthStoreCreator = (set, get) => ({
       const { data } = await Promise.race([loginPromise, timeoutPromise]) as any;
       
       console.log('Login response received:', data);
+      console.log('data.accessToken:', data?.accessToken);
+      console.log('data.data:', data?.data);
+      console.log('data.data.accessToken:', data?.data?.accessToken);
 
-      // Nhận accessToken từ backend (accessToken nằm trong data.data với chữ thường)
-      const accessToken = data?.data?.accessToken || data?.data?.AccessToken || data?.AccessToken || data?.accessToken || data?.token || data?.access_token;
+      // Nhận accessToken từ backend (accessToken nằm trực tiếp trong data)
+      const accessToken = data?.accessToken || data?.data?.accessToken || data?.data?.AccessToken || data?.AccessToken || data?.token || data?.access_token;
       if (!accessToken) {
         console.error('No access token in response:', data);
         throw new Error('Invalid login response - no access token');
