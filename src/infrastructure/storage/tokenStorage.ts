@@ -60,9 +60,9 @@ export const createUserObject = (data: any): UserObject => {
   
   const userObject = {
     userId: userId,
-    role: data?.Data?.Role?.toLowerCase(), // Backend trả về Data.Role
-    fullName: data?.Data?.FullName,
-    verified: data?.Data?.IsApproved,
+    role: data?.data?.role?.toLowerCase() || data?.data?.Role?.toLowerCase() || data?.Data?.Role?.toLowerCase(), // Backend trả về data.data.role (chữ thường)
+    fullName: data?.data?.fullName || data?.data?.FullName || data?.Data?.FullName,
+    verified: data?.data?.isApproved || data?.data?.IsApproved || data?.Data?.IsApproved,
   };
   
   console.log('createUserObject - Final user object:', userObject);
@@ -113,28 +113,31 @@ const authStore: AuthStoreCreator = (set, get) => ({
       const { data } = await Promise.race([loginPromise, timeoutPromise]) as any;
       
       console.log('Login response received:', data);
+      console.log('data.accessToken:', data?.accessToken);
+      console.log('data.data:', data?.data);
+      console.log('data.data.accessToken:', data?.data?.accessToken);
 
-      // Nhận accessToken từ backend (AccessToken với chữ A viết hoa)
-      const accessToken = data?.AccessToken || data?.accessToken || data?.token || data?.access_token;
+      // Nhận accessToken từ backend (accessToken nằm trực tiếp trong data)
+      const accessToken = data?.accessToken || data?.data?.accessToken || data?.data?.AccessToken || data?.AccessToken || data?.token || data?.access_token;
       if (!accessToken) {
         console.error('No access token in response:', data);
         throw new Error('Invalid login response - no access token');
       }
 
       setAuthToken(accessToken);
-      // localStorage.setItem('refreshToken', data.refreshToken); // Bỏ qua refreshToken
-
+      console.log('Token saved to localStorage:', localStorage.getItem('token'));
+      
       const userObject = createUserObject(data);
       console.log('Created user object:', userObject);
 
       set({
         user: userObject,
         token: accessToken,
-        // refreshToken: data.refreshToken, // Bỏ qua refreshToken
         isAuthenticated: true,
         isLoading: false,
       });
       
+      console.log('Zustand state after set:', get());
       console.log('Login successful, user authenticated');
     } catch (error: any) {
       console.error('Login failed:', error);
