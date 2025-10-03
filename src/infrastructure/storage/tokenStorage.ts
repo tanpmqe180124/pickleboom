@@ -60,7 +60,7 @@ export const createUserObject = (data: any): UserObject => {
   
   const userObject = {
     userId: userId,
-    role: data?.Data?.Role?.toLowerCase() || data?.data?.Role?.toLowerCase() || data?.data?.role?.toLowerCase(), // Backend trả về data.Data.Role (D hoa)
+    role: data?.Data?.Role?.toLowerCase() || data?.data?.Role?.toLowerCase() || data?.data?.role?.toLowerCase(), // Backend trả về data.Data.Role
     fullName: data?.Data?.FullName || data?.data?.FullName || data?.data?.fullName,
     verified: data?.Data?.IsApproved || data?.data?.IsApproved || data?.data?.isApproved,
   };
