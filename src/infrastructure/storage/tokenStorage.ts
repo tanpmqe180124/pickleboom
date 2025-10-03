@@ -65,6 +65,11 @@ export const createUserObject = (data: any): UserObject => {
     verified: data?.Data?.IsApproved || data?.data?.IsApproved || data?.data?.isApproved,
   };
   
+  // Lưu role vào localStorage để AuthContext có thể sử dụng
+  if (userObject.role) {
+    localStorage.setItem('userRole', userObject.role);
+  }
+  
   console.log('createUserObject - Final user object:', userObject);
   return userObject;
 };
@@ -77,6 +82,9 @@ export const setAuthToken = (token: string) => {
 export const clearAuthToken = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('refreshToken');
+  localStorage.removeItem('userID');
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('userRole');
   delete api.defaults.headers.common['Authorization'];
   // Xóa cookie refresh_token nếu có
   document.cookie = 'refresh_token=; Max-Age=0; path=/;';

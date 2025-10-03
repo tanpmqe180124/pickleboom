@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuthStore } from '@/infrastructure/storage/tokenStorage';
-import { adminService } from '@/services/adminService';
+import { useAuth } from '@/contexts/AuthContext';
 import { showToast } from '@/utils/toastManager';
 import { 
   Users, 
@@ -30,37 +29,20 @@ import BookingManagement from '@/components/admin/BookingManagement';
 type AdminTab = 'users' | 'courts' | 'timeslots' | 'blogs' | 'bookings';
 
 const AdminDashboard: React.FC = () => {
-  const { user, logout } = useAuthStore();
+  const { userRole, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>('users');
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
 
+  const isAdmin = userRole?.toLowerCase() === 'admin';
+  
   // ========== CHECK ADMIN ROLE ==========
   useEffect(() => {
-    const checkAdminRole = async () => {
-      try {
-        const hasAdminRole = await adminService.checkAdminRole();
-        setIsAdmin(hasAdminRole);
-        
-        if (!hasAdminRole) {
-          showToast.error('Không có quyền truy cập', 'Bạn không có quyền admin để truy cập trang này.');
-          setTimeout(() => {
-            window.location.href = '/dashboard';
-          }, 2000);
-        }
-      } catch (error) {
-        console.error('Error checking admin role:', error);
-        showToast.error('Lỗi xác thực', 'Không thể xác thực quyền admin.');
-        setTimeout(() => {
-          window.location.href = '/dashboard';
-        }, 2000);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAdminRole();
-  }, []);
+    if (!isAdmin) {
+      showToast.error('Không có quyền truy cập', 'Bạn không có quyền admin để truy cập trang này.');
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 2000);
+    }
+  }, [isAdmin]);
 
   // ========== HANDLE BACK ==========
   const handleBack = () => {
@@ -123,18 +105,6 @@ const AdminDashboard: React.FC = () => {
     }
   ];
 
-  // ========== RENDER LOADING ==========
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Đang kiểm tra quyền truy cập...</p>
-        </div>
-      </div>
-    );
-  }
-
   // ========== RENDER ACCESS DENIED ==========
   if (!isAdmin) {
     return (
@@ -182,7 +152,7 @@ const AdminDashboard: React.FC = () => {
             <div className="flex items-center space-x-4">
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">
-                  {user?.fullName || 'Admin'}
+                  Admin
                 </p>
                 <p className="text-xs text-gray-500">Quản trị viên</p>
               </div>

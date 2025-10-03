@@ -1,33 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { adminService } from '@/services/adminService';
+import { useAuth } from '@/contexts/AuthContext';
 import { Settings, Shield } from 'lucide-react';
 
 const AdminLink: React.FC = () => {
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
+  const { userRole } = useAuth();
 
-  useEffect(() => {
-    const checkAdminRole = async () => {
-      try {
-        const hasAdminRole = await adminService.checkAdminRole();
-        setIsAdmin(hasAdminRole);
-      } catch (error) {
-        console.error('Error checking admin role:', error);
-        setIsAdmin(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAdminRole();
-  }, []);
-
-  if (loading) {
-    return null;
-  }
-
-  if (!isAdmin) {
+  if (!userRole || userRole.toLowerCase() !== 'admin') {
     return null;
   }
 
