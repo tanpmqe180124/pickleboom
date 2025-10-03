@@ -60,9 +60,9 @@ export const createUserObject = (data: any): UserObject => {
   
   const userObject = {
     userId: userId,
-    role: data?.data?.role?.toLowerCase() || data?.data?.Role?.toLowerCase() || data?.Data?.Role?.toLowerCase(), // Backend trả về data.data.role
-    fullName: data?.data?.fullName || data?.data?.FullName || data?.Data?.FullName,
-    verified: data?.data?.isApproved || data?.data?.IsApproved || data?.Data?.IsApproved,
+    role: data?.Data?.Role?.toLowerCase() || data?.data?.Role?.toLowerCase() || data?.data?.role?.toLowerCase(), // Backend trả về data.Data.Role
+    fullName: data?.Data?.FullName || data?.data?.FullName || data?.data?.fullName,
+    verified: data?.Data?.IsApproved || data?.data?.IsApproved || data?.data?.isApproved,
   };
   
   console.log('createUserObject - Final user object:', userObject);
@@ -114,10 +114,11 @@ const authStore: AuthStoreCreator = (set, get) => ({
       
       console.log('Login response received:', data);
       console.log('data.accessToken:', data?.accessToken);
+      console.log('data.Data:', data?.Data);
+      console.log('data.Data.Role:', data?.Data?.Role);
       console.log('data.data:', data?.data);
       console.log('data.data.role:', data?.data?.role);
       console.log('data.data.Role:', data?.data?.Role);
-      console.log('data.data.accessToken:', data?.data?.accessToken);
 
       // Nhận accessToken từ backend (accessToken nằm trực tiếp trong data)
       const accessToken = data?.accessToken || data?.data?.accessToken || data?.data?.AccessToken || data?.AccessToken || data?.token || data?.access_token;

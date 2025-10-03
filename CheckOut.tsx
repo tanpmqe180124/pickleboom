@@ -47,19 +47,19 @@ export default function CheckOut() {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         const userId = payload.nameid || payload.sub;
-        // console.log('Extracted userId from token:', userId);
-        // console.log('Token payload:', payload);
+        console.log('Extracted userId from token:', userId);
+        console.log('Token payload:', payload);
         
         if (userId) {
           const userData = {
             userId: userId,
             role: payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']?.toLowerCase(),
-            fullName: payload.unique_name,
+            fullName: payload.unique_name || payload.name,
             verified: true
           };
           
+          console.log('Authentication state restored with userData:', userData);
           useAuthStore.getState().setUser(userData);
-          // console.log('Authentication state restored with userData:', userData);
         }
       } catch (error) {
         console.error('Error restoring authentication state:', error);
