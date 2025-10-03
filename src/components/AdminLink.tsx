@@ -6,7 +6,8 @@ import { Settings, Shield } from 'lucide-react';
 const AdminLink: React.FC = () => {
   const { userRole } = useAuth();
   
-  console.log('AdminLink - userRole:', userRole);
+  console.log('AdminLink - userRole from useAuth:', userRole);
+  console.log('AdminLink - localStorage userRole:', localStorage.getItem('userRole'));
 
   if (!userRole || userRole.toLowerCase() !== 'admin') {
     console.log('AdminLink - Not admin, hiding panel');

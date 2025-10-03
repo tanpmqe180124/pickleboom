@@ -11,13 +11,12 @@ import { Link } from 'react-router-dom';
 import { Banner } from './BannerHealth';
 import { BlogCard } from './Blog';
 import { Button } from './ui/button';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthStore } from '@/infrastructure/storage/tokenStorage';
 import { useState } from 'react';
 import AdminLink from './AdminLink';
 
 const Header = () => {
-  const { userID, accessToken, logout } = useAuth();
-  const isAuthenticated = !!accessToken;
+  const { user, isAuthenticated, logout } = useAuthStore();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const handleLogout = async () => {
@@ -106,7 +105,7 @@ const Header = () => {
                       color="#000000"
                     />
                     <span className="underline-offset-4 transition-all group-hover:text-white group-hover:underline">
-                      Tài khoản
+                      {user?.fullName || 'Tài khoản'}
                     </span>
                   </Button>
                   

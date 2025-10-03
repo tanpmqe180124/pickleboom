@@ -61,6 +61,8 @@ export const createUserObject = (data: any): UserObject => {
   console.log('createUserObject - Raw data:', data);
   console.log('createUserObject - data.data:', data?.data);
   console.log('createUserObject - data.data.role:', data?.data?.role);
+  console.log('createUserObject - data.Data:', data?.Data);
+  console.log('createUserObject - data.Data.Role:', data?.Data?.Role);
   
   const userObject = {
     userId: userId,
