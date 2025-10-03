@@ -40,27 +40,31 @@ export const createUserObject = (data: any): UserObject => {
   
   let role = null;
   
-  if (!userId && token) {
+  if (token) {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       console.log('JWT payload:', payload);
       console.log('JWT payload keys:', Object.keys(payload));
       
-      // Thử các key có thể có cho userId
-      userId = payload.nameid || 
-               payload[`${payload.iss}/nameidentifier`] ||
-               payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ||
-               payload.sub ||
-               payload.userId ||
-               payload.id ||
-               payload.user_id;
-      console.log('Extracted userId from token:', userId, 'Payload keys:', Object.keys(payload));
+      // Thử các key có thể có cho userId (chỉ nếu chưa có userId)
+      if (!userId) {
+        userId = payload.nameid || 
+                 payload[`${payload.iss}/nameidentifier`] ||
+                 payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ||
+                 payload.sub ||
+                 payload.userId ||
+                 payload.id ||
+                 payload.user_id;
+        console.log('Extracted userId from token:', userId, 'Payload keys:', Object.keys(payload));
+      }
       
       // Lấy role từ JWT token
       role = payload.role || 
              payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
              payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role'];
       console.log('Extracted role from token:', role);
+      console.log('JWT payload role key:', payload.role);
+      console.log('JWT payload claims role key:', payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']);
     } catch (error) {
       console.error('Error extracting userId and role from token:', error);
     }
@@ -156,7 +160,8 @@ const authStore: AuthStoreCreator = (set, get) => ({
       setAuthToken(accessToken);
       console.log('Token saved to localStorage:', localStorage.getItem('token'));
       
-      const userObject = createUserObject(data);
+      // Truyền cả data và accessToken vào createUserObject
+      const userObject = createUserObject({...data, accessToken});
       console.log('Created user object:', userObject);
 
       set({
