@@ -58,9 +58,13 @@ export const createUserObject = (data: any): UserObject => {
     }
   }
   
+  console.log('createUserObject - Raw data:', data);
+  console.log('createUserObject - data.data:', data?.data);
+  console.log('createUserObject - data.data.role:', data?.data?.role);
+  
   const userObject = {
     userId: userId,
-    role: data?.Data?.Role?.toLowerCase() || data?.data?.Role?.toLowerCase() || data?.data?.role?.toLowerCase(), // Backend trả về data.Data.Role
+    role: data?.data?.role?.toLowerCase() || data?.Data?.Role?.toLowerCase() || data?.data?.Role?.toLowerCase(), // Backend trả về data.data.role
     fullName: data?.Data?.FullName || data?.data?.FullName || data?.data?.fullName,
     verified: data?.Data?.IsApproved || data?.data?.IsApproved || data?.data?.isApproved,
   };
@@ -68,6 +72,9 @@ export const createUserObject = (data: any): UserObject => {
   // Lưu role vào localStorage để AuthContext có thể sử dụng
   if (userObject.role) {
     localStorage.setItem('userRole', userObject.role);
+    console.log('createUserObject - Saved role to localStorage:', userObject.role);
+  } else {
+    console.log('createUserObject - No role found in data');
   }
   
   console.log('createUserObject - Final user object:', userObject);

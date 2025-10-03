@@ -15,7 +15,7 @@ import {
   MapPin
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/infrastructure/storage/tokenStorage';
+import { useAuth } from '@/contexts/AuthContext';
 import { useBookingStore } from '@/stores/useBookingStore';
 import { useEffect, useState } from 'react';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
@@ -24,7 +24,7 @@ import AdminLink from '@/components/AdminLink';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { logout, user, setUser } = useAuthStore();
+  const { logout, userID } = useAuth();
   const resetBooking = useBookingStore((state) => state.resetBooking);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [userInfo, setUserInfo] = useState<any>(null);
@@ -47,22 +47,19 @@ const Dashboard = () => {
   // Load user info when component mounts
   useEffect(() => {
     const loadUserInfo = async () => {
-      if (user?.userId && !user?.fullName) {
+      if (userID && !userInfo?.fullName) {
         try {
-          console.log('Loading user info for userId:', user.userId);
-          const userData = await userService.getUserById(user.userId);
+          console.log('Loading user info for userId:', userID);
+          const userData = await userService.getUserById(userID);
           console.log('User data loaded:', userData);
           setUserInfo(userData);
           
-          // Update user in store with full info
-          const updatedUser = {
-            ...user,
+          // Update user info state
+          setUserInfo({
             fullName: userData.FullName || userData.fullName,
             avatar: userData.Avatar || userData.avatar,
             role: userData.Status === 1 ? 'user' : 'admin'
-          };
-          console.log('Updating user with:', updatedUser);
-          setUser(updatedUser);
+          });
         } catch (error) {
           console.error('Error loading user info:', error);
         }
@@ -70,7 +67,7 @@ const Dashboard = () => {
     };
 
     loadUserInfo();
-  }, [user?.userId, user?.fullName, setUser]);
+  }, [userID, userInfo?.fullName]);
 
   const handleLogout = async () => {
     resetBooking();
@@ -176,7 +173,7 @@ const Dashboard = () => {
               <AdminLink />
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">
-                  {user?.fullName || userInfo?.fullName || 'Người dùng'}
+                  {userInfo?.fullName || 'Người dùng'}
                 </p>
               </div>
               <div 
@@ -184,15 +181,15 @@ const Dashboard = () => {
                 onClick={() => navigate('/profile')}
                 title="Xem hồ sơ cá nhân"
               >
-                {user?.avatar || userInfo?.avatar ? (
+                {userInfo?.avatar ? (
                   <img
-                    src={user?.avatar || userInfo?.avatar}
-                    alt={user?.fullName || userInfo?.fullName || 'User'}
+                    src={userInfo.avatar}
+                    alt={userInfo.fullName || 'User'}
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
-                    {(user?.fullName || userInfo?.fullName || 'U').charAt(0).toUpperCase()}
+                    {(userInfo?.fullName || 'U').charAt(0).toUpperCase()}
                   </div>
                 )}
               </div>
@@ -216,7 +213,7 @@ const Dashboard = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-sport mb-2 animate-fade-in">
-                    Chào mừng trở lại, {user?.fullName || userInfo?.fullName || 'Người chơi'}! 
+                    Chào mừng trở lại, {userInfo?.fullName || 'Người chơi'}! 
             </h2>
                   <p className="text-blue-100 mb-4 animate-fade-in">
                     Sẵn sàng cho một trận đấu pickleball tuyệt vời?
