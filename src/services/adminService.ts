@@ -1,5 +1,4 @@
 import { api } from '@/infrastructure/api/axiosClient';
-import { useAuthStore } from '@/infrastructure/storage/tokenStorage';
 
 // ========== TYPES ==========
 export interface AdminUser {
@@ -379,18 +378,7 @@ export const adminService = {
       console.log('Role from JWT:', role);
       console.log('Available claims:', Object.keys(payload));
       
-      // Kiểm tra cả role từ JWT và từ user store
-      const isJwtAdmin = role?.toLowerCase() === 'admin';
-      
-      // Fallback: kiểm tra từ user store nếu có
-      const userStore = useAuthStore.getState();
-      const isStoreAdmin = userStore.user?.role?.toLowerCase() === 'admin';
-      
-      console.log('JWT admin check:', isJwtAdmin);
-      console.log('Store admin check:', isStoreAdmin);
-      console.log('User from store:', userStore.user);
-      
-      return isJwtAdmin || isStoreAdmin;
+      return role?.toLowerCase() === 'admin';
     } catch (error) {
       console.error('Error checking admin role:', error);
       return false;
