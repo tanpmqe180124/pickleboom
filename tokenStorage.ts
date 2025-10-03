@@ -60,9 +60,9 @@ export const createUserObject = (data: any): UserObject => {
   
   const userObject = {
     userId: userId,
-    role: data?.data?.role?.toLowerCase() || data?.data?.Role?.toLowerCase() || data?.Data?.Role?.toLowerCase(), // Backend trả về data.data.role (chữ thường)
-    fullName: data?.data?.fullName || data?.data?.FullName || data?.Data?.FullName,
-    verified: data?.data?.isApproved || data?.data?.IsApproved || data?.Data?.IsApproved,
+    role: data?.Data?.Role?.toLowerCase() || data?.data?.Role?.toLowerCase() || data?.data?.role?.toLowerCase(), // Backend trả về data.Data.Role
+    fullName: data?.Data?.FullName || data?.data?.FullName || data?.data?.fullName,
+    verified: data?.Data?.IsApproved || data?.data?.IsApproved || data?.data?.isApproved,
   };
   
   console.log('createUserObject - Final user object:', userObject);
