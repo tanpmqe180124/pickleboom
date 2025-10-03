@@ -4,18 +4,18 @@ import { api } from '@/infrastructure/api/axiosClient';
 export interface AdminUser {
   ID: string;
   FullName: string;
-  UserName: string;
   Email: string;
   PhoneNumber: string;
   Avatar: string;
-  Status: number; // 0: Active, 1: Inactive
+  BussinessName: string;
+  IsApproved: boolean;
+  Role: string;
 }
 
 export interface AdminUserParams {
   Page: number;
   PageSize: number;
   FullName?: string;
-  Status?: number;
   PhoneNumber?: string;
   Email?: string;
 }
@@ -114,7 +114,10 @@ export const adminService = {
   // ========== USER MANAGEMENT ==========
   async getUsers(params: AdminUserParams): Promise<PaginatedResponse<AdminUser>> {
     try {
-      const response = await api.get<ApiResponse<PaginatedResponse<AdminUser>>>('/User', { params });
+      console.log('adminService.getUsers - Calling /Admin/user with params:', params);
+      const response = await api.get<ApiResponse<PaginatedResponse<AdminUser>>>('/Admin/user', { params });
+      console.log('adminService.getUsers - API response:', response);
+      console.log('adminService.getUsers - Response data:', response.data);
       return (response.data as any).data;
     } catch (error) {
       console.error('Error fetching users:', error);
