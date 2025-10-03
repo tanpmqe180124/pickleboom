@@ -88,6 +88,11 @@ export const createUserObject = (data: any): UserObject => {
   if (userObject.role) {
     localStorage.setItem('userRole', userObject.role);
     console.log('createUserObject - Saved role to localStorage:', userObject.role);
+    
+    // Dispatch custom event để thông báo cho AuthContext
+    window.dispatchEvent(new CustomEvent('userRoleUpdated', { 
+      detail: { userRole: userObject.role } 
+    }));
   } else {
     console.log('createUserObject - No role found in data');
   }

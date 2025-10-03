@@ -15,7 +15,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [accessToken, setAccessTokenState] = useState<string | null>(() => localStorage.getItem('accessToken'));
   const [userID, setUserIDState] = useState<string | null>(() => localStorage.getItem('userID'));
-  const [userRole, setUserRoleState] = useState<string | null>(() => localStorage.getItem('userRole'));
+  const [userRole, setUserRoleState] = useState<string | null>(() => {
+    const role = localStorage.getItem('userRole');
+    console.log('AuthContext - Initial userRole from localStorage:', role);
+    return role;
+  });
 
   const setAccessToken = (token: string | null) => {
     setAccessTokenState(token);
@@ -56,8 +60,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUserIDState(localStorage.getItem('userID'));
       setUserRoleState(localStorage.getItem('userRole'));
     };
+    
+    const handleUserRoleUpdate = (event: CustomEvent) => {
+      console.log('AuthContext - Received userRoleUpdated event:', event.detail);
+      console.log('AuthContext - Setting userRole to:', event.detail.userRole);
+      setUserRoleState(event.detail.userRole);
+    };
+    
     window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
+    window.addEventListener('userRoleUpdated', handleUserRoleUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('userRoleUpdated', handleUserRoleUpdate as EventListener);
+    };
   }, []);
 
   return (

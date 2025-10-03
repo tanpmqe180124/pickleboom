@@ -11,12 +11,13 @@ import { Link } from 'react-router-dom';
 import { Banner } from './BannerHealth';
 import { BlogCard } from './Blog';
 import { Button } from './ui/button';
-import { useAuthStore } from '@/infrastructure/storage/tokenStorage';
+import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
 import AdminLink from './AdminLink';
 
 const Header = () => {
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { userID, accessToken, logout } = useAuth();
+  const isAuthenticated = !!accessToken;
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const handleLogout = async () => {

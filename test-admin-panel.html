@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Admin Panel</title>
+</head>
+<body>
+    <h1>Test Admin Panel</h1>
+    <div id="status">Testing...</div>
+    <button onclick="testRoleUpdate()">Test Role Update</button>
+    <button onclick="checkLocalStorage()">Check localStorage</button>
+    
+    <script>
+        // Simulate the custom event
+        function testRoleUpdate() {
+            console.log('Dispatching userRoleUpdated event...');
+            window.dispatchEvent(new CustomEvent('userRoleUpdated', { 
+                detail: { userRole: 'admin' } 
+            }));
+            document.getElementById('status').textContent = 'Event dispatched!';
+        }
+        
+        function checkLocalStorage() {
+            const role = localStorage.getItem('userRole');
+            document.getElementById('status').textContent = 'localStorage userRole: ' + role;
+        }
+        
+        // Listen for the event
+        window.addEventListener('userRoleUpdated', (event) => {
+            console.log('Received userRoleUpdated event:', event.detail);
+            document.getElementById('status').textContent = 'Event received: ' + event.detail.userRole;
+        });
+        
+        // Check initial localStorage
+        checkLocalStorage();
+    </script>
+</body>
+</html>
