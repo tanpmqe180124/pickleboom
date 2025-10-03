@@ -13,7 +13,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [accessToken, setAccessTokenState] = useState<string | null>(() => localStorage.getItem('accessToken'));
+  const [accessToken, setAccessTokenState] = useState<string | null>(() => {
+    const token = localStorage.getItem('token');
+    console.log('AuthContext - Initial accessToken from localStorage:', token);
+    return token;
+  });
   const [userID, setUserIDState] = useState<string | null>(() => localStorage.getItem('userID'));
   const [userRole, setUserRoleState] = useState<string | null>(() => {
     const role = localStorage.getItem('userRole');
@@ -24,9 +28,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const setAccessToken = (token: string | null) => {
     setAccessTokenState(token);
     if (token) {
-      localStorage.setItem('accessToken', token);
+      localStorage.setItem('token', token);
     } else {
-      localStorage.removeItem('accessToken');
+      localStorage.removeItem('token');
     }
   };
 
@@ -52,11 +56,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAccessToken(null);
     setUserID(null);
     setUserRole(null);
+    // Xóa tất cả auth data khỏi localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('userID');
+    localStorage.removeItem('userRole');
   };
 
   useEffect(() => {
     const handleStorage = () => {
-      setAccessTokenState(localStorage.getItem('accessToken'));
+      setAccessTokenState(localStorage.getItem('token'));
       setUserIDState(localStorage.getItem('userID'));
       setUserRoleState(localStorage.getItem('userRole'));
     };

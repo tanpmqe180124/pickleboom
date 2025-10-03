@@ -165,6 +165,9 @@ const authStore: AuthStoreCreator = (set, get) => ({
       setAuthToken(accessToken);
       console.log('Token saved to localStorage:', localStorage.getItem('token'));
       
+      // Dispatch event để cập nhật AuthContext
+      window.dispatchEvent(new CustomEvent('storage'));
+      
       // Truyền cả data và accessToken vào createUserObject
       const userObject = createUserObject({...data, accessToken});
       console.log('Created user object:', userObject);
