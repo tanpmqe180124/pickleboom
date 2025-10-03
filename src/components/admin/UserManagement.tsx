@@ -31,6 +31,7 @@ const UserManagement: React.FC = () => {
       let params: AdminUserParams = {
         Page: currentPage,
         PageSize: pageSize,
+        Status: statusFilter !== null ? statusFilter : undefined,
       };
 
       if (searchTerm) {
