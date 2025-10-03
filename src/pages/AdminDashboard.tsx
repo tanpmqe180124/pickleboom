@@ -32,7 +32,12 @@ const AdminDashboard: React.FC = () => {
   const { userRole, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>('users');
 
-  const isAdmin = userRole?.toLowerCase() === 'admin';
+  const isAdmin = userRole === 'admin' || userRole?.toLowerCase() === 'admin';
+  
+  console.log('AdminDashboard - userRole:', userRole);
+  console.log('AdminDashboard - userRole type:', typeof userRole);
+  console.log('AdminDashboard - userRole.toLowerCase():', userRole?.toLowerCase());
+  console.log('AdminDashboard - isAdmin:', isAdmin);
   
   // ========== CHECK ADMIN ROLE ==========
   useEffect(() => {

@@ -9,16 +9,21 @@ const AdminLink: React.FC = () => {
   console.log('AdminLink - userRole from useAuth:', userRole);
   console.log('AdminLink - localStorage userRole:', localStorage.getItem('userRole'));
 
-  if (!userRole || userRole.toLowerCase() !== 'admin') {
+  if (!userRole || (userRole !== 'admin' && userRole.toLowerCase() !== 'admin')) {
     console.log('AdminLink - Not admin, hiding panel');
     return null;
   }
   
   console.log('AdminLink - Showing admin panel');
 
+  const handleClick = () => {
+    console.log('AdminLink - Clicked, navigating to /admin');
+  };
+
   return (
     <Link
       to="/admin"
+      onClick={handleClick}
       className="group flex items-center space-x-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2 text-white shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl"
     >
       <div className="flex items-center space-x-2">

@@ -6,7 +6,7 @@ import { showToast } from '@/utils/toastManager';
 const AdminRoute: React.FC = () => {
   const { userRole, accessToken } = useAuth();
 
-  const isAdmin = userRole?.toLowerCase() === 'admin';
+  const isAdmin = userRole === 'admin' || userRole?.toLowerCase() === 'admin';
   
   if (!accessToken) {
     return <Navigate to="/login" replace />;
