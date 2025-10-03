@@ -38,6 +38,8 @@ export const createUserObject = (data: any): UserObject => {
   let userId = data?.userId;
   const token = data?.AccessToken || data?.accessToken;
   
+  let role = null;
+  
   if (!userId && token) {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
@@ -53,8 +55,14 @@ export const createUserObject = (data: any): UserObject => {
                payload.id ||
                payload.user_id;
       console.log('Extracted userId from token:', userId, 'Payload keys:', Object.keys(payload));
+      
+      // Lấy role từ JWT token
+      role = payload.role || 
+             payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
+             payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role'];
+      console.log('Extracted role from token:', role);
     } catch (error) {
-      console.error('Error extracting userId from token:', error);
+      console.error('Error extracting userId and role from token:', error);
     }
   }
   
@@ -63,10 +71,11 @@ export const createUserObject = (data: any): UserObject => {
   console.log('createUserObject - data.data.role:', data?.data?.role);
   console.log('createUserObject - data.Data:', data?.Data);
   console.log('createUserObject - data.Data.Role:', data?.Data?.Role);
+  console.log('createUserObject - role from JWT:', role);
   
   const userObject = {
     userId: userId,
-    role: data?.data?.role?.toLowerCase() || data?.Data?.Role?.toLowerCase() || data?.data?.Role?.toLowerCase(), // Backend trả về data.data.role
+    role: role?.toLowerCase() || data?.data?.role?.toLowerCase() || data?.Data?.Role?.toLowerCase() || data?.data?.Role?.toLowerCase(), // Ưu tiên role từ JWT token
     fullName: data?.Data?.FullName || data?.data?.FullName || data?.data?.fullName,
     verified: data?.Data?.IsApproved || data?.data?.IsApproved || data?.data?.isApproved,
   };
