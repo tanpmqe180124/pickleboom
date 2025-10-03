@@ -1,0 +1,162 @@
+.branch-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.booking-card {
+  background: white;
+  padding: 2rem 3rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  text-align: center;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.service-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f1f1f1;
+  padding: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.service-item:hover {
+  background: #e0e0e0;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  background: #8247e5;
+  border-radius: 50%;
+  margin-right: 1rem;
+}
+
+.service-name {
+  flex-grow: 1;
+  font-weight: 500;
+  color: #1a1a1a;
+  text-align: left;
+}
+
+.arrow {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.service-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f9fafb;
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.25s ease-in-out;
+  border: 1px solid transparent;
+}
+
+.service-item:hover {
+  background: #eef1f6;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+  border: 1px solid #ddd;
+}
+
+.dot {
+  width: 14px;
+  height: 14px;
+  background: #1d4ed8;
+  box-shadow: 0 0 4px rgba(130, 71, 229, 0.6);
+  border-radius: 50%;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.arrow {
+  font-size: 1.5rem;
+  color: #888;
+  transition: transform 0.2s ease;
+}
+
+.service-item:hover .arrow {
+  transform: translateX(4px);
+  color: #555;
+}
+
+.booking-card {
+  background: white;
+  padding: 2.5rem 3rem;
+  border-radius: 14px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
+  max-width: 500px;
+  text-align: center;
+  transition: box-shadow 0.3s ease;
+}
+.dot {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .booking-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .service-name {
+    font-size: 0.95rem;
+  }
+
+  .arrow {
+    font-size: 1.25rem;
+  }
+}
+
+.booking-card {
+  background: #ffffff;
+  padding: 2.5rem 3rem;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb; /* xám nhẹ */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04); /* bóng dịu */
+  max-width: 500px;
+  text-align: center;
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+.booking-card:hover {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+  border-color: #d1d5db; /* border rõ hơn khi hover */
+}
