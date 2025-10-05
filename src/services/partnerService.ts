@@ -102,17 +102,31 @@ export interface BookingParams {
 // ========== HELPER FUNCTIONS ==========
 const getPartnerId = (): string => {
   try {
+    console.log('=== DEBUGGING PARTNER ID ===');
+    
+    // Debug: Show all localStorage keys
+    console.log('All localStorage keys:', Object.keys(localStorage));
+    console.log('All localStorage values:', {
+      userID: localStorage.getItem('userID'),
+      userRole: localStorage.getItem('userRole'),
+      token: localStorage.getItem('token') ? 'EXISTS' : 'NOT FOUND'
+    });
+    
     // First try to get from localStorage (AuthContext stores it there)
     const userID = localStorage.getItem('userID');
+    console.log('userID from localStorage:', userID);
+    
     if (userID && userID !== '00000000-0000-0000-0000-000000000000') {
-      console.log('Using userID from localStorage:', userID);
+      console.log('✅ Using userID from localStorage:', userID);
       return userID;
     }
 
     // Fallback: try to extract from JWT token
     const token = localStorage.getItem('token');
+    console.log('token from localStorage:', token ? 'EXISTS' : 'NOT FOUND');
+    
     if (!token) {
-      console.error('No token found in localStorage');
+      console.error('❌ No token found in localStorage');
       return '';
     }
     
@@ -129,13 +143,14 @@ const getPartnerId = (): string => {
     console.log('Extracted PartnerId from JWT:', partnerId);
     
     if (!partnerId || partnerId === '00000000-0000-0000-0000-000000000000') {
-      console.error('Invalid PartnerId:', partnerId);
+      console.error('❌ Invalid PartnerId:', partnerId);
       return '';
     }
     
+    console.log('✅ Using PartnerId from JWT:', partnerId);
     return partnerId;
   } catch (error) {
-    console.error('Error getting PartnerId:', error);
+    console.error('❌ Error getting PartnerId:', error);
     return '';
   }
 };
@@ -316,8 +331,22 @@ export const partnerService = {
 
   async createTimeSlot(timeSlotData: Omit<PartnerTimeSlotRequest, 'PartnerId'>): Promise<string> {
     try {
-      const partnerId = getPartnerId();
+      let partnerId = getPartnerId();
+      
+      // If still empty, try to get from AuthContext directly
       if (!partnerId) {
+        console.log('Trying to get PartnerId from AuthContext...');
+        try {
+          // Try to access AuthContext directly
+          const authData = JSON.parse(localStorage.getItem('authData') || '{}');
+          partnerId = authData.userID || authData.id;
+          console.log('PartnerId from authData:', partnerId);
+        } catch (e) {
+          console.error('Error getting from authData:', e);
+        }
+      }
+      
+      if (!partnerId || partnerId === '00000000-0000-0000-0000-000000000000') {
         throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
       }
 
