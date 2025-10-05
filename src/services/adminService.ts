@@ -114,7 +114,7 @@ export const adminService = {
   // ========== USER MANAGEMENT ==========
   async getUsers(params: AdminUserParams): Promise<PaginatedResponse<AdminUser>> {
     try {
-      const response = await api.get<ApiResponse<PaginatedResponse<AdminUser>>>('/Admin/user', { params });
+      const response = await api.get<ApiResponse<PaginatedResponse<AdminUser>>>('/User', { params });
       return (response.data as any).data;
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -242,7 +242,7 @@ export const adminService = {
   // ========== TIMESLOT MANAGEMENT ==========
   async getTimeSlots(): Promise<AdminTimeSlot[]> {
     try {
-      const response = await api.get<ApiResponse<AdminTimeSlot[]>>('/TimeSlot');
+      const response = await api.get<ApiResponse<AdminTimeSlot[]>>('/Admin/timeslot');
       console.log('getTimeSlots raw response:', response);
       console.log('response.data:', response.data);
       
@@ -265,7 +265,7 @@ export const adminService = {
 
   async createTimeSlot(timeSlotData: AdminTimeSlotRequest): Promise<string> {
     try {
-      const response = await api.post<ApiResponse<string>>('/TimeSlot', timeSlotData);
+      const response = await api.post<ApiResponse<string>>('/Admin/timeslot', timeSlotData);
       return response.data.Message;
     } catch (error) {
       console.error('Error creating time slot:', error);
@@ -286,7 +286,7 @@ export const adminService = {
 
   async deleteTimeSlot(timeSlotId: string): Promise<string> {
     try {
-      const response = await api.delete<ApiResponse<string>>(`/TimeSlot?id=${timeSlotId}`);
+      const response = await api.delete<ApiResponse<string>>(`/Admin/timeslot/${timeSlotId}`);
       return response.data.Message;
     } catch (error) {
       console.error('Error deleting time slot:', error);
@@ -307,7 +307,7 @@ export const adminService = {
         formData.append('ThumbnailUrl', blogData.ThumbnailUrl);
       }
 
-      const response = await api.post<ApiResponse<string>>('/Blog', formData, {
+      const response = await api.post<ApiResponse<string>>('/Admin/blog', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -331,7 +331,7 @@ export const adminService = {
         formData.append('ThumbnailUrl', blogData.ThumbnailUrl);
       }
 
-      const response = await api.put<ApiResponse<string>>(`/Blog/${blogId}`, formData, {
+      const response = await api.put<ApiResponse<string>>(`/Admin/blog/${blogId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -345,7 +345,7 @@ export const adminService = {
 
   async deleteBlog(blogId: string): Promise<string> {
     try {
-      const response = await api.patch<ApiResponse<string>>(`/Blog/${blogId}`);
+      const response = await api.patch<ApiResponse<string>>(`/Admin/blog/${blogId}`);
       return response.data.Message;
     } catch (error) {
       console.error('Error deleting blog:', error);
@@ -356,7 +356,7 @@ export const adminService = {
   // ========== BOOKING MANAGEMENT ==========
   async getBookings(params: AdminBookingParams): Promise<PaginatedResponse<AdminBooking>> {
     try {
-      const response = await api.get<ApiResponse<PaginatedResponse<AdminBooking>>>('/api/Booking', { params });
+      const response = await api.get<ApiResponse<PaginatedResponse<AdminBooking>>>('/Admin/booking', { params });
       return response.data.Data;
     } catch (error) {
       console.error('Error fetching bookings:', error);
