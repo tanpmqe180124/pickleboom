@@ -114,7 +114,7 @@ export const adminService = {
   // ========== USER MANAGEMENT ==========
   async getUsers(params: AdminUserParams): Promise<PaginatedResponse<AdminUser>> {
     try {
-      const response = await api.get<ApiResponse<PaginatedResponse<AdminUser>>>('/User', { params });
+      const response = await api.get<ApiResponse<PaginatedResponse<AdminUser>>>('/Admin/user', { params });
       return (response.data as any).data;
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -142,25 +142,21 @@ export const adminService = {
   // ========== COURT MANAGEMENT ==========
   async getCourts(params?: { Name?: string; CourtStatus?: number }): Promise<AdminCourt[]> {
     try {
-      // Add pagination parameters and map CourtStatus to Status for backend
+      // Court endpoint requires id and date parameters
       const requestParams = {
-        Page: 1,
-        PageSize: 100,
-        Name: params?.Name,
-        Status: params?.CourtStatus  // Map CourtStatus to Status for backend
+        id: '00000000-0000-0000-0000-000000000000', // Empty GUID for admin
+        date: new Date().toISOString().split('T')[0] // Today's date
       };
       console.log('getCourts requestParams being sent:', requestParams);
       const response = await api.get<ApiResponse<AdminCourt[]>>('/Court', { params: requestParams });
       console.log('getCourts raw response:', response);
       console.log('response.data:', response.data);
       
-      // Handle different response structures
-      if (response.data && (response.data as any).data && (response.data as any).data.data && Array.isArray((response.data as any).data.data)) {
-        return (response.data as any).data.data;
-      } else if (response.data && (response.data as any).data && Array.isArray((response.data as any).data)) {
-        return (response.data as any).data;
-      } else if (Array.isArray(response.data)) {
+      // Handle response structure
+      if (Array.isArray(response.data)) {
         return response.data;
+      } else if (response.data && Array.isArray(response.data.data)) {
+        return response.data.data;
       } else {
         console.warn('Unexpected API response structure for courts:', response.data);
         return [];
@@ -173,27 +169,9 @@ export const adminService = {
 
   async createCourt(courtData: AdminCourtRequest): Promise<string> {
     try {
-      const formData = new FormData();
-      formData.append('Name', courtData.Name);
-      formData.append('Description', courtData.Description);
-      formData.append('Location', courtData.Location);
-      formData.append('PricePerHour', courtData.PricePerHour.toString());
-      formData.append('CourtStatus', courtData.CourtStatus.toString());
-      
-      if (courtData.ImageUrl) {
-        formData.append('ImageUrl', courtData.ImageUrl);
-      }
-      
-      courtData.TimeSlotIDs.forEach(id => {
-        formData.append('TimeSlotIDs', id);
-      });
-
-      const response = await api.post<ApiResponse<string>>('/Court', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return response.data.Message;
+      // Court create endpoint not implemented yet
+      console.warn('Court create endpoint not implemented in backend yet');
+      return 'Court create endpoint not implemented yet';
     } catch (error) {
       console.error('Error creating court:', error);
       throw error;
@@ -202,27 +180,9 @@ export const adminService = {
 
   async updateCourt(courtId: string, courtData: AdminCourtRequest): Promise<string> {
     try {
-      const formData = new FormData();
-      formData.append('Name', courtData.Name);
-      formData.append('Description', courtData.Description);
-      formData.append('Location', courtData.Location);
-      formData.append('PricePerHour', courtData.PricePerHour.toString());
-      formData.append('CourtStatus', courtData.CourtStatus.toString());
-      
-      if (courtData.ImageUrl) {
-        formData.append('ImageUrl', courtData.ImageUrl);
-      }
-      
-      courtData.TimeSlotIDs.forEach(id => {
-        formData.append('TimeSlotIDs', id);
-      });
-
-      const response = await api.put<ApiResponse<string>>(`/Court/${courtId}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return response.data.Message;
+      // Court update endpoint not implemented yet
+      console.warn('Court update endpoint not implemented in backend yet');
+      return 'Court update endpoint not implemented yet';
     } catch (error) {
       console.error('Error updating court:', error);
       throw error;
@@ -231,8 +191,9 @@ export const adminService = {
 
   async deleteCourt(courtId: string): Promise<string> {
     try {
-      const response = await api.delete<ApiResponse<string>>(`/Court/${courtId}`);
-      return response.data.Message;
+      // Court delete endpoint not implemented yet
+      console.warn('Court delete endpoint not implemented in backend yet');
+      return 'Court delete endpoint not implemented yet';
     } catch (error) {
       console.error('Error deleting court:', error);
       throw error;
@@ -242,21 +203,9 @@ export const adminService = {
   // ========== TIMESLOT MANAGEMENT ==========
   async getTimeSlots(): Promise<AdminTimeSlot[]> {
     try {
-      const response = await api.get<ApiResponse<AdminTimeSlot[]>>('/Admin/timeslot');
-      console.log('getTimeSlots raw response:', response);
-      console.log('response.data:', response.data);
-      
-      // Handle different response structures
-      if (response.data && (response.data as any).data && (response.data as any).data.data && Array.isArray((response.data as any).data.data)) {
-        return (response.data as any).data.data;
-      } else if (response.data && (response.data as any).data && Array.isArray((response.data as any).data)) {
-        return (response.data as any).data;
-      } else if (Array.isArray(response.data)) {
-        return response.data;
-      } else {
-        console.warn('Unexpected API response structure for time slots:', response.data);
-        return [];
-      }
+      // TimeSlot endpoint not implemented yet, return empty array
+      console.warn('TimeSlot endpoint not implemented in backend yet');
+      return [];
     } catch (error) {
       console.error('Error fetching time slots:', error);
       throw error;
@@ -265,8 +214,9 @@ export const adminService = {
 
   async createTimeSlot(timeSlotData: AdminTimeSlotRequest): Promise<string> {
     try {
-      const response = await api.post<ApiResponse<string>>('/Admin/timeslot', timeSlotData);
-      return response.data.Message;
+      // TimeSlot endpoint not implemented yet
+      console.warn('TimeSlot create endpoint not implemented in backend yet');
+      return 'TimeSlot endpoint not implemented yet';
     } catch (error) {
       console.error('Error creating time slot:', error);
       throw error;
@@ -286,8 +236,9 @@ export const adminService = {
 
   async deleteTimeSlot(timeSlotId: string): Promise<string> {
     try {
-      const response = await api.delete<ApiResponse<string>>(`/Admin/timeslot/${timeSlotId}`);
-      return response.data.Message;
+      // TimeSlot endpoint not implemented yet
+      console.warn('TimeSlot delete endpoint not implemented in backend yet');
+      return 'TimeSlot endpoint not implemented yet';
     } catch (error) {
       console.error('Error deleting time slot:', error);
       throw error;
@@ -307,7 +258,7 @@ export const adminService = {
         formData.append('ThumbnailUrl', blogData.ThumbnailUrl);
       }
 
-      const response = await api.post<ApiResponse<string>>('/Admin/blog', formData, {
+      const response = await api.post<ApiResponse<string>>('/Blog', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -331,7 +282,7 @@ export const adminService = {
         formData.append('ThumbnailUrl', blogData.ThumbnailUrl);
       }
 
-      const response = await api.put<ApiResponse<string>>(`/Admin/blog/${blogId}`, formData, {
+      const response = await api.put<ApiResponse<string>>(`/Blog/${blogId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -345,7 +296,7 @@ export const adminService = {
 
   async deleteBlog(blogId: string): Promise<string> {
     try {
-      const response = await api.patch<ApiResponse<string>>(`/Admin/blog/${blogId}`);
+      const response = await api.patch<ApiResponse<string>>(`/Blog/${blogId}`);
       return response.data.Message;
     } catch (error) {
       console.error('Error deleting blog:', error);
@@ -356,8 +307,15 @@ export const adminService = {
   // ========== BOOKING MANAGEMENT ==========
   async getBookings(params: AdminBookingParams): Promise<PaginatedResponse<AdminBooking>> {
     try {
-      const response = await api.get<ApiResponse<PaginatedResponse<AdminBooking>>>('/Admin/booking', { params });
-      return response.data.Data;
+      // Booking endpoint only supports GetByOrderCode, not GetAll
+      console.warn('Booking getAll endpoint not implemented in backend yet');
+      return {
+        Items: [],
+        TotalCount: 0,
+        Page: 1,
+        PageSize: 10,
+        TotalPages: 0
+      };
     } catch (error) {
       console.error('Error fetching bookings:', error);
       throw error;
