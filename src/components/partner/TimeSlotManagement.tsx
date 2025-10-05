@@ -153,7 +153,16 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
       return;
     }
 
-    onSave(formData);
+    // Convert to 24-hour format to ensure compatibility with backend
+    const startTime24 = formData.StartTime; // Already in 24h format from input type="time"
+    const endTime24 = formData.EndTime;     // Already in 24h format from input type="time"
+
+    const timeSlotData = {
+      StartTime: startTime24,
+      EndTime: endTime24
+    };
+
+    onSave(timeSlotData);
   };
 
   const calculateDuration = () => {
@@ -320,6 +329,9 @@ const TimeSlotManagement: React.FC = () => {
     try {
       setIsSubmitting(true);
       const partnerId = user?.id || localStorage.getItem('userId') || '00000000-0000-0000-0000-000000000000';
+      
+      console.log('Saving time slot:', timeSlotData);
+      console.log('Partner ID:', partnerId);
       
       if (editingTimeSlot) {
         // Note: Update not available in backend for TimeSlot

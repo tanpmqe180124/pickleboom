@@ -221,9 +221,11 @@ export const partnerService = {
   async createTimeSlot(timeSlotData: PartnerTimeSlotRequest, partnerId: string): Promise<string> {
     try {
       const requestData = {
-        ...timeSlotData,
-        PartnerId: partnerId
+        PartnerId: partnerId,
+        StartTime: timeSlotData.StartTime,
+        EndTime: timeSlotData.EndTime
       };
+      console.log('Creating time slot with data:', requestData);
       const response = await api.post<ApiResponse<string>>('/Partner/timeslot', requestData);
       return response.data.Message;
     } catch (error) {
