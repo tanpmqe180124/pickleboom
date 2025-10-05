@@ -102,13 +102,40 @@ export interface BookingParams {
 // ========== HELPER FUNCTIONS ==========
 const getPartnerId = (): string => {
   try {
+    // First try to get from localStorage (AuthContext stores it there)
+    const userID = localStorage.getItem('userID');
+    if (userID && userID !== '00000000-0000-0000-0000-000000000000') {
+      console.log('Using userID from localStorage:', userID);
+      return userID;
+    }
+
+    // Fallback: try to extract from JWT token
     const token = localStorage.getItem('token');
-    if (!token) return '';
+    if (!token) {
+      console.error('No token found in localStorage');
+      return '';
+    }
     
     const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || payload.nameid || '';
+    console.log('JWT payload:', payload);
+    
+    // Try different possible claim names
+    const partnerId = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || 
+                     payload.nameid || 
+                     payload.sub ||
+                     payload.userId ||
+                     payload.id;
+    
+    console.log('Extracted PartnerId from JWT:', partnerId);
+    
+    if (!partnerId || partnerId === '00000000-0000-0000-0000-000000000000') {
+      console.error('Invalid PartnerId:', partnerId);
+      return '';
+    }
+    
+    return partnerId;
   } catch (error) {
-    console.error('Error getting PartnerId from token:', error);
+    console.error('Error getting PartnerId:', error);
     return '';
   }
 };
@@ -118,10 +145,15 @@ export const partnerService = {
   // ========== BLOG MANAGEMENT ==========
   async createBlog(blogData: Omit<PartnerBlogRequest, 'ParnerID'>): Promise<string> {
     try {
+      const partnerId = getPartnerId();
+      if (!partnerId) {
+        throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
+      }
+
       const formData = new FormData();
       formData.append('Title', blogData.Title);
       formData.append('Content', blogData.Content);
-      formData.append('ParnerID', getPartnerId());
+      formData.append('ParnerID', partnerId);
       formData.append('ThumbnailUrl', blogData.ThumbnailUrl);
       formData.append('BlogStatus', blogData.BlogStatus.toString());
 
@@ -139,10 +171,15 @@ export const partnerService = {
 
   async updateBlog(blogId: string, blogData: Omit<PartnerBlogRequest, 'ParnerID'>): Promise<string> {
     try {
+      const partnerId = getPartnerId();
+      if (!partnerId) {
+        throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
+      }
+
       const formData = new FormData();
       formData.append('Title', blogData.Title);
       formData.append('Content', blogData.Content);
-      formData.append('ParnerID', getPartnerId());
+      formData.append('ParnerID', partnerId);
       formData.append('ThumbnailUrl', blogData.ThumbnailUrl);
       formData.append('BlogStatus', blogData.BlogStatus.toString());
 
@@ -161,8 +198,13 @@ export const partnerService = {
   // ========== COURT MANAGEMENT ==========
   async getCourts(params: CourtParams): Promise<PartnerPaginatedResponse<PartnerCourt>> {
     try {
+      const partnerId = getPartnerId();
+      if (!partnerId) {
+        throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
+      }
+
       const queryParams = new URLSearchParams();
-      queryParams.append('id', getPartnerId());
+      queryParams.append('id', partnerId);
       queryParams.append('Page', params.Page.toString());
       queryParams.append('PageSize', params.PageSize.toString());
       if (params.Name) queryParams.append('Name', params.Name);
@@ -190,8 +232,13 @@ export const partnerService = {
 
   async createCourt(courtData: Omit<PartnerCourtRequest, 'PartnerId'>): Promise<string> {
     try {
+      const partnerId = getPartnerId();
+      if (!partnerId) {
+        throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
+      }
+
       const formData = new FormData();
-      formData.append('PartnerId', getPartnerId());
+      formData.append('PartnerId', partnerId);
       formData.append('Name', courtData.Name);
       formData.append('Location', courtData.Location);
       formData.append('PricePerHour', courtData.PricePerHour.toString());
@@ -213,8 +260,13 @@ export const partnerService = {
 
   async updateCourt(courtId: string, courtData: Omit<PartnerCourtRequest, 'PartnerId'>): Promise<string> {
     try {
+      const partnerId = getPartnerId();
+      if (!partnerId) {
+        throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
+      }
+
       const formData = new FormData();
-      formData.append('PartnerId', getPartnerId());
+      formData.append('PartnerId', partnerId);
       formData.append('Name', courtData.Name);
       formData.append('Location', courtData.Location);
       formData.append('PricePerHour', courtData.PricePerHour.toString());
@@ -247,8 +299,13 @@ export const partnerService = {
   // ========== TIMESLOT MANAGEMENT ==========
   async getTimeSlots(): Promise<PartnerTimeSlot[]> {
     try {
+      const partnerId = getPartnerId();
+      if (!partnerId) {
+        throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
+      }
+
       const response = await api.get<PartnerApiResponse<PartnerTimeSlot[]>>(
-        `/Partner/timeslot?id=${getPartnerId()}`
+        `/Partner/timeslot?id=${partnerId}`
       );
       return response.data.Data!;
     } catch (error) {
@@ -259,12 +316,18 @@ export const partnerService = {
 
   async createTimeSlot(timeSlotData: Omit<PartnerTimeSlotRequest, 'PartnerId'>): Promise<string> {
     try {
+      const partnerId = getPartnerId();
+      if (!partnerId) {
+        throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
+      }
+
       const requestData = {
-        PartnerId: getPartnerId(),
+        PartnerId: partnerId,
         StartTime: timeSlotData.StartTime,
         EndTime: timeSlotData.EndTime
       };
 
+      console.log('Creating time slot with data:', requestData);
       const response = await api.post<PartnerApiResponse<string>>('/Partner/timeslot', requestData);
       return response.data.Message;
     } catch (error) {
@@ -286,6 +349,11 @@ export const partnerService = {
   // ========== BOOKING MANAGEMENT ==========
   async getBookings(params: BookingParams): Promise<PartnerPaginatedResponse<PartnerBooking>> {
     try {
+      const partnerId = getPartnerId();
+      if (!partnerId) {
+        throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
+      }
+
       const queryParams = new URLSearchParams();
       queryParams.append('Page', params.Page.toString());
       queryParams.append('PageSize', params.PageSize.toString());
@@ -293,7 +361,7 @@ export const partnerService = {
       if (params.BookingStatus !== undefined) queryParams.append('BookingStatus', params.BookingStatus.toString());
 
       const response = await api.get<PartnerApiResponse<PartnerPaginatedResponse<PartnerBooking>>>(
-        `/Partner/booking/${getPartnerId()}?${queryParams.toString()}`
+        `/Partner/booking/${partnerId}?${queryParams.toString()}`
       );
       return response.data.Data!;
     } catch (error) {
