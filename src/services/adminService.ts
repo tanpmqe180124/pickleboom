@@ -198,27 +198,9 @@ export const adminService = {
 
   async updateCourt(courtId: string, courtData: AdminCourtRequest): Promise<string> {
     try {
-      const formData = new FormData();
-      formData.append('Name', courtData.Name);
-      formData.append('Description', courtData.Description);
-      formData.append('Location', courtData.Location);
-      formData.append('PricePerHour', courtData.PricePerHour.toString());
-      formData.append('CourtStatus', courtData.CourtStatus.toString());
-      
-      if (courtData.ImageUrl) {
-        formData.append('ImageUrl', courtData.ImageUrl);
-      }
-      
-      courtData.TimeSlotIDs.forEach(id => {
-        formData.append('TimeSlotIDs', id);
-      });
-
-      const response = await api.put<ApiResponse<string>>(`/Partner/court/${courtId}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return response.data.Message;
+      // Court update endpoint not implemented yet
+      console.warn('Court update endpoint not implemented in backend yet');
+      return 'Court update endpoint not implemented yet';
     } catch (error) {
       console.error('Error updating court:', error);
       throw error;
@@ -227,8 +209,9 @@ export const adminService = {
 
   async deleteCourt(courtId: string): Promise<string> {
     try {
-      const response = await api.delete<ApiResponse<string>>(`/Partner/court/${courtId}`);
-      return response.data.Message;
+      // Court delete endpoint not implemented yet
+      console.warn('Court delete endpoint not implemented in backend yet');
+      return 'Court delete endpoint not implemented yet';
     } catch (error) {
       console.error('Error deleting court:', error);
       throw error;
@@ -238,19 +221,9 @@ export const adminService = {
   // ========== TIMESLOT MANAGEMENT ==========
   async getTimeSlots(): Promise<AdminTimeSlot[]> {
     try {
-      const response = await api.get<ApiResponse<AdminTimeSlot[]>>('/Partner/timeslot');
-      console.log('getTimeSlots raw response:', response);
-      console.log('response.data:', response.data);
-      
-      // Handle response structure
-      if (Array.isArray(response.data)) {
-        return response.data;
-      } else if (response.data && Array.isArray(response.data.data)) {
-        return response.data.data;
-      } else {
-        console.warn('Unexpected API response structure for time slots:', response.data);
-        return [];
-      }
+      // TimeSlot endpoint not implemented yet, return empty array
+      console.warn('TimeSlot endpoint not implemented in backend yet');
+      return [];
     } catch (error) {
       console.error('Error fetching time slots:', error);
       throw error;
@@ -280,8 +253,9 @@ export const adminService = {
 
   async deleteTimeSlot(timeSlotId: string): Promise<string> {
     try {
-      const response = await api.delete<ApiResponse<string>>(`/Partner/timeslot/${timeSlotId}`);
-      return response.data.Message;
+      // TimeSlot endpoint not implemented yet
+      console.warn('TimeSlot delete endpoint not implemented in backend yet');
+      return 'TimeSlot endpoint not implemented yet';
     } catch (error) {
       console.error('Error deleting time slot:', error);
       throw error;
