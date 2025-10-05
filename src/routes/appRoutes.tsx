@@ -13,9 +13,11 @@ import Dashboard from '../pages/Dashboard';
 import VerifyEmailPage from '../pages/VerifyEmailPage';
 import ProfilePage from '../pages/ProfilePage';
 import AdminDashboard from '../pages/AdminDashboard';
+import PartnerDashboard from '../pages/PartnerDashboard';
 import MyBookings from '../pages/MyBookings';
 import PrivateRoute from './PrivateRoute';
 import AdminRoute from './AdminRoute';
+import PartnerRoute from './PartnerRoute';
 import SelectCourt from '../pages/SelectCourt';
 
 const AppRoutes = () => {
@@ -38,6 +40,9 @@ const AppRoutes = () => {
       </Route>
       <Route element={<AdminRoute />}>
         <Route path="/admin" element={<AdminDashboard />} />
+      </Route>
+      <Route element={<PartnerRoute />}>
+        <Route path="/partner" element={<PartnerDashboard />} />
       </Route>
       <Route path="/112233" element={<Calendar13 />} />
     </Routes>
