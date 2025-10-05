@@ -218,9 +218,13 @@ export const partnerService = {
     }
   },
 
-  async createTimeSlot(timeSlotData: PartnerTimeSlotRequest): Promise<string> {
+  async createTimeSlot(timeSlotData: PartnerTimeSlotRequest, partnerId: string): Promise<string> {
     try {
-      const response = await api.post<ApiResponse<string>>('/Partner/timeslot', timeSlotData);
+      const requestData = {
+        ...timeSlotData,
+        PartnerId: partnerId
+      };
+      const response = await api.post<ApiResponse<string>>('/Partner/timeslot', requestData);
       return response.data.Message;
     } catch (error) {
       console.error('Error creating time slot:', error);

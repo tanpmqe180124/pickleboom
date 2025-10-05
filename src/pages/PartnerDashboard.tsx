@@ -20,7 +20,7 @@ import {
 
 // ========== COMPONENT IMPORTS ==========
 import CourtManagement from '@/components/admin/CourtManagement';
-import TimeSlotManagement from '@/components/admin/TimeSlotManagement';
+import TimeSlotManagement from '@/components/partner/TimeSlotManagement';
 import BlogManagement from '@/components/admin/BlogManagement';
 import BookingManagement from '@/components/admin/BookingManagement';
 
