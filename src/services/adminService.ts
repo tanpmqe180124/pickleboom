@@ -114,7 +114,7 @@ export const adminService = {
   // ========== USER MANAGEMENT ==========
   async getUsers(params: AdminUserParams): Promise<PaginatedResponse<AdminUser>> {
     try {
-      const response = await api.get<ApiResponse<PaginatedResponse<AdminUser>>>('/User', { params });
+      const response = await api.get<ApiResponse<PaginatedResponse<AdminUser>>>('/Admin/user', { params });
       return (response.data as any).data;
     } catch (error) {
       console.error('Error fetching users:', error);
