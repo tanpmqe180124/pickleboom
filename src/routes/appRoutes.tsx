@@ -13,12 +13,12 @@ import Dashboard from '../pages/Dashboard';
 import VerifyEmailPage from '../pages/VerifyEmailPage';
 import ProfilePage from '../pages/ProfilePage';
 import AdminDashboard from '../pages/AdminDashboard';
-import PartnerDashboard from '../pages/PartnerDashboard';
 import MyBookings from '../pages/MyBookings';
 import PrivateRoute from './PrivateRoute';
 import AdminRoute from './AdminRoute';
 import PartnerRoute from './PartnerRoute';
 import SelectCourt from '../pages/SelectCourt';
+import PartnerDashboard from '../pages/PartnerDashboard';
 
 const AppRoutes = () => {
   return (

@@ -1,36 +1,32 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { Settings, Building2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Settings } from 'lucide-react';
 
 const PartnerLink: React.FC = () => {
   const { userRole } = useAuth();
-  
-  console.log('PartnerLink - userRole from useAuth:', userRole);
-  console.log('PartnerLink - localStorage userRole:', localStorage.getItem('userRole'));
 
-  if (!userRole || (userRole !== 'partner' && userRole.toLowerCase() !== 'partner')) {
-    console.log('PartnerLink - Not partner, hiding panel');
+  // Only show for partner users
+  const isPartner = userRole === 'partner' || userRole?.toLowerCase() === 'partner';
+
+  if (!isPartner) {
     return null;
   }
-  
-  console.log('PartnerLink - Showing partner panel');
-
-  const handleClick = () => {
-    console.log('PartnerLink - Clicked, navigating to /partner');
-  };
 
   return (
     <Link
       to="/partner"
-      onClick={handleClick}
-      className="group flex items-center space-x-2 rounded-lg bg-gradient-to-r from-green-600 to-teal-600 px-4 py-2 text-white shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl"
+      className="flex items-center space-x-3 p-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
     >
-      <div className="flex items-center space-x-2">
-        <Building2 className="h-4 w-4" />
-        <span className="font-medium">Partner Panel</span>
+      <div className="bg-white/20 rounded-lg p-2">
+        <Settings size={20} />
       </div>
-      <Settings className="h-4 w-4 transition-transform group-hover:rotate-90" />
+      <div>
+        <h3 className="font-semibold text-lg">Partner Dashboard</h3>
+        <p className="text-purple-100 text-sm">
+          Quản lý sân bóng, khung giờ và đặt sân
+        </p>
+      </div>
     </Link>
   );
 };

@@ -1,23 +1,27 @@
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { showToast } from '@/utils/toastManager';
+import { Navigate } from 'react-router-dom';
 
-const PartnerRoute: React.FC = () => {
-  const { userRole, accessToken } = useAuth();
+interface PartnerRouteProps {
+  children: React.ReactNode;
+}
 
-  const isPartner = userRole === 'partner' || userRole?.toLowerCase() === 'partner';
-  
-  if (!accessToken) {
+const PartnerRoute: React.FC<PartnerRouteProps> = ({ children }) => {
+  const { userRole, isAuthenticated } = useAuth();
+
+  // Check if user is authenticated
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
+  // Check if user has partner role
+  const isPartner = userRole === 'partner' || userRole?.toLowerCase() === 'partner';
+  
   if (!isPartner) {
-    showToast.error('Không có quyền truy cập', 'Bạn không có quyền partner để truy cập trang này.');
     return <Navigate to="/dashboard" replace />;
   }
 
-  return <Outlet />;
+  return <>{children}</>;
 };
 
 export default PartnerRoute;

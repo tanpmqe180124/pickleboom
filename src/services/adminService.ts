@@ -169,27 +169,9 @@ export const adminService = {
 
   async createCourt(courtData: AdminCourtRequest): Promise<string> {
     try {
-      const formData = new FormData();
-      formData.append('Name', courtData.Name);
-      formData.append('Description', courtData.Description);
-      formData.append('Location', courtData.Location);
-      formData.append('PricePerHour', courtData.PricePerHour.toString());
-      formData.append('CourtStatus', courtData.CourtStatus.toString());
-      
-      if (courtData.ImageUrl) {
-        formData.append('ImageUrl', courtData.ImageUrl);
-      }
-      
-      courtData.TimeSlotIDs.forEach(id => {
-        formData.append('TimeSlotIDs', id);
-      });
-
-      const response = await api.post<ApiResponse<string>>('/Partner/court', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return response.data.Message;
+      // Court create endpoint not implemented yet
+      console.warn('Court create endpoint not implemented in backend yet');
+      return 'Court create endpoint not implemented yet';
     } catch (error) {
       console.error('Error creating court:', error);
       throw error;
@@ -232,8 +214,9 @@ export const adminService = {
 
   async createTimeSlot(timeSlotData: AdminTimeSlotRequest): Promise<string> {
     try {
-      const response = await api.post<ApiResponse<string>>('/Partner/timeslot', timeSlotData);
-      return response.data.Message;
+      // TimeSlot endpoint not implemented yet
+      console.warn('TimeSlot create endpoint not implemented in backend yet');
+      return 'TimeSlot endpoint not implemented yet';
     } catch (error) {
       console.error('Error creating time slot:', error);
       throw error;
