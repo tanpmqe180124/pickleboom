@@ -321,14 +321,22 @@ export const partnerService = {
         throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
       }
 
-      const requestData = {
-        PartnerId: partnerId,
-        StartTime: timeSlotData.StartTime,
-        EndTime: timeSlotData.EndTime
-      };
+      // Backend expects FormData since no [FromBody] attribute
+      const formData = new FormData();
+      formData.append('PartnerId', partnerId);
+      formData.append('StartTime', timeSlotData.StartTime);
+      formData.append('EndTime', timeSlotData.EndTime);
 
-      console.log('Creating time slot with data:', requestData);
-      const response = await api.post<PartnerApiResponse<string>>('/Partner/timeslot', requestData);
+      console.log('Creating time slot with FormData:');
+      console.log('PartnerId:', partnerId);
+      console.log('StartTime:', timeSlotData.StartTime);
+      console.log('EndTime:', timeSlotData.EndTime);
+      
+      const response = await api.post<PartnerApiResponse<string>>('/Partner/timeslot', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       return response.data.Message;
     } catch (error) {
       console.error('Error creating time slot:', error);
