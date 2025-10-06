@@ -210,6 +210,33 @@ export const partnerService = {
     }
   },
 
+  async getBlogs(): Promise<PartnerBlog[]> {
+    try {
+      const partnerId = getPartnerId();
+      if (!partnerId) {
+        throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
+      }
+
+      const response = await api.get<PartnerApiResponse<PartnerBlog[]>>(
+        `/Partner/blog?id=${partnerId}`
+      );
+      return response.data.Data || [];
+    } catch (error) {
+      console.error('Error fetching blogs:', error);
+      throw error;
+    }
+  },
+
+  async deleteBlog(blogId: string): Promise<string> {
+    try {
+      const response = await api.delete<PartnerApiResponse<string>>(`/Partner/blog/${blogId}`);
+      return response.data.Message;
+    } catch (error) {
+      console.error('Error deleting blog:', error);
+      throw error;
+    }
+  },
+
   // ========== COURT MANAGEMENT ==========
   async getCourts(params: CourtParams): Promise<PartnerPaginatedResponse<PartnerCourt>> {
     try {
@@ -322,7 +349,7 @@ export const partnerService = {
       const response = await api.get<PartnerApiResponse<PartnerTimeSlot[]>>(
         `/Partner/timeslot?id=${partnerId}`
       );
-      return response.data.Data!;
+      return response.data.Data || [];
     } catch (error) {
       console.error('Error fetching time slots:', error);
       throw error;

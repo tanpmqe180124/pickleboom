@@ -18,7 +18,7 @@ import PrivateRoute from './PrivateRoute';
 import AdminRoute from './AdminRoute';
 import PartnerRoute from './PartnerRoute';
 import SelectCourt from '../pages/SelectCourt';
-import PartnerDashboardNew from '../pages/PartnerDashboardNew';
+import PartnerDashboard from '../pages/PartnerDashboard';
 
 const AppRoutes = () => {
   return (
@@ -42,7 +42,7 @@ const AppRoutes = () => {
         <Route path="/admin" element={<AdminDashboard />} />
       </Route>
       <Route element={<PartnerRoute />}>
-        <Route path="/partner" element={<PartnerDashboardNew />} />
+        <Route path="/partner" element={<PartnerDashboard />} />
       </Route>
       <Route path="/112233" element={<Calendar13 />} />
     </Routes>
