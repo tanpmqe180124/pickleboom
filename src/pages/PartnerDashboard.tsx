@@ -27,15 +27,18 @@ import BookingManagement from '@/components/partner/BookingManagement';
 type PartnerTab = 'blogs' | 'courts' | 'timeslots' | 'bookings';
 
 const PartnerDashboard: React.FC = () => {
-  const { userRole, logout, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<PartnerTab>('courts');
+  try {
+    console.log('=== PARTNER DASHBOARD COMPONENT START ===');
+    
+    const { userRole, logout, isAuthenticated } = useAuth();
+    const [activeTab, setActiveTab] = useState<PartnerTab>('courts');
 
-  const isPartner = userRole === 'Partner' || userRole?.toLowerCase() === 'partner';
-  
-  console.log('PartnerDashboard - userRole:', userRole);
-  console.log('PartnerDashboard - isPartner:', isPartner);
-  console.log('PartnerDashboard - isAuthenticated:', isAuthenticated);
-  console.log('PartnerDashboard - activeTab:', activeTab);
+    const isPartner = userRole === 'Partner' || userRole?.toLowerCase() === 'partner';
+    
+    console.log('PartnerDashboard - userRole:', userRole);
+    console.log('PartnerDashboard - isPartner:', isPartner);
+    console.log('PartnerDashboard - isAuthenticated:', isAuthenticated);
+    console.log('PartnerDashboard - activeTab:', activeTab);
   
   // ========== CHECK PARTNER ROLE ==========
   useEffect(() => {
@@ -217,6 +220,20 @@ const PartnerDashboard: React.FC = () => {
       </div>
     </div>
   );
+  } catch (error) {
+    console.error('❌ PartnerDashboard Component Error:', error);
+    return (
+      <div className="min-h-screen bg-red-100 flex items-center justify-center">
+        <div className="text-center p-8">
+          <div className="text-red-600 text-2xl font-bold mb-4">Lỗi Component</div>
+          <div className="text-gray-700 mb-4">PartnerDashboard component bị lỗi:</div>
+          <div className="text-sm text-gray-600 bg-white p-4 rounded border">
+            {error?.toString()}
+          </div>
+        </div>
+      </div>
+    );
+  }
 };
 
 export default PartnerDashboard;
