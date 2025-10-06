@@ -32,6 +32,8 @@ import BookingManagement from '@/components/partner/BookingManagement';
 type PartnerTab = 'overview' | 'courts' | 'timeslots' | 'bookings' | 'blogs';
 
 const PartnerDashboard: React.FC = () => {
+  console.log('=== PARTNER DASHBOARD RENDER ===');
+  
   const { userRole, logout, user } = useAuth();
   const [activeTab, setActiveTab] = useState<PartnerTab>('overview');
 
@@ -39,6 +41,7 @@ const PartnerDashboard: React.FC = () => {
   
   console.log('PartnerDashboard - userRole:', userRole);
   console.log('PartnerDashboard - isPartner:', isPartner);
+  console.log('PartnerDashboard - user:', user);
   
   // ========== CHECK PARTNER ROLE ==========
   useEffect(() => {
@@ -125,6 +128,7 @@ const PartnerDashboard: React.FC = () => {
   };
 
   if (!isPartner) {
+    console.log('❌ Not partner, showing access denied');
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -135,6 +139,7 @@ const PartnerDashboard: React.FC = () => {
     );
   }
 
+  console.log('✅ Rendering Partner Dashboard');
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -209,6 +214,9 @@ const PartnerDashboard: React.FC = () => {
 
 // ========== OVERVIEW TAB COMPONENT ==========
 const OverviewTab: React.FC<{ user: any }> = ({ user }) => {
+  console.log('=== OVERVIEW TAB RENDER ===');
+  console.log('OverviewTab - user:', user);
+  
   const [currentTime, setCurrentTime] = useState(new Date());
   const [stats, setStats] = useState({
     totalCourts: 0,
