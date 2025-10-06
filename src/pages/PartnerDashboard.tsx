@@ -15,12 +15,7 @@ import {
   Trash2,
   Eye,
   EyeOff,
-  ArrowLeft,
-  Trophy,
-  TrendingUp,
-  Users,
-  BarChart3,
-  MoreHorizontal
+  ArrowLeft
 } from 'lucide-react';
 
 // ========== COMPONENT IMPORTS ==========
@@ -29,19 +24,17 @@ import CourtManagement from '@/components/partner/CourtManagement';
 import TimeSlotManagement from '@/components/partner/TimeSlotManagement';
 import BookingManagement from '@/components/partner/BookingManagement';
 
-type PartnerTab = 'overview' | 'courts' | 'timeslots' | 'bookings' | 'blogs';
+type PartnerTab = 'blogs' | 'courts' | 'timeslots' | 'bookings';
 
 const PartnerDashboard: React.FC = () => {
-  console.log('=== PARTNER DASHBOARD RENDER ===');
-  
-  const { userRole, logout, userID } = useAuth();
-  const [activeTab, setActiveTab] = useState<PartnerTab>('overview');
+  const { userRole, logout, isAuthenticated } = useAuth();
+  const [activeTab, setActiveTab] = useState<PartnerTab>('courts');
 
   const isPartner = userRole === 'partner' || userRole?.toLowerCase() === 'partner';
   
   console.log('PartnerDashboard - userRole:', userRole);
   console.log('PartnerDashboard - isPartner:', isPartner);
-  console.log('PartnerDashboard - userID:', userID);
+  console.log('PartnerDashboard - isAuthenticated:', isAuthenticated);
   
   // ========== CHECK PARTNER ROLE ==========
   useEffect(() => {
@@ -73,62 +66,67 @@ const PartnerDashboard: React.FC = () => {
   // ========== TAB CONFIGURATION ==========
   const tabs = [
     {
-      id: 'overview' as PartnerTab,
-      name: 'Tổng quan',
-      icon: BarChart3,
-      bgColor: 'bg-blue-50',
-      color: 'text-blue-700'
+      id: 'blogs' as PartnerTab,
+      name: 'Quản lý blog',
+      icon: FileText,
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50',
+      hoverColor: 'hover:bg-orange-100'
     },
     {
       id: 'courts' as PartnerTab,
-      name: 'Quản lý sân',
+      name: 'Quản lý sân Pickleball',
       icon: MapPin,
+      color: 'text-green-600',
       bgColor: 'bg-green-50',
-      color: 'text-green-700'
+      hoverColor: 'hover:bg-green-100'
     },
     {
       id: 'timeslots' as PartnerTab,
       name: 'Quản lý khung giờ',
       icon: Clock,
+      color: 'text-purple-600',
       bgColor: 'bg-purple-50',
-      color: 'text-purple-700'
+      hoverColor: 'hover:bg-purple-100'
     },
     {
       id: 'bookings' as PartnerTab,
       name: 'Quản lý đặt sân',
       icon: Calendar,
-      bgColor: 'bg-orange-50',
-      color: 'text-orange-700'
-    },
-    {
-      id: 'blogs' as PartnerTab,
-      name: 'Quản lý blog',
-      icon: FileText,
-      bgColor: 'bg-pink-50',
-      color: 'text-pink-700'
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50',
+      hoverColor: 'hover:bg-blue-100'
     }
   ];
 
   // ========== RENDER TAB CONTENT ==========
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'overview':
-        return <OverviewTab userID={userID} />;
+      case 'blogs':
+        return <BlogManagement />;
       case 'courts':
         return <CourtManagement />;
       case 'timeslots':
         return <TimeSlotManagement />;
       case 'bookings':
         return <BookingManagement />;
-      case 'blogs':
-        return <BlogManagement />;
       default:
-        return <OverviewTab userID={userID} />;
+        return <CourtManagement />;
     }
   };
 
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Đang xác thực...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!isPartner) {
-    console.log('❌ Not partner, showing access denied');
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -139,7 +137,6 @@ const PartnerDashboard: React.FC = () => {
     );
   }
 
-  console.log('✅ Rendering Partner Dashboard');
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -156,9 +153,6 @@ const PartnerDashboard: React.FC = () => {
               <h1 className="text-xl font-semibold text-gray-900">Partner Dashboard</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="text-sm text-gray-600">
-                Xin chào, <span className="font-medium">Partner</span>
-              </div>
               <button
                 onClick={handleLogout}
                 className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -212,226 +206,6 @@ const PartnerDashboard: React.FC = () => {
   );
 };
 
-// ========== OVERVIEW TAB COMPONENT ==========
-const OverviewTab: React.FC<{ userID: string | null }> = ({ userID }) => {
-  console.log('=== OVERVIEW TAB RENDER ===');
-  console.log('OverviewTab - userID:', userID);
-  
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [stats, setStats] = useState({
-    totalCourts: 0,
-    totalBookings: 0,
-    totalRevenue: 0,
-    activeTimeSlots: 0
-  });
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('vi-VN', { 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      second: '2-digit' 
-    });
-  };
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('vi-VN', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
-  return (
-    <div className="p-6">
-      {/* Welcome Section */}
-      <div className="mb-8">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold mb-2">
-                Chào mừng trở lại, Partner!
-              </h2>
-              <p className="text-blue-100 mb-4">
-                Sẵn sàng cho một trận đấu pickleball tuyệt vời?
-              </p>
-              <div className="flex items-center space-x-4 text-sm">
-                <div className="flex items-center space-x-2">
-                  <Clock size={16} />
-                  <span>{formatTime(currentTime)}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Calendar size={16} />
-                  <span>{formatDate(currentTime)}</span>
-                </div>
-              </div>
-            </div>
-            <div className="text-right">
-              <Trophy size={48} className="text-yellow-300" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Tổng số sân</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalCourts}</p>
-              <p className="text-sm text-green-600">Đang hoạt động</p>
-            </div>
-            <div className="p-3 bg-green-100 rounded-full">
-              <MapPin size={24} className="text-green-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Đặt sân hôm nay</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalBookings}</p>
-              <p className="text-sm text-blue-600">Lượt đặt</p>
-            </div>
-            <div className="p-3 bg-blue-100 rounded-full">
-              <Calendar size={24} className="text-blue-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Doanh thu tháng</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalRevenue.toLocaleString()}đ</p>
-              <p className="text-sm text-purple-600">VND</p>
-            </div>
-            <div className="p-3 bg-purple-100 rounded-full">
-              <TrendingUp size={24} className="text-purple-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Khung giờ hoạt động</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.activeTimeSlots}</p>
-              <p className="text-sm text-orange-600">Khung giờ</p>
-            </div>
-            <div className="p-3 bg-orange-100 rounded-full">
-              <Clock size={24} className="text-orange-600" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Thao tác nhanh</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <button 
-            onClick={() => window.location.href = '/partner?tab=courts'}
-            className="flex items-center space-x-3 p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
-          >
-            <Plus size={20} className="text-blue-600" />
-            <div className="text-left">
-              <div className="font-medium text-blue-900">Thêm sân mới</div>
-              <div className="text-sm text-blue-600">Tạo sân pickleball mới</div>
-            </div>
-          </button>
-
-          <button 
-            onClick={() => window.location.href = '/partner?tab=timeslots'}
-            className="flex items-center space-x-3 p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
-          >
-            <Clock size={20} className="text-green-600" />
-            <div className="text-left">
-              <div className="font-medium text-green-900">Quản lý khung giờ</div>
-              <div className="text-sm text-green-600">Thiết lập thời gian hoạt động</div>
-            </div>
-          </button>
-
-          <button 
-            onClick={() => window.location.href = '/partner?tab=bookings'}
-            className="flex items-center space-x-3 p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
-          >
-            <Calendar size={20} className="text-purple-600" />
-            <div className="text-left">
-              <div className="font-medium text-purple-900">Xem đặt sân</div>
-              <div className="text-sm text-purple-600">Quản lý lịch đặt sân</div>
-            </div>
-          </button>
-
-          <button 
-            onClick={() => window.location.href = '/partner?tab=blogs'}
-            className="flex items-center space-x-3 p-4 bg-pink-50 hover:bg-pink-100 rounded-lg transition-colors"
-          >
-            <FileText size={20} className="text-pink-600" />
-            <div className="text-left">
-              <div className="font-medium text-pink-900">Viết blog</div>
-              <div className="text-sm text-pink-600">Chia sẻ kinh nghiệm</div>
-            </div>
-          </button>
-        </div>
-      </div>
-
-      {/* Recent Activity */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Hoạt động gần đây</h3>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <MapPin size={20} className="text-gray-600" />
-              <div>
-                <div className="font-medium">Sân A - 15:00</div>
-                <div className="text-sm text-gray-600">Đặt sân mới hôm nay</div>
-              </div>
-            </div>
-            <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
-              Hoàn thành
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <Clock size={20} className="text-gray-600" />
-              <div>
-                <div className="font-medium">Khung giờ 09:00-10:00</div>
-                <div className="text-sm text-gray-600">Thêm khung giờ mới</div>
-              </div>
-            </div>
-            <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
-              Mới
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <FileText size={20} className="text-gray-600" />
-              <div>
-                <div className="font-medium">Blog: Hướng dẫn chơi pickleball</div>
-                <div className="text-sm text-gray-600">Đã xuất bản</div>
-              </div>
-            </div>
-            <span className="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full">
-              Xuất bản
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 export default PartnerDashboard;
+
+
