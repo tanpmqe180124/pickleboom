@@ -79,7 +79,7 @@ export const createUserObject = (data: any): UserObject => {
   
   const userObject = {
     userId: userId,
-    role: role?.toLowerCase() || data?.data?.role?.toLowerCase() || data?.Data?.Role?.toLowerCase() || data?.data?.Role?.toLowerCase(), // Ưu tiên role từ JWT token
+    role: role || data?.data?.role || data?.Data?.Role || data?.data?.Role, // Ưu tiên role từ JWT token, giữ nguyên case
     fullName: data?.Data?.FullName || data?.data?.FullName || data?.data?.fullName,
     verified: data?.Data?.IsApproved || data?.data?.IsApproved || data?.data?.isApproved,
   };

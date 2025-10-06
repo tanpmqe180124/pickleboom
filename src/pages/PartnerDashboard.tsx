@@ -5,7 +5,7 @@ const PartnerDashboard: React.FC = () => {
   
   // Simple test first
   return (
-    <div className="min-h-screen bg-blue-500 flex items-center justify-center">
+    <div className="min-h-screen bg-green-500 flex items-center justify-center">
       <div className="text-white text-4xl font-bold">
         PARTNER DASHBOARD WORKING!
       </div>

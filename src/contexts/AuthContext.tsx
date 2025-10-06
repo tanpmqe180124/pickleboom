@@ -57,7 +57,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAccessToken(null);
     setUserID(null);
     setUserRole(null);
-    // Xóa tất cả auth data khỏi localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('userID');
     localStorage.removeItem('userRole');
@@ -98,4 +97,4 @@ export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
-}; 
+};
