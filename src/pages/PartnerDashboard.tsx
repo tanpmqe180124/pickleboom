@@ -30,7 +30,7 @@ const PartnerDashboard: React.FC = () => {
   const { userRole, logout, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState<PartnerTab>('courts');
 
-  const isPartner = userRole === 'partner' || userRole?.toLowerCase() === 'partner';
+  const isPartner = userRole === 'Partner' || userRole?.toLowerCase() === 'partner';
   
   console.log('PartnerDashboard - userRole:', userRole);
   console.log('PartnerDashboard - isPartner:', isPartner);

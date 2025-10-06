@@ -7,7 +7,7 @@ const PartnerLink: React.FC = () => {
   const { userRole } = useAuth();
 
   // Only show for partner users
-  const isPartner = userRole === 'partner' || userRole?.toLowerCase() === 'partner';
+  const isPartner = userRole === 'Partner' || userRole?.toLowerCase() === 'partner';
 
   if (!isPartner) {
     return null;
