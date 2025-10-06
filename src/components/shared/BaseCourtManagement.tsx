@@ -25,6 +25,9 @@ export interface BaseCourt {
   courtStatus: number;
   timeSlots?: any[];
   imageUrl?: string;
+  // PartnerCourt compatibility
+  price?: number;
+  status?: number;
 }
 
 export interface BaseCourtRequest {
@@ -92,13 +95,35 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
       const courtsData = await apiService.getCourts(searchParams);
       console.log('Courts API Response:', courtsData);
       
-      // Ensure courtsData is an array
+      // Handle both Admin and Partner response formats
+      let courtsArray: BaseCourt[] = [];
+      
       if (Array.isArray(courtsData)) {
-        setCourts(courtsData);
+        courtsArray = courtsData;
+      } else if (courtsData && Array.isArray(courtsData.items)) {
+        // Admin format with pagination
+        courtsArray = courtsData.items;
+      } else if (courtsData && Array.isArray(courtsData.data)) {
+        // Partner format with data wrapper
+        courtsArray = courtsData.data;
       } else {
-        console.warn('API returned non-array data:', courtsData);
-        setCourts([]);
+        console.warn('API returned unexpected data format:', courtsData);
+        courtsArray = [];
       }
+      
+      // Normalize court data to BaseCourt format
+      const normalizedCourts = courtsArray.map((court: any) => ({
+        id: court.id,
+        name: court.name || court.Name,
+        description: court.description || court.Description,
+        location: court.location || court.Location,
+        pricePerHour: court.pricePerHour || court.PricePerHour || court.price || court.Price || 0,
+        courtStatus: court.courtStatus || court.CourtStatus || court.status || court.Status || 0,
+        timeSlots: court.timeSlots || court.TimeSlots || [],
+        imageUrl: court.imageUrl || court.ImageUrl
+      }));
+      
+      setCourts(normalizedCourts);
     } catch (error) {
       console.error('Error fetching courts:', error);
       showToast.error('Lỗi tải dữ liệu', 'Không thể tải danh sách sân.');

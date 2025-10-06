@@ -316,6 +316,76 @@ export const partnerService = {
     }
   },
 
+  // ========== MISSING METHODS FOR BASE COMPONENTS ==========
+  async getCourtById(id: string): Promise<PartnerCourt> {
+    try {
+      const response = await api.get(`/Partner/court/${id}`);
+      return response.data.data;
+    } catch (error: any) {
+      showToast.showError('Lỗi lấy thông tin sân', error.response?.data?.Message || error.message);
+      throw error;
+    }
+  },
+
+  async updateTimeSlot(id: string, timeSlotData: Omit<PartnerTimeSlotRequest, 'PartnerId'>): Promise<string> {
+    try {
+      const partnerId = getPartnerId();
+      if (!partnerId) throw new Error('Partner ID not found');
+
+      const formData = new FormData();
+      formData.append('CourtId', timeSlotData.CourtId);
+      formData.append('StartTime', convertTo24Hour(timeSlotData.StartTime));
+      formData.append('EndTime', convertTo24Hour(timeSlotData.EndTime));
+      formData.append('Price', timeSlotData.Price.toString());
+      formData.append('PartnerId', partnerId);
+
+      const response = await api.put(`/Partner/timeslot/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data.message;
+    } catch (error: any) {
+      showToast.showError('Lỗi cập nhật khung giờ', error.response?.data?.Message || error.message);
+      throw error;
+    }
+  },
+
+  async getBlogById(id: string): Promise<PartnerBlog> {
+    try {
+      const response = await api.get(`/Partner/blog/${id}`);
+      return response.data.data;
+    } catch (error: any) {
+      showToast.showError('Lỗi lấy thông tin blog', error.response?.data?.Message || error.message);
+      throw error;
+    }
+  },
+
+  async updateBlog(id: string, blogData: Omit<PartnerBlogRequest, 'ParnerID'>): Promise<string> {
+    try {
+      const partnerId = getPartnerId();
+      if (!partnerId) throw new Error('Partner ID not found');
+
+      const formData = new FormData();
+      formData.append('Title', blogData.Title);
+      formData.append('Content', blogData.Content);
+      formData.append('ParnerID', partnerId);
+      if (blogData.Image) {
+        formData.append('Image', blogData.Image);
+      }
+
+      const response = await api.put(`/Partner/blog/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data.message;
+    } catch (error: any) {
+      showToast.showError('Lỗi cập nhật blog', error.response?.data?.Message || error.message);
+      throw error;
+    }
+  },
+
   // ========== BOOKING MANAGEMENT ==========
   async getBookings(params?: BookingParams): Promise<any> {
     try {
