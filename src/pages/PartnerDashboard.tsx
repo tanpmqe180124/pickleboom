@@ -34,14 +34,14 @@ type PartnerTab = 'overview' | 'courts' | 'timeslots' | 'bookings' | 'blogs';
 const PartnerDashboard: React.FC = () => {
   console.log('=== PARTNER DASHBOARD RENDER ===');
   
-  const { userRole, logout, user } = useAuth();
+  const { userRole, logout, userID } = useAuth();
   const [activeTab, setActiveTab] = useState<PartnerTab>('overview');
 
   const isPartner = userRole === 'partner' || userRole?.toLowerCase() === 'partner';
   
   console.log('PartnerDashboard - userRole:', userRole);
   console.log('PartnerDashboard - isPartner:', isPartner);
-  console.log('PartnerDashboard - user:', user);
+  console.log('PartnerDashboard - userID:', userID);
   
   // ========== CHECK PARTNER ROLE ==========
   useEffect(() => {
@@ -113,7 +113,7 @@ const PartnerDashboard: React.FC = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'overview':
-        return <OverviewTab user={user} />;
+        return <OverviewTab userID={userID} />;
       case 'courts':
         return <CourtManagement />;
       case 'timeslots':
@@ -123,7 +123,7 @@ const PartnerDashboard: React.FC = () => {
       case 'blogs':
         return <BlogManagement />;
       default:
-        return <OverviewTab user={user} />;
+        return <OverviewTab userID={userID} />;
     }
   };
 
@@ -157,7 +157,7 @@ const PartnerDashboard: React.FC = () => {
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-sm text-gray-600">
-                Xin chào, <span className="font-medium">{user?.fullName || 'Partner'}</span>
+                Xin chào, <span className="font-medium">Partner</span>
               </div>
               <button
                 onClick={handleLogout}
@@ -213,9 +213,9 @@ const PartnerDashboard: React.FC = () => {
 };
 
 // ========== OVERVIEW TAB COMPONENT ==========
-const OverviewTab: React.FC<{ user: any }> = ({ user }) => {
+const OverviewTab: React.FC<{ userID: string | null }> = ({ userID }) => {
   console.log('=== OVERVIEW TAB RENDER ===');
-  console.log('OverviewTab - user:', user);
+  console.log('OverviewTab - userID:', userID);
   
   const [currentTime, setCurrentTime] = useState(new Date());
   const [stats, setStats] = useState({
@@ -258,7 +258,7 @@ const OverviewTab: React.FC<{ user: any }> = ({ user }) => {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold mb-2">
-                Chào mừng trở lại, {user?.fullName || 'Partner'}!
+                Chào mừng trở lại, Partner!
               </h2>
               <p className="text-blue-100 mb-4">
                 Sẵn sàng cho một trận đấu pickleball tuyệt vời?

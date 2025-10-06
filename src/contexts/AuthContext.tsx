@@ -5,7 +5,6 @@ interface AuthContextType {
   userID: string | null;
   userRole: string | null;
   isAuthenticated: boolean;
-  user: any;
   setAccessToken: (token: string | null) => void;
   setUserID: (id: string | null) => void;
   setUserRole: (role: string | null) => void;
@@ -87,20 +86,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const isAuthenticated = accessToken !== null && accessToken !== undefined && accessToken !== '';
-  
-  console.log('AuthContext - accessToken:', accessToken);
-  console.log('AuthContext - isAuthenticated:', isAuthenticated);
-  console.log('AuthContext - userRole:', userRole);
-
-  const user = {
-    id: userID,
-    role: userRole,
-    fullName: 'Partner User', // Default value
-    email: 'partner@test.com' // Default value
-  };
 
   return (
-    <AuthContext.Provider value={{ accessToken, userID, userRole, isAuthenticated, user, setAccessToken, setUserID, setUserRole, logout }}>
+    <AuthContext.Provider value={{ accessToken, userID, userRole, isAuthenticated, setAccessToken, setUserID, setUserRole, logout }}>
       {children}
     </AuthContext.Provider>
   );
