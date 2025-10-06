@@ -350,20 +350,34 @@ export const partnerService = {
         throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
       }
 
-      // Backend expects FormData since no [FromBody] attribute
-      const formData = new FormData();
-      formData.append('PartnerId', partnerId);
-      formData.append('StartTime', timeSlotData.StartTime);
-      formData.append('EndTime', timeSlotData.EndTime);
+      // Convert time format from "HH:mm AM/PM" to "HH:mm" for TimeOnly
+      const convertTo24Hour = (timeStr: string): string => {
+        const [time, period] = timeStr.split(' ');
+        const [hours, minutes] = time.split(':');
+        let hour24 = parseInt(hours);
+        
+        if (period === 'PM' && hour24 !== 12) {
+          hour24 += 12;
+        } else if (period === 'AM' && hour24 === 12) {
+          hour24 = 0;
+        }
+        
+        return `${hour24.toString().padStart(2, '0')}:${minutes}`;
+      };
 
-      console.log('Creating time slot with FormData:');
-      console.log('PartnerId:', partnerId);
-      console.log('StartTime:', timeSlotData.StartTime);
-      console.log('EndTime:', timeSlotData.EndTime);
+      // Backend expects JSON object with TimeSlotRequest structure
+      const requestData = {
+        PartnerId: partnerId,
+        StartTime: convertTo24Hour(timeSlotData.StartTime),
+        EndTime: convertTo24Hour(timeSlotData.EndTime)
+      };
+
+      console.log('Creating time slot with JSON:');
+      console.log('Request data:', requestData);
       
-      const response = await api.post<PartnerApiResponse<string>>('/Partner/timeslot', formData, {
+      const response = await api.post<PartnerApiResponse<string>>('/Partner/timeslot', requestData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
       });
       return response.data.Message;

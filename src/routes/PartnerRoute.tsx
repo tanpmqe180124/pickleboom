@@ -25,3 +25,5 @@ const PartnerRoute: React.FC<PartnerRouteProps> = ({ children }) => {
 };
 
 export default PartnerRoute;
+
+
