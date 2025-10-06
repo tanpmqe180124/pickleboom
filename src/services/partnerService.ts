@@ -1,100 +1,41 @@
 import { api } from '@/infrastructure/api/axiosClient';
 
-// ========== TYPES ==========
+// ========== INTERFACES ==========
 export interface PartnerBlogRequest {
+  ParnerID: string;
   Title: string;
   Content: string;
-  ParnerID: string; // Note: typo in backend
-  ThumbnailUrl: File;
-  BlogStatus: 0 | 1 | 2; // Draft=0, Published=1, Hidden=2
+  Image?: File;
 }
 
 export interface PartnerCourtRequest {
   PartnerId: string;
   Name: string;
-  Location: string;
-  PricePerHour: number;
-  ImageUrl: File;
-  CourtStatus: 0 | 1 | 2 | 3; // Available=0, UnderMaintenance=1, Inactive=2, Full=3
-  TimeSlotIDs: string[];
-}
-
-export interface PartnerTimeSlotRequest {
-  PartnerId: string;
-  StartTime: string; // "HH:mm" format
-  EndTime: string;   // "HH:mm" format
-}
-
-export interface PartnerBlog {
-  ID: string;
-  Title: string;
-  Content: string;
-  ThumbnailUrl: string;
-  Status: 0 | 1 | 2;
-  CreatedAt: string;
-  UpdatedAt: string;
+  Address: string;
+  Description: string;
+  Price: number;
+  Image?: File;
 }
 
 export interface PartnerCourt {
-  ID: string;
-  Name: string;
-  Location: string;
-  PricePerHour: number;
-  ImageUrl: string;
-  CourtStatus: 0 | 1 | 2 | 3;
-  Created: string;
-  TimeSlotIDs: PartnerTimeSlot[];
+  id: string;
+  name: string;
+  address: string;
+  description: string;
+  price: number;
+  imageUrl?: string;
+  timeSlots?: any[];
 }
 
-export interface PartnerTimeSlot {
-  ID: string;
+export interface TimeSlotRequest {
+  PartnerId: string;
   StartTime: string;
   EndTime: string;
-  Status: number;
-}
-
-export interface PartnerBooking {
-  ID: string;
-  Customer: string;
-  Phone: string;
-  Court: string;
-  BookingDate: string;
-  PaymentStatus: number;
-  BookingStatus: number;
-  TotalAmount: number;
-  CreatedAt: string;
-  BookingTimeSlots: PartnerBookingTimeSlot[];
-}
-
-export interface PartnerBookingTimeSlot {
-  Id: string;
-  StartTime: string;
-  EndTime: string;
-}
-
-export interface PartnerApiResponse<T> {
-  Message: string;
-  StatusCode: number;
-  Data?: T;
-}
-
-export interface PartnerPaginatedResponse<T> {
-  Page: number;
-  PageSize: number;
-  Total: number;
-  Data: T[];
-}
-
-export interface CourtParams {
-  Page: number;
-  PageSize: number;
-  Name?: string;
-  Status?: number;
 }
 
 export interface BookingParams {
-  Page: number;
-  PageSize: number;
+  PageNumber?: number;
+  PageSize?: number;
   Customer?: string;
   BookingStatus?: number;
 }
@@ -162,110 +103,78 @@ export const partnerService = {
     try {
       const partnerId = getPartnerId();
       if (!partnerId) {
-        throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
+        throw new Error('Partner ID not found');
       }
 
       const formData = new FormData();
+      formData.append('ParnerID', partnerId);
       formData.append('Title', blogData.Title);
       formData.append('Content', blogData.Content);
-      formData.append('ParnerID', partnerId);
-      formData.append('ThumbnailUrl', blogData.ThumbnailUrl);
-      formData.append('BlogStatus', blogData.BlogStatus.toString());
+      if (blogData.Image) {
+        formData.append('Image', blogData.Image);
+      }
 
-      const response = await api.post<PartnerApiResponse<string>>('/Partner/blog', formData, {
+      const response = await api.post('/Partner/blog', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      return response.data.Message;
+
+      return response.data.message;
     } catch (error) {
       console.error('Error creating blog:', error);
       throw error;
     }
   },
 
-  async updateBlog(blogId: string, blogData: Omit<PartnerBlogRequest, 'ParnerID'>): Promise<string> {
+  async updateBlog(id: string, blogData: Omit<PartnerBlogRequest, 'ParnerID'>): Promise<string> {
     try {
       const partnerId = getPartnerId();
       if (!partnerId) {
-        throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
+        throw new Error('Partner ID not found');
       }
 
       const formData = new FormData();
+      formData.append('ParnerID', partnerId);
       formData.append('Title', blogData.Title);
       formData.append('Content', blogData.Content);
-      formData.append('ParnerID', partnerId);
-      formData.append('ThumbnailUrl', blogData.ThumbnailUrl);
-      formData.append('BlogStatus', blogData.BlogStatus.toString());
+      if (blogData.Image) {
+        formData.append('Image', blogData.Image);
+      }
 
-      const response = await api.put<PartnerApiResponse<string>>(`/Partner/blog/${blogId}`, formData, {
+      const response = await api.put(`/Partner/blog/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      return response.data.Message;
+
+      return response.data.message;
     } catch (error) {
       console.error('Error updating blog:', error);
       throw error;
     }
   },
 
-  async getBlogs(): Promise<PartnerBlog[]> {
-    try {
-      const partnerId = getPartnerId();
-      if (!partnerId) {
-        throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
-      }
-
-      const response = await api.get<PartnerApiResponse<PartnerBlog[]>>(
-        `/Partner/blog?id=${partnerId}`
-      );
-      return response.data.Data || [];
-    } catch (error) {
-      console.error('Error fetching blogs:', error);
-      throw error;
-    }
-  },
-
-  async deleteBlog(blogId: string): Promise<string> {
-    try {
-      const response = await api.delete<PartnerApiResponse<string>>(`/Partner/blog/${blogId}`);
-      return response.data.Message;
-    } catch (error) {
-      console.error('Error deleting blog:', error);
-      throw error;
-    }
-  },
-
   // ========== COURT MANAGEMENT ==========
-  async getCourts(params: CourtParams): Promise<PartnerPaginatedResponse<PartnerCourt>> {
+  async getCourts(): Promise<PartnerCourt[]> {
     try {
       const partnerId = getPartnerId();
       if (!partnerId) {
-        throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
+        throw new Error('Partner ID not found');
       }
 
-      const queryParams = new URLSearchParams();
-      queryParams.append('id', partnerId);
-      queryParams.append('Page', params.Page.toString());
-      queryParams.append('PageSize', params.PageSize.toString());
-      if (params.Name) queryParams.append('Name', params.Name);
-      if (params.Status !== undefined) queryParams.append('Status', params.Status.toString());
-
-      const response = await api.get<PartnerApiResponse<PartnerPaginatedResponse<PartnerCourt>>>(
-        `/Partner/court?${queryParams.toString()}`
-      );
-      return response.data.Data!;
+      const response = await api.get(`/Partner/court?id=${partnerId}`);
+      return response.data.data;
     } catch (error) {
       console.error('Error fetching courts:', error);
       throw error;
     }
   },
 
-  async getCourtById(courtId: string): Promise<PartnerCourt> {
+  async getCourtById(id: string): Promise<PartnerCourt> {
     try {
-      const response = await api.get<PartnerApiResponse<PartnerCourt>>(`/Partner/court/${courtId}`);
-      return response.data.Data!;
+      const response = await api.get(`/Partner/court/${id}`);
+      return response.data.data;
     } catch (error) {
       console.error('Error fetching court:', error);
       throw error;
@@ -276,149 +185,131 @@ export const partnerService = {
     try {
       const partnerId = getPartnerId();
       if (!partnerId) {
-        throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
+        throw new Error('Partner ID not found');
       }
 
       const formData = new FormData();
       formData.append('PartnerId', partnerId);
       formData.append('Name', courtData.Name);
-      formData.append('Location', courtData.Location);
-      formData.append('PricePerHour', courtData.PricePerHour.toString());
-      formData.append('ImageUrl', courtData.ImageUrl);
-      formData.append('CourtStatus', courtData.CourtStatus.toString());
-      courtData.TimeSlotIDs.forEach(id => formData.append('TimeSlotIDs', id));
+      formData.append('Address', courtData.Address);
+      formData.append('Description', courtData.Description);
+      formData.append('Price', courtData.Price.toString());
+      if (courtData.Image) {
+        formData.append('Image', courtData.Image);
+      }
 
-      const response = await api.post<PartnerApiResponse<string>>('/Partner/court', formData, {
+      const response = await api.post('/Partner/court', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      return response.data.Message;
+
+      return response.data.message;
     } catch (error) {
       console.error('Error creating court:', error);
       throw error;
     }
   },
 
-  async updateCourt(courtId: string, courtData: Omit<PartnerCourtRequest, 'PartnerId'>): Promise<string> {
+  async updateCourt(id: string, courtData: Omit<PartnerCourtRequest, 'PartnerId'>): Promise<string> {
     try {
       const partnerId = getPartnerId();
       if (!partnerId) {
-        throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
+        throw new Error('Partner ID not found');
       }
 
       const formData = new FormData();
       formData.append('PartnerId', partnerId);
       formData.append('Name', courtData.Name);
-      formData.append('Location', courtData.Location);
-      formData.append('PricePerHour', courtData.PricePerHour.toString());
-      formData.append('ImageUrl', courtData.ImageUrl);
-      formData.append('CourtStatus', courtData.CourtStatus.toString());
-      courtData.TimeSlotIDs.forEach(id => formData.append('TimeSlotIDs', id));
+      formData.append('Address', courtData.Address);
+      formData.append('Description', courtData.Description);
+      formData.append('Price', courtData.Price.toString());
+      if (courtData.Image) {
+        formData.append('Image', courtData.Image);
+      }
 
-      const response = await api.put<PartnerApiResponse<string>>(`/Partner/court/${courtId}`, formData, {
+      const response = await api.put(`/Partner/court/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      return response.data.Message;
+
+      return response.data.message;
     } catch (error) {
       console.error('Error updating court:', error);
       throw error;
     }
   },
 
-  async deleteCourt(courtId: string): Promise<string> {
+  async deleteCourt(id: string): Promise<string> {
     try {
-      const response = await api.delete<PartnerApiResponse<string>>(`/Partner/court/${courtId}`);
-      return response.data.Message;
+      const response = await api.delete(`/Partner/court/${id}`);
+      return response.data.message;
     } catch (error) {
       console.error('Error deleting court:', error);
       throw error;
     }
   },
 
-  // ========== TIMESLOT MANAGEMENT ==========
-  async getTimeSlots(): Promise<PartnerTimeSlot[]> {
+  // ========== TIME SLOT MANAGEMENT ==========
+  async getTimeSlots(): Promise<any[]> {
     try {
       const partnerId = getPartnerId();
       if (!partnerId) {
-        throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
+        throw new Error('Partner ID not found');
       }
 
-      const response = await api.get<PartnerApiResponse<PartnerTimeSlot[]>>(
-        `/Partner/timeslot?id=${partnerId}`
-      );
-      return response.data.Data || [];
+      const response = await api.get(`/Partner/timeslot?id=${partnerId}`);
+      return response.data.data;
     } catch (error) {
       console.error('Error fetching time slots:', error);
       throw error;
     }
   },
 
-  async createTimeSlot(timeSlotData: Omit<PartnerTimeSlotRequest, 'PartnerId'>): Promise<string> {
+  async createTimeSlot(timeSlotData: Omit<TimeSlotRequest, 'PartnerId'>): Promise<string> {
     try {
-      let partnerId = getPartnerId();
-      
-      // If still empty, try to get from AuthContext directly
+      const partnerId = getPartnerId();
       if (!partnerId) {
-        console.log('Trying to get PartnerId from AuthContext...');
-        try {
-          // Try to access AuthContext directly
-          const authData = JSON.parse(localStorage.getItem('authData') || '{}');
-          partnerId = authData.userID || authData.id;
-          console.log('PartnerId from authData:', partnerId);
-        } catch (e) {
-          console.error('Error getting from authData:', e);
-        }
-      }
-      
-      if (!partnerId || partnerId === '00000000-0000-0000-0000-000000000000') {
-        throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
+        throw new Error('Partner ID not found');
       }
 
-      // Convert time format from "HH:mm AM/PM" to "HH:mm" for TimeOnly
+      // Convert time format from "HH:mm AM/PM" to "HH:mm"
       const convertTo24Hour = (timeStr: string): string => {
         const [time, period] = timeStr.split(' ');
-        const [hours, minutes] = time.split(':');
-        let hour24 = parseInt(hours);
+        let [hours, minutes] = time.split(':').map(Number);
         
-        if (period === 'PM' && hour24 !== 12) {
-          hour24 += 12;
-        } else if (period === 'AM' && hour24 === 12) {
-          hour24 = 0;
+        if (period === 'PM' && hours !== 12) {
+          hours += 12;
+        } else if (period === 'AM' && hours === 12) {
+          hours = 0;
         }
         
-        return `${hour24.toString().padStart(2, '0')}:${minutes}`;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
       };
 
-      // Use FormData to avoid TimeOnly JSON serialization issues
       const formData = new FormData();
       formData.append('PartnerId', partnerId);
       formData.append('StartTime', convertTo24Hour(timeSlotData.StartTime));
       formData.append('EndTime', convertTo24Hour(timeSlotData.EndTime));
 
-      console.log('Creating time slot with FormData:');
-      console.log('PartnerId:', partnerId);
-      console.log('StartTime:', convertTo24Hour(timeSlotData.StartTime));
-      console.log('EndTime:', convertTo24Hour(timeSlotData.EndTime));
-      
-      const response = await api.post<PartnerApiResponse<string>>('/Partner/timeslot', formData, {
+      const response = await api.post('/Partner/timeslot', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      return response.data.Message;
+
+      return response.data.message;
     } catch (error) {
       console.error('Error creating time slot:', error);
       throw error;
     }
   },
 
-  async deleteTimeSlot(timeSlotId: string): Promise<string> {
+  async deleteTimeSlot(id: string): Promise<string> {
     try {
-      const response = await api.delete<PartnerApiResponse<string>>(`/Partner/timeslot/${timeSlotId}`);
-      return response.data.Message;
+      const response = await api.delete(`/Partner/timeslot/${id}`);
+      return response.data.message;
     } catch (error) {
       console.error('Error deleting time slot:', error);
       throw error;
@@ -426,26 +317,26 @@ export const partnerService = {
   },
 
   // ========== BOOKING MANAGEMENT ==========
-  async getBookings(params: BookingParams): Promise<PartnerPaginatedResponse<PartnerBooking>> {
+  async getBookings(params?: BookingParams): Promise<any> {
     try {
       const partnerId = getPartnerId();
       if (!partnerId) {
-        throw new Error('Không thể lấy PartnerId. Vui lòng đăng nhập lại.');
+        throw new Error('Partner ID not found');
       }
 
       const queryParams = new URLSearchParams();
-      queryParams.append('Page', params.Page.toString());
-      queryParams.append('PageSize', params.PageSize.toString());
-      if (params.Customer) queryParams.append('Customer', params.Customer);
-      if (params.BookingStatus !== undefined) queryParams.append('BookingStatus', params.BookingStatus.toString());
+      if (params?.PageNumber) queryParams.append('PageNumber', params.PageNumber.toString());
+      if (params?.PageSize) queryParams.append('PageSize', params.PageSize.toString());
+      if (params?.Customer) queryParams.append('Customer', params.Customer);
+      if (params?.BookingStatus) queryParams.append('BookingStatus', params.BookingStatus.toString());
 
-      const response = await api.get<PartnerApiResponse<PartnerPaginatedResponse<PartnerBooking>>>(
-        `/Partner/booking/${partnerId}?${queryParams.toString()}`
-      );
-      return response.data.Data!;
+      const response = await api.get(`/Partner/booking/${partnerId}?${queryParams.toString()}`);
+      return response.data;
     } catch (error) {
       console.error('Error fetching bookings:', error);
       throw error;
     }
-  }
+  },
 };
+
+export default partnerService;

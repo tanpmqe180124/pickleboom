@@ -21,7 +21,7 @@ const PartnerRoute: React.FC<PartnerRouteProps> = ({ children }) => {
   }
 
   // Check if user has partner role
-  const isPartner = userRole === 'Partner';
+  const isPartner = userRole === 'Partner' || userRole?.toLowerCase() === 'partner';
   
   console.log('isPartner:', isPartner);
   
@@ -35,5 +35,3 @@ const PartnerRoute: React.FC<PartnerRouteProps> = ({ children }) => {
 };
 
 export default PartnerRoute;
-
-

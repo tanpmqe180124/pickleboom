@@ -7,22 +7,15 @@ const PartnerLink: React.FC = () => {
   const { userRole } = useAuth();
 
   // Only show for partner users
-  const isPartner = userRole === 'Partner' || userRole?.toLowerCase() === 'partner';
+  const isPartner = userRole === 'partner' || userRole?.toLowerCase() === 'partner';
 
   if (!isPartner) {
     return null;
   }
 
-  const handleClick = () => {
-    console.log('=== PARTNER LINK CLICKED ===');
-    console.log('Navigating to /partner');
-    console.log('Current userRole:', userRole);
-  };
-
   return (
     <Link
       to="/partner"
-      onClick={handleClick}
       className="flex items-center space-x-3 p-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
     >
       <div className="bg-white/20 rounded-lg p-2">
