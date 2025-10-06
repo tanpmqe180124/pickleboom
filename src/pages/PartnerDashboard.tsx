@@ -27,9 +27,20 @@ import BookingManagement from '@/components/partner/BookingManagement';
 type PartnerTab = 'blogs' | 'courts' | 'timeslots' | 'bookings';
 
 const PartnerDashboard: React.FC = () => {
+  console.log('=== PARTNER DASHBOARD COMPONENT START ===');
+  
+  // Simple test first
+  return (
+    <div className="min-h-screen bg-red-500 flex items-center justify-center">
+      <div className="text-white text-4xl font-bold">
+        TEST PARTNER DASHBOARD
+      </div>
+    </div>
+  );
+  
+  // Original code below (commented out for testing)
+  /*
   try {
-    console.log('=== PARTNER DASHBOARD COMPONENT START ===');
-    
     const { userRole, logout, isAuthenticated } = useAuth();
     const [activeTab, setActiveTab] = useState<PartnerTab>('courts');
 
