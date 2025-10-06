@@ -35,6 +35,7 @@ const PartnerDashboard: React.FC = () => {
   console.log('PartnerDashboard - userRole:', userRole);
   console.log('PartnerDashboard - isPartner:', isPartner);
   console.log('PartnerDashboard - isAuthenticated:', isAuthenticated);
+  console.log('PartnerDashboard - activeTab:', activeTab);
   
   // ========== CHECK PARTNER ROLE ==========
   useEffect(() => {
@@ -101,17 +102,28 @@ const PartnerDashboard: React.FC = () => {
 
   // ========== RENDER TAB CONTENT ==========
   const renderTabContent = () => {
-    switch (activeTab) {
-      case 'blogs':
-        return <BlogManagement />;
-      case 'courts':
-        return <CourtManagement />;
-      case 'timeslots':
-        return <TimeSlotManagement />;
-      case 'bookings':
-        return <BookingManagement />;
-      default:
-        return <CourtManagement />;
+    console.log('renderTabContent - activeTab:', activeTab);
+    try {
+      switch (activeTab) {
+        case 'blogs':
+          console.log('Rendering BlogManagement');
+          return <BlogManagement />;
+        case 'courts':
+          console.log('Rendering CourtManagement');
+          return <CourtManagement />;
+        case 'timeslots':
+          console.log('Rendering TimeSlotManagement');
+          return <TimeSlotManagement />;
+        case 'bookings':
+          console.log('Rendering BookingManagement');
+          return <BookingManagement />;
+        default:
+          console.log('Rendering CourtManagement (default)');
+          return <CourtManagement />;
+      }
+    } catch (error) {
+      console.error('Error in renderTabContent:', error);
+      return <div className="p-6 text-red-500">Lỗi tải component: {error?.toString()}</div>;
     }
   };
 
@@ -137,6 +149,7 @@ const PartnerDashboard: React.FC = () => {
     );
   }
 
+  console.log('✅ Rendering Partner Dashboard UI');
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
