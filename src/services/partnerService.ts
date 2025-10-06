@@ -1,4 +1,4 @@
-import { api } from './api';
+import { api } from '@/infrastructure/api/axiosClient';
 
 // ========== TYPES ==========
 export interface PartnerBlogRequest {
@@ -365,19 +365,20 @@ export const partnerService = {
         return `${hour24.toString().padStart(2, '0')}:${minutes}`;
       };
 
-      // Backend expects JSON object with TimeSlotRequest structure
-      const requestData = {
-        PartnerId: partnerId,
-        StartTime: convertTo24Hour(timeSlotData.StartTime),
-        EndTime: convertTo24Hour(timeSlotData.EndTime)
-      };
+      // Use FormData to avoid TimeOnly JSON serialization issues
+      const formData = new FormData();
+      formData.append('PartnerId', partnerId);
+      formData.append('StartTime', convertTo24Hour(timeSlotData.StartTime));
+      formData.append('EndTime', convertTo24Hour(timeSlotData.EndTime));
 
-      console.log('Creating time slot with JSON:');
-      console.log('Request data:', requestData);
+      console.log('Creating time slot with FormData:');
+      console.log('PartnerId:', partnerId);
+      console.log('StartTime:', convertTo24Hour(timeSlotData.StartTime));
+      console.log('EndTime:', convertTo24Hour(timeSlotData.EndTime));
       
-      const response = await api.post<PartnerApiResponse<string>>('/Partner/timeslot', requestData, {
+      const response = await api.post<PartnerApiResponse<string>>('/Partner/timeslot', formData, {
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
         },
       });
       return response.data.Message;
