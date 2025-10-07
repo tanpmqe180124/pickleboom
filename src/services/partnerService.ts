@@ -98,7 +98,7 @@ export const partnerService = {
   getCourts: async (params?: PartnerCourtParams): Promise<PartnerCourt[]> => {
     try {
       // Note: Backend expects partner ID as query param
-      const response = await api.get('/api/Partner/court', { params });
+      const response = await api.get('/Partner/court', { params });
       return response.data.data || response.data || [];
     } catch (error) {
       console.error('Error fetching partner courts:', error);
@@ -109,7 +109,7 @@ export const partnerService = {
   // Get court by ID
   getCourtById: async (id: string): Promise<PartnerCourt> => {
     try {
-      const response = await api.get(`/api/Partner/court/${id}`);
+      const response = await api.get(`/Partner/court/${id}`);
       return response.data.data || response.data;
     } catch (error) {
       console.error('Error fetching court by ID:', error);
@@ -132,7 +132,7 @@ export const partnerService = {
         formData.append('ImageUrl', data.ImageUrl);
       }
 
-      const response = await api.post('/api/Partner/court', formData, {
+      const response = await api.post('/Partner/court', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -160,7 +160,7 @@ export const partnerService = {
         formData.append('ImageUrl', data.ImageUrl);
       }
 
-      const response = await api.put(`/api/Partner/court/${id}`, formData, {
+      const response = await api.put(`/Partner/court/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -176,7 +176,7 @@ export const partnerService = {
   // Delete court
   deleteCourt: async (id: string): Promise<string> => {
     try {
-      const response = await api.delete(`/api/Partner/court/${id}`);
+      const response = await api.delete(`/Partner/court/${id}`);
       return response.data.message || 'Court deleted successfully';
     } catch (error) {
       console.error('Error deleting court:', error);
@@ -270,7 +270,7 @@ export const partnerService = {
   // Get blogs for partner
   getBlogs: async (params?: any): Promise<PartnerBlog[]> => {
     try {
-      const response = await api.get('/api/Partner/blog', { params });
+      const response = await api.get('/Partner/blog', { params });
       return response.data.data || response.data || [];
     } catch (error) {
       console.error('Error fetching partner blogs:', error);
@@ -281,7 +281,7 @@ export const partnerService = {
   // Get blog by ID
   getBlogById: async (id: string): Promise<PartnerBlog> => {
     try {
-      const response = await api.get(`/api/Partner/blog/${id}`);
+      const response = await api.get(`/Partner/blog/${id}`);
       return response.data.data || response.data;
     } catch (error) {
       console.error('Error fetching blog by ID:', error);
@@ -301,7 +301,7 @@ export const partnerService = {
         formData.append('Image', data.Image);
       }
 
-      const response = await api.post('/api/Partner/blog', formData, {
+      const response = await api.post('/Partner/blog', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -326,7 +326,7 @@ export const partnerService = {
         formData.append('Image', data.Image);
       }
 
-      const response = await api.put(`/api/Partner/blog/${id}`, formData, {
+      const response = await api.put(`/Partner/blog/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -342,7 +342,7 @@ export const partnerService = {
   // Delete blog
   deleteBlog: async (id: string): Promise<string> => {
     try {
-      const response = await api.delete(`/api/Partner/blog/${id}`);
+      const response = await api.delete(`/Partner/blog/${id}`);
       return response.data.message || 'Blog deleted successfully';
     } catch (error) {
       console.error('Error deleting blog:', error);
@@ -354,7 +354,7 @@ export const partnerService = {
   // Get bookings for partner's courts
   getBookings: async (partnerId: string, params?: PartnerBookingParams): Promise<PartnerBooking[]> => {
     try {
-      const response = await api.get(`/api/Partner/booking/${partnerId}`, { params });
+      const response = await api.get(`/Partner/booking/${partnerId}`, { params });
       return response.data.data || response.data || [];
     } catch (error) {
       console.error('Error fetching partner bookings:', error);
@@ -365,7 +365,7 @@ export const partnerService = {
   // Update booking status
   updateBookingStatus: async (id: string, status: number): Promise<string> => {
     try {
-      const response = await api.put(`/api/Partner/booking/${id}/status`, { status });
+      const response = await api.put(`/Partner/booking/${id}/status`, { status });
       return response.data.message || 'Booking status updated successfully';
     } catch (error) {
       console.error('Error updating booking status:', error);
@@ -377,7 +377,7 @@ export const partnerService = {
   // Get partner dashboard stats
   getDashboardStats: async (): Promise<any> => {
     try {
-      const response = await api.get('/api/Partner/dashboard/stats');
+      const response = await api.get('/Partner/dashboard/stats');
       return response.data.data || response.data;
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
@@ -388,7 +388,7 @@ export const partnerService = {
   // Get partner profile
   getProfile: async (): Promise<any> => {
     try {
-      const response = await api.get('/api/Partner/profile');
+      const response = await api.get('/Partner/profile');
       return response.data.data || response.data;
     } catch (error) {
       console.error('Error fetching partner profile:', error);
@@ -399,7 +399,7 @@ export const partnerService = {
   // Update partner profile
   updateProfile: async (data: any): Promise<string> => {
     try {
-      const response = await api.put('/api/Partner/profile', data);
+      const response = await api.put('/Partner/profile', data);
       return response.data.message || 'Profile updated successfully';
     } catch (error) {
       console.error('Error updating partner profile:', error);
