@@ -131,7 +131,12 @@ export const partnerService = {
       formData.append('Location', data.Location);
       formData.append('PricePerHour', data.PricePerHour.toString());
       formData.append('CourtStatus', data.CourtStatus.toString());
-      formData.append('TimeSlotIDs', JSON.stringify(data.TimeSlotIDs));
+      // Append time slots in a way ASP.NET model binder expects: TimeSlotIDs=guid&TimeSlotIDs=guid
+      if (Array.isArray(data.TimeSlotIDs)) {
+        data.TimeSlotIDs.forEach((id) => {
+          if (id) formData.append('TimeSlotIDs', id);
+        });
+      }
       
       if (data.ImageUrl) {
         formData.append('ImageUrl', data.ImageUrl);
@@ -147,11 +152,8 @@ export const partnerService = {
         ImageUrl: data.ImageUrl ? 'File provided' : 'No file'
       });
 
-      const response = await api.post('/Partner/court', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      // Let axios set the correct multipart boundary automatically
+      const response = await api.post('/Partner/court', formData);
       
       return response.data.message || 'Court created successfully';
     } catch (error) {
@@ -175,7 +177,11 @@ export const partnerService = {
       formData.append('Location', data.Location);
       formData.append('PricePerHour', data.PricePerHour.toString());
       formData.append('CourtStatus', data.CourtStatus.toString());
-      formData.append('TimeSlotIDs', JSON.stringify(data.TimeSlotIDs));
+      if (Array.isArray(data.TimeSlotIDs)) {
+        data.TimeSlotIDs.forEach((id) => {
+          if (id) formData.append('TimeSlotIDs', id);
+        });
+      }
       
       if (data.ImageUrl) {
         formData.append('ImageUrl', data.ImageUrl);
@@ -191,11 +197,7 @@ export const partnerService = {
         ImageUrl: data.ImageUrl ? 'File provided' : 'No file'
       });
 
-      const response = await api.put(`/Partner/court/${id}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await api.put(`/Partner/court/${id}`, formData);
       
       return response.data.message || 'Court updated successfully';
     } catch (error) {
