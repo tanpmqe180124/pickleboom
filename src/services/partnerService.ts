@@ -38,7 +38,7 @@ export interface PartnerTimeSlot {
 export interface PartnerTimeSlotRequest {
   StartTime: string;
   EndTime: string;
-  CourtId: string;
+  CourtId?: string; // Frontend có thể cần CourtId nhưng backend không cần
 }
 
 export interface PartnerBlog {
@@ -195,15 +195,8 @@ export const partnerService = {
       }
       
       // Backend có [HttpGet("timeslot")] với Guid id parameter
-      // Thử cả 2 cách: query parameter và route parameter
-      let response;
-      try {
-        // Thử query parameter trước
-        response = await api.get(`/api/Partner/timeslot?id=${partnerId}`);
-      } catch (error) {
-        // Nếu query parameter fail, thử route parameter
-        response = await api.get(`/api/Partner/timeslot/${partnerId}`);
-      }
+      // Vì không có {id} trong route, backend sẽ tìm id trong query parameters
+      const response = await api.get(`/api/Partner/timeslot?id=${partnerId}`);
       return response.data.data || response.data || [];
     } catch (error) {
       console.error('Error fetching partner time slots:', error);
@@ -219,9 +212,11 @@ export const partnerService = {
         throw new Error('Partner ID not found');
       }
       
+      // Backend expect TimeSlotRequest với PartnerId, StartTime, EndTime
       const requestData = {
-        ...data,
-        PartnerId: partnerId
+        PartnerId: partnerId,
+        StartTime: data.StartTime,
+        EndTime: data.EndTime
       };
       
       const response = await api.post('/api/Partner/timeslot', requestData);
