@@ -196,7 +196,8 @@ export const partnerService = {
       
       // Backend có [HttpGet("timeslot")] với Guid id parameter
       // Vì không có {id} trong route, backend sẽ tìm id trong query parameters
-      const response = await api.get(`/api/Partner/timeslot?id=${partnerId}`);
+      // axios baseURL already includes /api
+      const response = await api.get(`/Partner/timeslot?id=${partnerId}`);
       return response.data.data || response.data || [];
     } catch (error) {
       console.error('Error fetching partner time slots:', error);
@@ -219,7 +220,7 @@ export const partnerService = {
         EndTime: data.EndTime
       };
       
-      const response = await api.post('/api/Partner/timeslot', requestData);
+      const response = await api.post('/Partner/timeslot', requestData);
       return response.data.message || 'Time slot created successfully';
     } catch (error) {
       console.error('Error creating time slot:', error);
@@ -230,7 +231,7 @@ export const partnerService = {
   // Delete time slot
   deleteTimeSlot: async (id: string): Promise<string> => {
     try {
-      const response = await api.delete(`/api/Partner/timeslot/${id}`);
+      const response = await api.delete(`/Partner/timeslot/${id}`);
       return response.data.message || 'Time slot deleted successfully';
     } catch (error) {
       console.error('Error deleting time slot:', error);
