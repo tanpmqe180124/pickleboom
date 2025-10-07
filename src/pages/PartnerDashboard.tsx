@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/contexts/ToastContext';
+import { showToast } from '@/utils/toastManager';
 import { 
   MapPin, 
   Clock, 
@@ -28,7 +28,6 @@ type PartnerTab = 'blogs' | 'courts' | 'timeslots' | 'bookings';
 
 const PartnerDashboard: React.FC = () => {
   const { userRole, logout, isAuthenticated } = useAuth();
-  const showToast = useToast();
   const [activeTab, setActiveTab] = useState<PartnerTab>('courts');
 
   const isPartner = userRole === 'Partner' || userRole?.toLowerCase() === 'partner';
@@ -36,42 +35,15 @@ const PartnerDashboard: React.FC = () => {
   console.log('PartnerDashboard - userRole:', userRole);
   console.log('PartnerDashboard - isPartner:', isPartner);
   
-  // Show loading if still checking authentication
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-  
   // ========== CHECK PARTNER ROLE ==========
   useEffect(() => {
-    console.log('PartnerDashboard useEffect - isPartner:', isPartner);
-    console.log('PartnerDashboard useEffect - userRole:', userRole);
     if (!isPartner) {
-      console.log('❌ Not partner, showing error and redirecting');
-      showToast.showError('Không có quyền truy cập', 'Bạn không có quyền partner để truy cập trang này.');
+      showToast.error('Không có quyền truy cập', 'Bạn không có quyền partner để truy cập trang này.');
       setTimeout(() => {
         window.location.href = '/dashboard';
       }, 2000);
-    } else {
-      console.log('✅ Partner access confirmed');
     }
-  }, [isPartner, showToast]);
-
-  // Show access denied if not partner
-  if (!isPartner) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Không có quyền truy cập</h2>
-          <p className="text-gray-600 mb-4">Bạn không có quyền partner để truy cập trang này.</p>
-          <p className="text-sm text-gray-500">Đang chuyển hướng...</p>
-        </div>
-      </div>
-    );
-  }
+  }, [isPartner]);
 
   // ========== HANDLE BACK ==========
   const handleBack = () => {
@@ -82,11 +54,11 @@ const PartnerDashboard: React.FC = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      showToast.showSuccess('Đăng xuất thành công', 'Bạn đã đăng xuất khỏi hệ thống partner.');
+      showToast.success('Đăng xuất thành công', 'Bạn đã đăng xuất khỏi hệ thống partner.');
       window.location.href = '/login';
     } catch (error) {
       console.error('Logout error:', error);
-      showToast.showError('Lỗi đăng xuất', 'Có lỗi xảy ra khi đăng xuất.');
+      showToast.error('Lỗi đăng xuất', 'Có lỗi xảy ra khi đăng xuất.');
     }
   };
 
