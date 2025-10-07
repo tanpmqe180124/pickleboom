@@ -9,10 +9,13 @@ import {
   Search,
   Filter,
   Eye,
-  ChevronLeft,
-  ChevronRight,
+  EyeOff,
+  Save,
   X,
-  Save
+  Calendar,
+  DollarSign,
+  Clock,
+  Image as ImageIcon
 } from 'lucide-react';
 
 // ========== INTERFACES ==========
@@ -22,12 +25,13 @@ export interface BaseCourt {
   description: string;
   location: string;
   pricePerHour: number;
-  courtStatus: number;
-  timeSlots?: any[];
   imageUrl?: string;
-  // PartnerCourt compatibility
-  price?: number;
-  status?: number;
+  courtStatus: number; // 0: Available, 1: UnderMaintenance, 2: Inactive, 3: Full
+  timeSlotIDs?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+  partnerId?: string;
+  partnerName?: string;
 }
 
 export interface BaseCourtRequest {
@@ -35,16 +39,9 @@ export interface BaseCourtRequest {
   Description: string;
   Location: string;
   PricePerHour: number;
+  ImageUrl?: File;
   CourtStatus: number;
-  TimeSlotIDs: string[];
-  Image?: File;
-}
-
-export interface BaseTimeSlot {
-  id: string;
-  startTime: string;
-  endTime: string;
-  isAvailable: boolean;
+  PartnerId?: string;
 }
 
 interface BaseCourtManagementProps {
@@ -55,7 +52,7 @@ interface BaseCourtManagementProps {
     createCourt: (data: BaseCourtRequest) => Promise<string>;
     updateCourt: (id: string, data: BaseCourtRequest) => Promise<string>;
     deleteCourt: (id: string) => Promise<string>;
-    getTimeSlots: () => Promise<BaseTimeSlot[]>;
+    getTimeSlots: (courtId?: string) => Promise<any[]>;
   };
   permissions: {
     canCreate: boolean;
@@ -71,7 +68,6 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
   permissions
 }) => {
   const [courts, setCourts] = useState<BaseCourt[]>([]);
-  const [timeSlots, setTimeSlots] = useState<BaseTimeSlot[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<number | null>(null);
@@ -84,8 +80,7 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
     Description: '',
     Location: '',
     PricePerHour: 0,
-    CourtStatus: 0,
-    TimeSlotIDs: []
+    CourtStatus: 0
   });
 
   // ========== FETCH COURTS ==========
@@ -95,35 +90,12 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
       const courtsData = await apiService.getCourts(searchParams);
       console.log('Courts API Response:', courtsData);
       
-      // Handle both Admin and Partner response formats
-      let courtsArray: BaseCourt[] = [];
-      
       if (Array.isArray(courtsData)) {
-        courtsArray = courtsData;
-      } else if (courtsData && Array.isArray(courtsData.items)) {
-        // Admin format with pagination
-        courtsArray = courtsData.items;
-      } else if (courtsData && Array.isArray(courtsData.data)) {
-        // Partner format with data wrapper
-        courtsArray = courtsData.data;
+        setCourts(courtsData);
       } else {
-        console.warn('API returned unexpected data format:', courtsData);
-        courtsArray = [];
+        console.warn('API returned non-array data:', courtsData);
+        setCourts([]);
       }
-      
-      // Normalize court data to BaseCourt format
-      const normalizedCourts = courtsArray.map((court: any) => ({
-        id: court.id,
-        name: court.name || court.Name,
-        description: court.description || court.Description,
-        location: court.location || court.Location,
-        pricePerHour: court.pricePerHour || court.PricePerHour || court.price || court.Price || 0,
-        courtStatus: court.courtStatus || court.CourtStatus || court.status || court.Status || 0,
-        timeSlots: court.timeSlots || court.TimeSlots || [],
-        imageUrl: court.imageUrl || court.ImageUrl
-      }));
-      
-      setCourts(normalizedCourts);
     } catch (error) {
       console.error('Error fetching courts:', error);
       showToast.error('Lỗi tải dữ liệu', 'Không thể tải danh sách sân.');
@@ -133,20 +105,9 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
     }
   };
 
-  // ========== FETCH TIME SLOTS ==========
-  const fetchTimeSlots = async () => {
-    try {
-      const timeSlotsData = await apiService.getTimeSlots();
-      setTimeSlots(timeSlotsData);
-    } catch (error) {
-      console.error('Error fetching time slots:', error);
-    }
-  };
-
   // ========== EFFECTS ==========
   useEffect(() => {
     fetchCourts();
-    fetchTimeSlots();
   }, []);
 
   // ========== HANDLERS ==========
@@ -157,8 +118,7 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
       Description: '',
       Location: '',
       PricePerHour: 0,
-      CourtStatus: 0,
-      TimeSlotIDs: []
+      CourtStatus: 0
     });
     setShowModal(true);
   };
@@ -170,8 +130,7 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
       Description: court.description,
       Location: court.location,
       PricePerHour: court.pricePerHour,
-      CourtStatus: court.courtStatus,
-      TimeSlotIDs: court.timeSlots?.map(ts => ts.id) || []
+      CourtStatus: court.courtStatus
     });
     setShowModal(true);
   };
@@ -224,7 +183,7 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
   const handleSearch = () => {
     fetchCourts({
       Name: searchTerm || undefined,
-      CourtStatus: statusFilter || undefined
+      CourtStatus: statusFilter !== null ? statusFilter : undefined
     });
   };
 
@@ -234,10 +193,50 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
     fetchCourts();
   };
 
+  // ========== UTILITY FUNCTIONS ==========
+  const getStatusText = (status: number) => {
+    switch (status) {
+      case 0: return 'Có sẵn';
+      case 1: return 'Bảo trì';
+      case 2: return 'Không hoạt động';
+      case 3: return 'Đầy';
+      default: return 'Không xác định';
+    }
+  };
+
+  const getStatusColor = (status: number) => {
+    switch (status) {
+      case 0: return 'bg-green-100 text-green-800';
+      case 1: return 'bg-yellow-100 text-yellow-800';
+      case 2: return 'bg-red-100 text-red-800';
+      case 3: return 'bg-orange-100 text-orange-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(price);
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Không xác định';
+    return new Date(dateString).toLocaleDateString('vi-VN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   // ========== FILTERED COURTS ==========
   const filteredCourts = courts.filter(court => {
     const matchesSearch = court.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         court.location.toLowerCase().includes(searchTerm.toLowerCase());
+                         court.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         court.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === null || court.courtStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -273,7 +272,7 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Tìm theo tên sân hoặc địa chỉ..."
+                placeholder="Tìm theo tên, địa điểm hoặc mô tả..."
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -289,9 +288,10 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Tất cả</option>
-              <option value="0">Không hoạt động</option>
-              <option value="1">Hoạt động</option>
-              <option value="2">Bảo trì</option>
+              <option value="0">Có sẵn</option>
+              <option value="1">Bảo trì</option>
+              <option value="2">Không hoạt động</option>
+              <option value="3">Đầy</option>
             </select>
           </div>
           
@@ -331,101 +331,80 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Sân
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Địa chỉ
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Giá/giờ
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Trạng thái
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Khung giờ
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Thao tác
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredCourts.map((court) => (
-                  <tr key={court.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10">
-                          {court.imageUrl ? (
-                            <img
-                              className="h-10 w-10 rounded-lg object-cover"
-                              src={court.imageUrl}
-                              alt={court.name}
-                            />
-                          ) : (
-                            <div className="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center">
-                              <MapPin className="h-5 w-5 text-gray-400" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {court.name}
-                          </div>
-                          <div className="text-sm text-gray-500 truncate max-w-xs">
-                            {court.description}
-                          </div>
-                        </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+            {filteredCourts.map((court) => (
+              <div key={court.id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                {/* Court Image */}
+                <div className="aspect-video bg-gray-100 rounded-t-lg overflow-hidden">
+                  {court.imageUrl ? (
+                    <img 
+                      src={court.imageUrl} 
+                      alt={court.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <ImageIcon className="h-12 w-12 text-gray-400" />
+                    </div>
+                  )}
+                </div>
+                
+                {/* Court Info */}
+                <div className="p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">
+                      {court.name}
+                    </h3>
+                    <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(court.courtStatus)}`}>
+                      {getStatusText(court.courtStatus)}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <MapPin size={16} />
+                      <span className="line-clamp-1">{court.location}</span>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <DollarSign size={16} />
+                      <span className="font-medium">{formatPrice(court.pricePerHour)}/giờ</span>
+                    </div>
+                    
+                    {court.timeSlotIDs && court.timeSlotIDs.length > 0 && (
+                      <div className="flex items-center space-x-2 text-sm text-gray-600">
+                        <Clock size={16} />
+                        <span>{court.timeSlotIDs.length} khung giờ</span>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {court.location}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {court.pricePerHour.toLocaleString('vi-VN')} VNĐ
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        court.courtStatus === 1 
-                          ? 'bg-green-100 text-green-800' 
-                          : court.courtStatus === 2
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {court.courtStatus === 1 ? 'Hoạt động' : 
-                         court.courtStatus === 2 ? 'Bảo trì' : 'Không hoạt động'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {court.timeSlots?.length || 0} khung giờ
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-2">
-                        <button
-                          onClick={() => handleEdit(court)}
-                          disabled={!permissions.canEdit}
-                          className="text-blue-600 hover:text-blue-900 disabled:text-gray-400 disabled:cursor-not-allowed"
-                        >
-                          <Edit size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(court)}
-                          disabled={!permissions.canDelete}
-                          className="text-red-600 hover:text-red-900 disabled:text-gray-400 disabled:cursor-not-allowed"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    )}
+                  </div>
+                  
+                  <p className="text-sm text-gray-700 line-clamp-2 mb-4">
+                    {court.description}
+                  </p>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEdit(court)}
+                      disabled={!permissions.canEdit}
+                      className="flex-1 flex items-center justify-center space-x-1 px-3 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors disabled:text-gray-400 disabled:border-gray-300 disabled:cursor-not-allowed"
+                    >
+                      <Edit size={16} />
+                      <span>Sửa</span>
+                    </button>
+                    <button
+                      onClick={() => handleDelete(court)}
+                      disabled={!permissions.canDelete}
+                      className="flex-1 flex items-center justify-center space-x-1 px-3 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors disabled:text-gray-400 disabled:border-gray-300 disabled:cursor-not-allowed"
+                    >
+                      <Trash2 size={16} />
+                      <span>Xóa</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -463,10 +442,11 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Giá/giờ (VNĐ) *
+                    Giá mỗi giờ (VND) *
                   </label>
                   <input
                     type="number"
+                    min="0"
                     value={formData.PricePerHour}
                     onChange={(e) => setFormData({...formData, PricePerHour: Number(e.target.value)})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -477,7 +457,7 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Địa chỉ *
+                  Địa điểm *
                 </label>
                 <input
                   type="text"
@@ -490,13 +470,14 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Mô tả
+                  Mô tả *
                 </label>
                 <textarea
                   value={formData.Description}
                   onChange={(e) => setFormData({...formData, Description: e.target.value})}
-                  rows={3}
+                  rows={4}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
                 />
               </div>
               
@@ -509,10 +490,28 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
                   onChange={(e) => setFormData({...formData, CourtStatus: Number(e.target.value)})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value={0}>Không hoạt động</option>
-                  <option value={1}>Hoạt động</option>
-                  <option value={2}>Bảo trì</option>
+                  <option value="0">Có sẵn</option>
+                  <option value="1">Bảo trì</option>
+                  <option value="2">Không hoạt động</option>
+                  <option value="3">Đầy</option>
                 </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Hình ảnh
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setFormData({...formData, ImageUrl: file});
+                    }
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
               </div>
               
               <div className="flex justify-end space-x-3 pt-4">

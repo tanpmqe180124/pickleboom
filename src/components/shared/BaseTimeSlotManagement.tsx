@@ -471,3 +471,4 @@ const BaseTimeSlotManagement: React.FC<BaseTimeSlotManagementProps> = ({
 };
 
 export default BaseTimeSlotManagement;
+
