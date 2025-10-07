@@ -9,6 +9,7 @@ import {
   Save,
   X
 } from 'lucide-react';
+import { partnerService } from '@/services/partnerService';
 
 // ========== INTERFACES ==========
 export interface BaseCourt {
@@ -63,7 +64,8 @@ const CourtCard: React.FC<CourtCardProps> = ({ court, onEdit, onDelete, canEdit,
     description: court.description,
     price: court.pricePerHour || court.price, // PartnerCourt dùng pricePerHour, BaseCourt dùng price
     imageUrl: court.imageUrl,
-    isAvailable: court.courtStatus === 0 || court.isAvailable // PartnerCourt dùng courtStatus, BaseCourt dùng isAvailable
+    isAvailable: court.courtStatus === 0 || court.isAvailable, // PartnerCourt dùng courtStatus, BaseCourt dùng isAvailable
+    created: court.created || court.createdAt
   };
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
@@ -102,6 +104,9 @@ const CourtCard: React.FC<CourtCardProps> = ({ court, onEdit, onDelete, canEdit,
             {courtData.price.toLocaleString('vi-VN')} VNĐ/giờ
           </span>
           <div className="flex space-x-2">
+            <span className="text-xs text-gray-500 self-center mr-2">
+              {courtData.created ? new Date(courtData.created).toLocaleString('vi-VN') : ''}
+            </span>
             {canEdit && (
               <button
                 onClick={() => onEdit(court)}
@@ -128,6 +133,28 @@ const CourtCard: React.FC<CourtCardProps> = ({ court, onEdit, onDelete, canEdit,
 };
 
 // ========== MAIN COMPONENT ==========
+// Simple selector for time slots using partnerService.getTimeSlots
+const TimeSlotSelector: React.FC<{ selected: string[]; onChange: (ids: string[]) => void }> = ({ selected, onChange }) => {
+  const [options, setOptions] = useState<any[]>([]);
+  useEffect(() => {
+    partnerService.getTimeSlots().then(setOptions).catch(() => setOptions([]));
+  }, []);
+  const toggle = (id: string) => {
+    if (selected.includes(id)) onChange(selected.filter(x => x !== id));
+    else onChange([...selected, id]);
+  };
+  return (
+    <div className="grid grid-cols-2 gap-2 max-h-40 overflow-auto border rounded p-2">
+      {options.map((opt) => (
+        <label key={opt.id} className="flex items-center space-x-2 text-sm">
+          <input type="checkbox" checked={selected.includes(opt.id)} onChange={() => toggle(opt.id)} />
+          <span>{opt.startTime} - {opt.endTime}</span>
+        </label>
+      ))}
+    </div>
+  );
+};
+
 const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
   userRole,
   apiService,
@@ -148,6 +175,8 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
     Price: 0,
     ImageUrl: ''
   });
+  const [courtStatus, setCourtStatus] = useState<number>(0);
+  const [selectedTimeSlots, setSelectedTimeSlots] = useState<string[]>([]);
 
   // ========== FETCH COURTS ==========
   const fetchCourts = async () => {
@@ -185,6 +214,8 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
       Price: 0,
       ImageUrl: ''
     });
+    setCourtStatus(0);
+    setSelectedTimeSlots([]);
     setShowModal(true);
   };
 
@@ -196,6 +227,7 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
       Price: court.pricePerHour || court.price, // Map pricePerHour -> price
       ImageUrl: court.imageUrl
     });
+    setCourtStatus(typeof court.courtStatus === 'number' ? court.courtStatus : (court.isAvailable ? 0 : 2));
     setShowModal(true);
   };
 
@@ -218,8 +250,8 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
         Location: formData.Address, // Map Address -> Location
         PricePerHour: formData.Price,
         ImageUrl: formData.ImageUrl as File | undefined,
-        CourtStatus: 0, // Default: Available
-        TimeSlotIDs: [] // Default: empty array
+        CourtStatus: courtStatus,
+        TimeSlotIDs: selectedTimeSlots
       };
 
       console.log('🏟️ PartnerCourtData before sending:', {
@@ -336,6 +368,24 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
             </div>
 
             <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Trạng thái sân</label>
+                <select
+                  value={courtStatus}
+                  onChange={(e) => setCourtStatus(Number(e.target.value))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value={0}>Có sẵn</option>
+                  <option value={1}>Bảo trì</option>
+                  <option value={2}>Không hoạt động</option>
+                  <option value={3}>Đầy</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Khung giờ (tùy chọn)</label>
+                <TimeSlotSelector selected={selectedTimeSlots} onChange={setSelectedTimeSlots} />
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Tên sân *
