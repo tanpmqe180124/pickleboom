@@ -188,7 +188,13 @@ export const partnerService = {
   // Get time slots for partner's courts
   getTimeSlots: async (courtId?: string): Promise<PartnerTimeSlot[]> => {
     try {
-      const params = courtId ? { courtId } : {};
+      // Backend cần partner ID, lấy từ localStorage hoặc context
+      const partnerId = localStorage.getItem('userID');
+      if (!partnerId) {
+        throw new Error('Partner ID not found');
+      }
+      
+      const params = courtId ? { courtId, id: partnerId } : { id: partnerId };
       const response = await api.get('/api/Partner/timeslot', { params });
       return response.data.data || response.data || [];
     } catch (error) {
@@ -200,7 +206,17 @@ export const partnerService = {
   // Create time slot
   createTimeSlot: async (data: PartnerTimeSlotRequest): Promise<string> => {
     try {
-      const response = await api.post('/api/Partner/timeslot', data);
+      const partnerId = localStorage.getItem('userID');
+      if (!partnerId) {
+        throw new Error('Partner ID not found');
+      }
+      
+      const requestData = {
+        ...data,
+        PartnerId: partnerId
+      };
+      
+      const response = await api.post('/api/Partner/timeslot', requestData);
       return response.data.message || 'Time slot created successfully';
     } catch (error) {
       console.error('Error creating time slot:', error);
