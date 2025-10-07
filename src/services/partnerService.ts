@@ -213,11 +213,38 @@ export const partnerService = {
         throw new Error('Partner ID not found');
       }
       
+      // Chuẩn hóa thời gian về định dạng HH:mm:ss để backend (TimeOnly) parse được
+      const toBackendTime = (timeStr: string): string => {
+        if (!timeStr) return timeStr;
+        const value = timeStr.trim();
+        // Nếu có AM/PM → parse sang 24h
+        if (/(am|pm)$/i.test(value) || /(am|pm)/i.test(value)) {
+          const date = new Date(`1970-01-01 ${value}`);
+          if (!isNaN(date.getTime())) {
+            const hh = String(date.getHours()).padStart(2, '0');
+            const mm = String(date.getMinutes()).padStart(2, '0');
+            const ss = String(date.getSeconds()).padStart(2, '0');
+            return `${hh}:${mm}:${ss}`;
+          }
+        }
+        // Nếu là HH:mm → thêm :00
+        if (/^\d{1,2}:\d{2}$/.test(value)) {
+          const [h, m] = value.split(':');
+          const hh = String(Number(h)).padStart(2, '0');
+          return `${hh}:${m}:00`;
+        }
+        // Nếu đã là HH:mm:ss thì giữ nguyên
+        if (/^\d{2}:\d{2}:\d{2}$/.test(value)) {
+          return value;
+        }
+        return value;
+      };
+
       // Backend expect TimeSlotRequest với PartnerId, StartTime, EndTime
       const requestData = {
         PartnerId: partnerId,
-        StartTime: data.StartTime,
-        EndTime: data.EndTime
+        StartTime: toBackendTime(data.StartTime),
+        EndTime: toBackendTime(data.EndTime)
       };
       
       const response = await api.post('/Partner/timeslot', requestData);
