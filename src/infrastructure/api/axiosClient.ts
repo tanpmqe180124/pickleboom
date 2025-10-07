@@ -7,7 +7,6 @@ import { showToast } from '@/utils/toastManager';
 export const api = axios.create({
   baseURL: 'https://bookingpickleball.onrender.com/api',
   headers: {
-    'Content-Type': 'application/json',
     Accept: 'application/json',
     'cache-control': 'no-cache',
   },
@@ -39,6 +38,14 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     } else {
       delete config.headers.Authorization;
+    }
+
+    // Nếu gửi FormData thì để trình duyệt tự set multipart boundary
+    if (config.data instanceof FormData) {
+      delete (config.headers as any)['Content-Type'];
+    } else {
+      // Mặc định cho JSON
+      (config.headers as any)['Content-Type'] = 'application/json';
     }
 
     return config;

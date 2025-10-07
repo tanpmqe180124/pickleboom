@@ -205,7 +205,7 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
   };
 
   const handleSave = async () => {
-    if (!formData.Name || !formData.Address || formData.Price <= 0) {
+    if (!formData.Name || !formData.Address || formData.Price <= 0 || !(formData.ImageUrl instanceof File)) {
       showToast.error('Lỗi dữ liệu', 'Vui lòng điền đầy đủ thông tin.');
       return;
     }
@@ -221,6 +221,11 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
         CourtStatus: 0, // Default: Available
         TimeSlotIDs: [] // Default: empty array
       };
+
+      console.log('🏟️ PartnerCourtData before sending:', {
+        ...partnerCourtData,
+        ImageUrl: partnerCourtData.ImageUrl ? `${partnerCourtData.ImageUrl.name} (${partnerCourtData.ImageUrl.size} bytes)` : 'No file'
+      });
 
       if (editingCourt) {
         await apiService.updateCourt(editingCourt.id, partnerCourtData);
@@ -382,8 +387,12 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
                   accept="image/*"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
+                    console.log('🏟️ File selected:', file);
                     if (file) {
                       setFormData({ ...formData, ImageUrl: file });
+                      console.log('🏟️ File set to formData:', file.name, file.size, 'bytes');
+                    } else {
+                      console.warn('🏟️ No file selected');
                     }
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"

@@ -96,8 +96,10 @@ export const partnerService = {
   // Get all courts for partner
   getCourts: async (params?: PartnerCourtParams): Promise<PartnerCourt[]> => {
     try {
-      // Note: Backend expects partner ID as query param
-      const response = await api.get('/Partner/court', { params });
+      // Backend expects partner ID as query param `id`
+      const partnerId = localStorage.getItem('userID');
+      const query = { ...(params || {}), id: partnerId } as any;
+      const response = await api.get('/Partner/court', { params: query });
       return response.data.data || response.data || [];
     } catch (error) {
       console.error('Error fetching partner courts:', error);
@@ -138,8 +140,11 @@ export const partnerService = {
         });
       }
       
-      if (data.ImageUrl) {
+      if (data.ImageUrl && data.ImageUrl instanceof File) {
         formData.append('ImageUrl', data.ImageUrl);
+        console.log('🏟️ Image file appended:', data.ImageUrl.name, data.ImageUrl.size, 'bytes');
+      } else {
+        console.warn('🏟️ No valid image file provided');
       }
 
       console.log('🏟️ Creating court with data:', {
@@ -183,8 +188,11 @@ export const partnerService = {
         });
       }
       
-      if (data.ImageUrl) {
+      if (data.ImageUrl && data.ImageUrl instanceof File) {
         formData.append('ImageUrl', data.ImageUrl);
+        console.log('🏟️ Image file appended for update:', data.ImageUrl.name, data.ImageUrl.size, 'bytes');
+      } else {
+        console.warn('🏟️ No valid image file provided for update');
       }
 
       console.log('🏟️ Updating court with data:', {
