@@ -1,6 +1,6 @@
 import React from 'react';
-import BaseCourtManagement from '@/components/shared/BaseCourtManagement';
-import { partnerService } from '@/services/partnerService';
+import BaseCourtManagement from '../shared/BaseCourtManagement';
+import { partnerService, PartnerCourtRequest } from '@/services/partnerService';
 
 const CourtManagement: React.FC = () => {
   return (
@@ -12,7 +12,6 @@ const CourtManagement: React.FC = () => {
         createCourt: partnerService.createCourt,
         updateCourt: partnerService.updateCourt,
         deleteCourt: partnerService.deleteCourt,
-        getTimeSlots: partnerService.getTimeSlots,
       }}
       permissions={{
         canCreate: true,

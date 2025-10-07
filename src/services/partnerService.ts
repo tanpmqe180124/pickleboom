@@ -18,7 +18,6 @@ export interface PartnerCourt {
 
 export interface PartnerCourtRequest {
   Name: string;
-  Description: string;
   Location: string;
   PricePerHour: number;
   ImageUrl?: File;
@@ -120,9 +119,15 @@ export const partnerService = {
   // Create new court
   createCourt: async (data: PartnerCourtRequest): Promise<string> => {
     try {
+      // Lấy PartnerId từ localStorage
+      const partnerId = localStorage.getItem('userID');
+      if (!partnerId) {
+        throw new Error('Partner ID not found');
+      }
+
       const formData = new FormData();
+      formData.append('PartnerId', partnerId);
       formData.append('Name', data.Name);
-      formData.append('Description', data.Description);
       formData.append('Location', data.Location);
       formData.append('PricePerHour', data.PricePerHour.toString());
       formData.append('CourtStatus', data.CourtStatus.toString());
@@ -131,6 +136,16 @@ export const partnerService = {
       if (data.ImageUrl) {
         formData.append('ImageUrl', data.ImageUrl);
       }
+
+      console.log('🏟️ Creating court with data:', {
+        PartnerId: partnerId,
+        Name: data.Name,
+        Location: data.Location,
+        PricePerHour: data.PricePerHour,
+        CourtStatus: data.CourtStatus,
+        TimeSlotIDs: data.TimeSlotIDs,
+        ImageUrl: data.ImageUrl ? 'File provided' : 'No file'
+      });
 
       const response = await api.post('/Partner/court', formData, {
         headers: {
@@ -148,9 +163,15 @@ export const partnerService = {
   // Update court
   updateCourt: async (id: string, data: PartnerCourtRequest): Promise<string> => {
     try {
+      // Lấy PartnerId từ localStorage
+      const partnerId = localStorage.getItem('userID');
+      if (!partnerId) {
+        throw new Error('Partner ID not found');
+      }
+
       const formData = new FormData();
+      formData.append('PartnerId', partnerId);
       formData.append('Name', data.Name);
-      formData.append('Description', data.Description);
       formData.append('Location', data.Location);
       formData.append('PricePerHour', data.PricePerHour.toString());
       formData.append('CourtStatus', data.CourtStatus.toString());
@@ -159,6 +180,16 @@ export const partnerService = {
       if (data.ImageUrl) {
         formData.append('ImageUrl', data.ImageUrl);
       }
+
+      console.log('🏟️ Updating court with data:', {
+        PartnerId: partnerId,
+        Name: data.Name,
+        Location: data.Location,
+        PricePerHour: data.PricePerHour,
+        CourtStatus: data.CourtStatus,
+        TimeSlotIDs: data.TimeSlotIDs,
+        ImageUrl: data.ImageUrl ? 'File provided' : 'No file'
+      });
 
       const response = await api.put(`/Partner/court/${id}`, formData, {
         headers: {

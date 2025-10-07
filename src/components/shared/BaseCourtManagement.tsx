@@ -24,7 +24,6 @@ export interface BaseCourt {
 export interface BaseCourtRequest {
   Name: string;
   Address: string;
-  Description: string;
   Price: number;
   ImageUrl?: File | string;
 }
@@ -32,10 +31,10 @@ export interface BaseCourtRequest {
 interface BaseCourtManagementProps {
   userRole: 'Admin' | 'Partner';
   apiService: {
-    getCourts: () => Promise<BaseCourt[]>;
-    getCourtById: (id: string) => Promise<BaseCourt>;
-    createCourt: (data: BaseCourtRequest) => Promise<string>;
-    updateCourt: (id: string, data: BaseCourtRequest) => Promise<string>;
+    getCourts: () => Promise<any[]>; // Sử dụng any[] để linh hoạt với cả BaseCourt[] và PartnerCourt[]
+    getCourtById: (id: string) => Promise<any>;
+    createCourt: (data: any) => Promise<string>; // Sử dụng any để linh hoạt với cả BaseCourtRequest và PartnerCourtRequest
+    updateCourt: (id: string, data: any) => Promise<string>;
     deleteCourt: (id: string) => Promise<string>;
   };
   permissions: {
@@ -48,21 +47,31 @@ interface BaseCourtManagementProps {
 
 // ========== COURT CARD COMPONENT ==========
 interface CourtCardProps {
-  court: BaseCourt;
-  onEdit: (court: BaseCourt) => void;
-  onDelete: (court: BaseCourt) => void;
+  court: any; // Sử dụng any để linh hoạt với cả BaseCourt và PartnerCourt
+  onEdit: (court: any) => void;
+  onDelete: (court: any) => void;
   canEdit: boolean;
   canDelete: boolean;
 }
 
 const CourtCard: React.FC<CourtCardProps> = ({ court, onEdit, onDelete, canEdit, canDelete }) => {
+  // Map dữ liệu từ PartnerCourt sang BaseCourt format
+  const courtData = {
+    id: court.id,
+    name: court.name,
+    address: court.location || court.address, // PartnerCourt dùng location, BaseCourt dùng address
+    description: court.description,
+    price: court.pricePerHour || court.price, // PartnerCourt dùng pricePerHour, BaseCourt dùng price
+    imageUrl: court.imageUrl,
+    isAvailable: court.courtStatus === 0 || court.isAvailable // PartnerCourt dùng courtStatus, BaseCourt dùng isAvailable
+  };
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       <div className="h-48 bg-gray-200 relative">
-        {court.imageUrl ? (
+        {courtData.imageUrl ? (
           <img 
-            src={court.imageUrl} 
-            alt={court.name}
+            src={courtData.imageUrl} 
+            alt={courtData.name}
             className="w-full h-full object-cover"
           />
         ) : (
@@ -72,25 +81,25 @@ const CourtCard: React.FC<CourtCardProps> = ({ court, onEdit, onDelete, canEdit,
         )}
         <div className="absolute top-2 right-2">
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            court.isAvailable 
+            courtData.isAvailable 
               ? 'bg-green-100 text-green-800' 
               : 'bg-red-100 text-red-800'
           }`}>
-            {court.isAvailable ? 'Có sẵn' : 'Không có sẵn'}
+            {courtData.isAvailable ? 'Có sẵn' : 'Không có sẵn'}
           </span>
         </div>
       </div>
       
       <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">{court.name}</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">{courtData.name}</h3>
         <p className="text-gray-600 text-sm mb-2 flex items-center">
           <MapPin size={16} className="mr-1" />
-          {court.address}
+          {courtData.address}
         </p>
-        <p className="text-gray-700 text-sm mb-3 line-clamp-2">{court.description}</p>
+        <p className="text-gray-700 text-sm mb-3 line-clamp-2">{courtData.description}</p>
         <div className="flex justify-between items-center">
           <span className="text-lg font-bold text-green-600">
-            {court.price.toLocaleString('vi-VN')} VNĐ/giờ
+            {courtData.price.toLocaleString('vi-VN')} VNĐ/giờ
           </span>
           <div className="flex space-x-2">
             {canEdit && (
@@ -127,16 +136,15 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
   console.log('🏟️ BaseCourtManagement component rendered with userRole:', userRole);
   
   // ========== STATE ==========
-  const [courts, setCourts] = useState<BaseCourt[]>([]);
+  const [courts, setCourts] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [editingCourt, setEditingCourt] = useState<BaseCourt | null>(null);
+  const [editingCourt, setEditingCourt] = useState<any | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-  const [courtToDelete, setCourtToDelete] = useState<BaseCourt | null>(null);
+  const [courtToDelete, setCourtToDelete] = useState<any | null>(null);
   const [formData, setFormData] = useState<BaseCourtRequest>({
     Name: '',
     Address: '',
-    Description: '',
     Price: 0,
     ImageUrl: ''
   });
@@ -174,43 +182,51 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
     setFormData({
       Name: '',
       Address: '',
-      Description: '',
       Price: 0,
       ImageUrl: ''
     });
     setShowModal(true);
   };
 
-  const handleEdit = (court: BaseCourt) => {
+  const handleEdit = (court: any) => {
     setEditingCourt(court);
     setFormData({
       Name: court.name,
-      Address: court.address,
-      Description: court.description,
-      Price: court.price,
+      Address: court.location || court.address, // Map location -> address
+      Price: court.pricePerHour || court.price, // Map pricePerHour -> price
       ImageUrl: court.imageUrl
     });
     setShowModal(true);
   };
 
-  const handleDelete = (court: BaseCourt) => {
+  const handleDelete = (court: any) => {
     setCourtToDelete(court);
     setShowDeleteModal(true);
   };
 
   const handleSave = async () => {
-    if (!formData.Name || !formData.Address || !formData.Description || formData.Price <= 0) {
+    if (!formData.Name || !formData.Address || formData.Price <= 0) {
       showToast.error('Lỗi dữ liệu', 'Vui lòng điền đầy đủ thông tin.');
       return;
     }
 
     setLoading(true);
     try {
+      // Map dữ liệu từ BaseCourtRequest sang PartnerCourtRequest
+      const partnerCourtData = {
+        Name: formData.Name,
+        Location: formData.Address, // Map Address -> Location
+        PricePerHour: formData.Price,
+        ImageUrl: formData.ImageUrl as File | undefined,
+        CourtStatus: 0, // Default: Available
+        TimeSlotIDs: [] // Default: empty array
+      };
+
       if (editingCourt) {
-        await apiService.updateCourt(editingCourt.id, formData);
+        await apiService.updateCourt(editingCourt.id, partnerCourtData);
         showToast.success('Cập nhật thành công', 'Sân đã được cập nhật.');
       } else {
-        await apiService.createCourt(formData);
+        await apiService.createCourt(partnerCourtData);
         showToast.success('Tạo thành công', 'Sân mới đã được tạo.');
       }
       
@@ -341,18 +357,7 @@ const BaseCourtManagement: React.FC<BaseCourtManagementProps> = ({
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Mô tả *
-                </label>
-                <textarea
-                  value={formData.Description}
-                  onChange={(e) => setFormData({ ...formData, Description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  rows={3}
-                  placeholder="Nhập mô tả sân"
-                />
-              </div>
+              {/* Mô tả đã bỏ vì backend không nhận */}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
