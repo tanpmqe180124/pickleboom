@@ -98,9 +98,16 @@ export const partnerService = {
     try {
       // Backend expects partner ID as query param `id`
       const partnerId = localStorage.getItem('userID');
-      const query = { ...(params || {}), id: partnerId } as any;
+      const query = {
+        Page: 1,
+        PageSize: 50,
+        ...(params || {}),
+        id: partnerId,
+      } as any;
       const response = await api.get('/Partner/court', { params: query });
-      return response.data.data || response.data || [];
+      const payload = response.data?.data ?? response.data;
+      // Controller wraps DataReponse { page, pageSize, total, data }
+      return Array.isArray(payload) ? payload : (payload?.data ?? []);
     } catch (error) {
       console.error('Error fetching partner courts:', error);
       throw error;
