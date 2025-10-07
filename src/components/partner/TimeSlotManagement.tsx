@@ -8,8 +8,22 @@ const TimeSlotManagement: React.FC = () => {
       userRole="Partner"
       apiService={{
         getTimeSlots: partnerService.getTimeSlots,
-        createTimeSlot: partnerService.createTimeSlot,
-        updateTimeSlot: partnerService.updateTimeSlot,
+        createTimeSlot: async (data: any) => {
+          const partnerData = {
+            StartTime: data.StartTime,
+            EndTime: data.EndTime,
+            CourtId: data.CourtId || ''
+          };
+          return partnerService.createTimeSlot(partnerData);
+        },
+        updateTimeSlot: async (id: string, data: any) => {
+          const partnerData = {
+            StartTime: data.StartTime,
+            EndTime: data.EndTime,
+            CourtId: data.CourtId || ''
+          };
+          return partnerService.createTimeSlot(partnerData); // Backend không có update, dùng create
+        },
         deleteTimeSlot: partnerService.deleteTimeSlot,
       }}
       permissions={{

@@ -19,10 +19,10 @@ import {
 } from 'lucide-react';
 
 // ========== COMPONENT IMPORTS ==========
-import BlogManagement from '@/components/admin/BlogManagement';
-import CourtManagement from '@/components/admin/CourtManagement';
-import TimeSlotManagement from '@/components/admin/TimeSlotManagement';
-import BookingManagement from '@/components/admin/BookingManagement';
+import BlogManagement from '@/components/partner/BlogManagement';
+import CourtManagement from '@/components/partner/CourtManagement';
+import TimeSlotManagement from '@/components/partner/TimeSlotManagement';
+import BookingManagement from '@/components/partner/BookingManagement';
 
 type PartnerTab = 'blogs' | 'courts' | 'timeslots' | 'bookings';
 

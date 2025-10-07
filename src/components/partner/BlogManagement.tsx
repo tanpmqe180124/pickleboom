@@ -1,12 +1,25 @@
 import React from 'react';
+                                                                                                             import BaseBlogManagement from '@/components/shared/BaseBlogManagement';
+import { partnerService } from '@/services/partnerService';
 
-// Placeholder component để fix lỗi build
 const BlogManagement: React.FC = () => {
   return (
-    <div className="p-6">
-      <h2 className="text-xl font-semibold">Blog Management</h2>
-      <p>Blog management component - to be implemented</p>
-    </div>
+    <BaseBlogManagement
+      userRole="Partner"
+      apiService={{
+        getBlogs: partnerService.getBlogs,
+        getBlogById: partnerService.getBlogById,
+        createBlog: partnerService.createBlog,
+        updateBlog: partnerService.updateBlog,
+        deleteBlog: partnerService.deleteBlog,
+      }}
+      permissions={{
+        canCreate: true,
+        canEdit: true,
+        canDelete: true,
+        canViewAll: false, // Partner chỉ xem blog của mình
+      }}
+    />
   );
 };
 
