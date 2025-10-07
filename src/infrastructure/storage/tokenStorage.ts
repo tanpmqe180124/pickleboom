@@ -84,7 +84,7 @@ export const createUserObject = (data: any): UserObject => {
     verified: data?.Data?.IsApproved || data?.data?.IsApproved || data?.data?.isApproved,
   };
   
-  // Lưu role vào localStorage để AuthContext có thể sử dụng
+  // Lưu role và userId vào localStorage để AuthContext có thể sử dụng
   if (userObject.role) {
     localStorage.setItem('userRole', userObject.role);
     console.log('createUserObject - Saved role to localStorage:', userObject.role);
@@ -93,8 +93,13 @@ export const createUserObject = (data: any): UserObject => {
     window.dispatchEvent(new CustomEvent('userRoleUpdated', { 
       detail: { userRole: userObject.role } 
     }));
+  }
+  
+  if (userObject.userId) {
+    localStorage.setItem('userID', userObject.userId);
+    console.log('createUserObject - Saved userId to localStorage:', userObject.userId);
   } else {
-    console.log('createUserObject - No role found in data');
+    console.log('createUserObject - No userId found in data');
   }
   
   console.log('createUserObject - Final user object:', userObject);
