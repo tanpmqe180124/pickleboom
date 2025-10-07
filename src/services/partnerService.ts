@@ -194,8 +194,8 @@ export const partnerService = {
         throw new Error('Partner ID not found');
       }
       
-      const params = courtId ? { courtId, id: partnerId } : { id: partnerId };
-      const response = await api.get('/api/Partner/timeslot', { params });
+      // Thử query parameter trước (backend có thể expect query param)
+      const response = await api.get(`/api/Partner/timeslot?id=${partnerId}`);
       return response.data.data || response.data || [];
     } catch (error) {
       console.error('Error fetching partner time slots:', error);
