@@ -194,8 +194,16 @@ export const partnerService = {
         throw new Error('Partner ID not found');
       }
       
-      // Thử query parameter trước (backend có thể expect query param)
-      const response = await api.get(`/api/Partner/timeslot?id=${partnerId}`);
+      // Backend có [HttpGet("timeslot")] với Guid id parameter
+      // Thử cả 2 cách: query parameter và route parameter
+      let response;
+      try {
+        // Thử query parameter trước
+        response = await api.get(`/api/Partner/timeslot?id=${partnerId}`);
+      } catch (error) {
+        // Nếu query parameter fail, thử route parameter
+        response = await api.get(`/api/Partner/timeslot/${partnerId}`);
+      }
       return response.data.data || response.data || [];
     } catch (error) {
       console.error('Error fetching partner time slots:', error);
