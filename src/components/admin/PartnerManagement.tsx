@@ -61,17 +61,24 @@ const PartnerManagement: React.FC = () => {
       console.log('Partners API Response:', response);
       
       // Map backend data to frontend format
-      const mappedPartners = response.data.map((partner: any) => ({
-        ...partner,
-        Status: partner.IsApproved ? 0 : 1, // Convert boolean to number
-        UserName: partner.UserName || partner.Email?.split('@')[0] || 'N/A', // Fallback for missing UserName
-        Address: partner.Address || 'Chưa cập nhật', // Fallback for missing Address
-        Avatar: partner.Avatar || '', // Fallback for missing Avatar
+      const partnersData = response.data.data; // Access the actual array
+      const mappedPartners = partnersData.map((partner: any) => ({
+        ID: partner.id,
+        FullName: partner.fullName,
+        UserName: partner.userName || partner.email?.split('@')[0] || 'N/A',
+        Email: partner.email,
+        PhoneNumber: partner.phoneNumber,
+        Address: partner.address || 'Chưa cập nhật',
+        BussinessName: partner.bussinessName,
+        Avatar: partner.avatar || '',
+        IsApproved: partner.isApproved,
+        Status: partner.isApproved ? 0 : 1, // Convert boolean to number
+        Role: partner.role
       }));
       
       setPartners(mappedPartners);
-      setTotalPages(Math.ceil(response.total / response.pageSize));
-      setTotalCount(response.total);
+      setTotalPages(Math.ceil(response.data.total / response.data.pageSize));
+      setTotalCount(response.data.total);
     } catch (error) {
       console.error('Error fetching partners:', error);
       showToast.error('Lỗi tải dữ liệu', 'Không thể tải danh sách Partner.');
