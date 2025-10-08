@@ -10,7 +10,7 @@ export const api = axios.create({
     Accept: 'application/json',
     'cache-control': 'no-cache',
   },
-  timeout: 60000, // Tăng lên 60 giây
+  timeout: 120000, // 2 phút (120 giây)
   withCredentials: true, // Thêm dòng này để gửi cookie
 });
 

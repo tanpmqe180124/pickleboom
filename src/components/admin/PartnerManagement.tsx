@@ -550,7 +550,7 @@ const PartnerManagement: React.FC = () => {
                     <Save className="h-4 w-4" />
                   )}
                   <span>
-                    {loading ? 'Đang tạo... (có thể mất vài phút)' : 'Tạo Partner'}
+                    {loading ? 'Đang tạo... (chờ tối đa 2 phút)' : 'Tạo Partner'}
                   </span>
                 </button>
               </div>
