@@ -21,18 +21,17 @@ import {
 } from 'lucide-react';
 
 // ========== COMPONENT IMPORTS ==========
-import UserManagement from '@/components/admin/UserManagement';
 import PartnerManagement from '@/components/admin/PartnerManagement';
 import CourtManagement from '@/components/admin/CourtManagement';
 import TimeSlotManagement from '@/components/admin/TimeSlotManagement';
 import BlogManagement from '@/components/admin/BlogManagement';
 import BookingManagement from '@/components/admin/BookingManagement';
 
-type AdminTab = 'users' | 'partners' | 'courts' | 'timeslots' | 'blogs' | 'bookings';
+type AdminTab = 'partners' | 'courts' | 'timeslots' | 'blogs' | 'bookings';
 
 const AdminDashboard: React.FC = () => {
   const { userRole, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<AdminTab>('users');
+  const [activeTab, setActiveTab] = useState<AdminTab>('partners');
 
   const isAdmin = userRole === 'Admin' || userRole?.toLowerCase() === 'admin';
   
@@ -70,14 +69,6 @@ const AdminDashboard: React.FC = () => {
 
   // ========== TAB CONFIGURATION ==========
   const tabs = [
-    {
-      id: 'users' as AdminTab,
-      name: 'Quản lý người dùng',
-      icon: Users,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
-      hoverColor: 'hover:bg-blue-100'
-    },
     {
       id: 'partners' as AdminTab,
       name: 'Quản lý Partner',
@@ -215,7 +206,6 @@ const AdminDashboard: React.FC = () => {
             <div className="bg-white rounded-lg shadow-sm">
               {/* ========== TAB CONTENT ========== */}
               <div className="p-6">
-                {activeTab === 'users' && <UserManagement />}
                 {activeTab === 'partners' && <PartnerManagement />}
                 {activeTab === 'courts' && <CourtManagement />}
                 {activeTab === 'timeslots' && <TimeSlotManagement />}

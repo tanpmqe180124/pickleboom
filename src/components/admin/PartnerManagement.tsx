@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { adminService, RegisterPartnerRequest } from '@/services/adminService';
+import React, { useState, useEffect } from 'react';
+import { adminService, RegisterPartnerRequest, AdminUser } from '@/services/adminService';
 import { showToast } from '@/utils/toastManager';
 import { 
   UserPlus, 
@@ -10,12 +10,30 @@ import {
   Mail,
   Phone,
   Building,
-  User
+  User,
+  Search,
+  Filter,
+  RefreshCw,
+  UserCheck,
+  UserX,
+  Eye,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 const PartnerManagement: React.FC = () => {
-  const [showModal, setShowModal] = useState<boolean>(false);
+  // ========== STATE ==========
+  const [partners, setPartners] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize] = useState<number>(10);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  
+  // Modal states
+  const [showModal, setShowModal] = useState<boolean>(false);
   const [formData, setFormData] = useState<RegisterPartnerRequest>({
     Email: '',
     FullName: '',
@@ -23,6 +41,80 @@ const PartnerManagement: React.FC = () => {
     Address: '',
     PhoneNumber: ''
   });
+
+  // ========== FETCH PARTNERS ==========
+  const fetchPartners = async () => {
+    setLoading(true);
+    try {
+      const params: any = {
+        Page: currentPage,
+        PageSize: pageSize,
+        Status: statusFilter !== null ? statusFilter : undefined,
+      };
+
+      if (searchTerm) {
+        params.FullName = searchTerm;
+      }
+
+      console.log('Fetching partners with params:', params);
+      const response = await adminService.getPartners(params);
+      console.log('Partners API Response:', response);
+      
+      setPartners(response.Items);
+      setTotalPages(response.TotalPages);
+      setTotalCount(response.TotalCount);
+    } catch (error) {
+      console.error('Error fetching partners:', error);
+      showToast.error('Lỗi tải dữ liệu', 'Không thể tải danh sách Partner.');
+      setPartners([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ========== UPDATE PARTNER STATUS ==========
+  const updatePartnerStatus = async (partnerId: string, newStatus: number) => {
+    try {
+      console.log('Updating partner ID:', partnerId, 'New status:', newStatus);
+      const partnerData = { Status: newStatus };
+      await adminService.updatePartnerStatus(partnerId, partnerData);
+      
+      // Update local state
+      setPartners(prevPartners => 
+        prevPartners.map(partner => 
+          partner.ID === partnerId ? { ...partner, Status: newStatus } : partner
+        )
+      );
+      
+      const statusText = newStatus === 0 ? 'kích hoạt' : 'vô hiệu hóa';
+      showToast.success('Cập nhật thành công', `Đã ${statusText} Partner.`);
+    } catch (error) {
+      console.error('Error updating partner status:', error);
+      showToast.error('Lỗi cập nhật', 'Không thể cập nhật trạng thái Partner.');
+    }
+  };
+
+  // ========== HANDLE SEARCH ==========
+  const handleSearch = () => {
+    setCurrentPage(1);
+    fetchPartners();
+  };
+
+  // ========== HANDLE FILTER CHANGE ==========
+  const handleFilterChange = (status: number | null) => {
+    setStatusFilter(status);
+    setCurrentPage(1);
+  };
+
+  // ========== HANDLE PAGE CHANGE ==========
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // ========== EFFECTS ==========
+  useEffect(() => {
+    fetchPartners();
+  }, [currentPage]);
 
   // ========== HANDLE FORM SUBMIT ==========
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,6 +139,7 @@ const PartnerManagement: React.FC = () => {
       showToast.success('Tạo thành công', 'Tài khoản partner đã được tạo thành công.');
       setShowModal(false);
       resetForm();
+      fetchPartners(); // Refresh danh sách sau khi tạo
     } catch (error: any) {
       console.error('Error creating partner:', error);
       const errorMessage = error.response?.data?.Message || 'Không thể tạo tài khoản partner.';
@@ -73,6 +166,74 @@ const PartnerManagement: React.FC = () => {
     resetForm();
   };
 
+  // ========== RENDER STATUS BADGE ==========
+  const renderStatusBadge = (status: number) => {
+    if (status === 0) {
+      return (
+        <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border border-green-200">
+          <UserCheck className="h-3 w-3 mr-1.5" />
+          Hoạt động
+        </span>
+      );
+    } else {
+      return (
+        <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-red-50 to-rose-50 text-red-700 border border-red-200">
+          <UserX className="h-3 w-3 mr-1.5" />
+          Vô hiệu hóa
+        </span>
+      );
+    }
+  };
+
+  // ========== RENDER PAGINATION ==========
+  const renderPagination = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    const startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`px-3 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
+            i === currentPage
+              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md'
+              : 'text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 shadow-sm'
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    return (
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-gray-700">
+          Hiển thị {((currentPage - 1) * pageSize) + 1} đến {Math.min(currentPage * pageSize, totalCount)} trong tổng số {totalCount} Partner
+        </div>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg hover:bg-gray-100 transition-colors duration-200"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          {pages}
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg hover:bg-gray-100 transition-colors duration-200"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* ========== HEADER ========== */}
@@ -95,19 +256,157 @@ const PartnerManagement: React.FC = () => {
         </button>
       </div>
 
-      {/* ========== INFO CARD ========== */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100">
-        <div className="flex items-start space-x-4">
-          <div className="bg-blue-100 rounded-lg p-3">
-            <UserPlus className="h-6 w-6 text-blue-600" />
+      {/* ========== SEARCH AND FILTER ========== */}
+      <div className="bg-gradient-to-r from-white to-gray-50 p-6 rounded-xl shadow-sm border border-gray-100">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Tìm kiếm theo tên, email, SĐT..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm bg-white shadow-sm transition-all duration-200"
+            />
           </div>
-          <div>
-            <h3 className="text-lg font-semibold text-blue-900 mb-2">Tạo tài khoản Partner</h3>
-            <p className="text-blue-700 text-sm leading-relaxed">
-              Tạo tài khoản đối tác mới để quản lý sân Pickleball. Partner sẽ nhận được email chứa thông tin đăng nhập và có thể bắt đầu quản lý sân ngay lập tức.
-            </p>
+
+          {/* Status Filter */}
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <select
+              value={statusFilter === null ? '' : statusFilter}
+              onChange={(e) => handleFilterChange(e.target.value === '' ? null : parseInt(e.target.value))}
+              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm bg-white shadow-sm transition-all duration-200"
+            >
+              <option value="">Tất cả trạng thái</option>
+              <option value={0}>Hoạt động</option>
+              <option value={1}>Vô hiệu hóa</option>
+            </select>
           </div>
+
+          {/* Search Button */}
+          <button
+            onClick={handleSearch}
+            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 text-sm font-medium shadow-sm hover:shadow-md"
+          >
+            Tìm kiếm
+          </button>
         </div>
+      </div>
+
+      {/* ========== PARTNERS TABLE ========== */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <div className="text-center">
+              <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <RefreshCw className="h-8 w-8 text-white animate-spin" />
+              </div>
+              <p className="text-gray-600 font-medium">Đang tải dữ liệu...</p>
+            </div>
+          </div>
+        ) : partners.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="bg-gray-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+              <UserPlus className="h-8 w-8 text-gray-400" />
+            </div>
+            <p className="text-gray-600 font-medium">Không tìm thấy Partner nào</p>
+          </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-100">
+                <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Thông tin
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Liên hệ
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Địa chỉ
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Trạng thái
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Thao tác
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-100">
+                  {partners.map((partner) => (
+                    <tr key={partner.ID} className="hover:bg-gray-50 transition-colors duration-150">
+                      <td className="px-6 py-5 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-12 w-12">
+                            {partner.Avatar ? (
+                              <img
+                                className="h-12 w-12 rounded-full object-cover ring-2 ring-gray-100"
+                                src={partner.Avatar}
+                                alt={partner.FullName}
+                              />
+                            ) : (
+                              <div className="h-12 w-12 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 flex items-center justify-center ring-2 ring-gray-100">
+                                <span className="text-sm font-semibold text-white">
+                                  {partner.FullName?.charAt(0)?.toUpperCase()}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-semibold text-gray-900">
+                              {partner.FullName}
+                            </div>
+                            <div className="text-sm text-gray-500 font-medium">
+                              @{partner.UserName}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">{partner.Email}</div>
+                        <div className="text-sm text-gray-500 font-medium">{partner.PhoneNumber}</div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="text-sm text-gray-900 max-w-xs truncate" title={partner.Address}>
+                          {partner.Address || 'Chưa cập nhật'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-5 whitespace-nowrap">
+                        {renderStatusBadge(partner.Status)}
+                      </td>
+                      <td className="px-6 py-5 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => updatePartnerStatus(partner.ID, partner.Status === 0 ? 1 : 0)}
+                            className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 shadow-sm hover:shadow-md ${
+                              partner.Status === 0
+                                ? 'text-red-700 bg-red-50 hover:bg-red-100 border border-red-200'
+                                : 'text-green-700 bg-green-50 hover:bg-green-100 border border-green-200'
+                            }`}
+                          >
+                            {partner.Status === 0 ? 'Vô hiệu hóa' : 'Kích hoạt'}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="px-6 py-5 border-t border-gray-100 bg-gray-50">
+                {renderPagination()}
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {/* ========== MODAL ========== */}

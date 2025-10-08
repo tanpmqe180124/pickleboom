@@ -158,6 +158,34 @@ export const adminService = {
     }
   },
 
+  // ========== PARTNER MANAGEMENT ==========
+  async getPartners(params?: { Page?: number; PageSize?: number; FullName?: string; Status?: number }): Promise<PaginatedResponse<AdminUser>> {
+    try {
+      const response = await api.get<ApiResponse<PaginatedResponse<AdminUser>>>('/Admin/user', { params });
+      return (response.data as any).data;
+    } catch (error) {
+      console.error('Error fetching partners:', error);
+      throw error;
+    }
+  },
+
+  async updatePartnerStatus(partnerId: string, partnerData: AdminUserUpdateRequest): Promise<string> {
+    try {
+      const formData = new FormData();
+      formData.append('Status', partnerData.Status.toString());
+
+      const response = await api.patch<ApiResponse<string>>(`/User/${partnerId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data.Message;
+    } catch (error) {
+      console.error('Error updating partner status:', error);
+      throw error;
+    }
+  },
+
   // ========== COURT MANAGEMENT ==========
   async getCourts(params?: { Name?: string; CourtStatus?: number }): Promise<AdminCourt[]> {
     try {
