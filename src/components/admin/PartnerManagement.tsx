@@ -60,7 +60,16 @@ const PartnerManagement: React.FC = () => {
       const response = await adminService.getPartners(params);
       console.log('Partners API Response:', response);
       
-      setPartners(response.data);
+      // Map backend data to frontend format
+      const mappedPartners = response.data.map((partner: any) => ({
+        ...partner,
+        Status: partner.IsApproved ? 0 : 1, // Convert boolean to number
+        UserName: partner.UserName || partner.Email?.split('@')[0] || 'N/A', // Fallback for missing UserName
+        Address: partner.Address || 'Chưa cập nhật', // Fallback for missing Address
+        Avatar: partner.Avatar || '', // Fallback for missing Avatar
+      }));
+      
+      setPartners(mappedPartners);
       setTotalPages(Math.ceil(response.total / response.pageSize));
       setTotalCount(response.total);
     } catch (error) {
@@ -79,10 +88,14 @@ const PartnerManagement: React.FC = () => {
       const partnerData = { Status: newStatus };
       await adminService.updatePartnerStatus(partnerId, partnerData);
       
-      // Update local state
+      // Update local state - map Status back to IsApproved
       setPartners(prevPartners => 
         prevPartners.map(partner => 
-          partner.ID === partnerId ? { ...partner, Status: newStatus } : partner
+          partner.ID === partnerId ? { 
+            ...partner, 
+            Status: newStatus,
+            IsApproved: newStatus === 0 // Convert number back to boolean
+          } : partner
         )
       );
       
@@ -160,7 +173,7 @@ const PartnerManagement: React.FC = () => {
   };
 
   // ========== RENDER STATUS BADGE ==========
-  const renderStatusBadge = (status: number) => {
+  const renderStatusBadge = (status: number | undefined) => {
     if (status === 0) {
       return (
         <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border border-green-200">
@@ -350,7 +363,7 @@ const PartnerManagement: React.FC = () => {
                               {partner.FullName}
                             </div>
                             <div className="text-sm text-gray-500 font-medium">
-                              @{partner.UserName}
+                              @{partner.UserName || 'N/A'}
                             </div>
                           </div>
                         </div>
@@ -365,19 +378,19 @@ const PartnerManagement: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap">
-                        {renderStatusBadge(partner.Status)}
+                        {renderStatusBadge(partner.Status || 1)}
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2">
                           <button
-                            onClick={() => updatePartnerStatus(partner.ID, partner.Status === 0 ? 1 : 0)}
+                            onClick={() => updatePartnerStatus(partner.ID, (partner.Status || 1) === 0 ? 1 : 0)}
                             className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 shadow-sm hover:shadow-md ${
-                              partner.Status === 0
+                              (partner.Status || 1) === 0
                                 ? 'text-red-700 bg-red-50 hover:bg-red-100 border border-red-200'
                                 : 'text-green-700 bg-green-50 hover:bg-green-100 border border-green-200'
                             }`}
                           >
-                            {partner.Status === 0 ? 'Vô hiệu hóa' : 'Kích hoạt'}
+                            {(partner.Status || 1) === 0 ? 'Vô hiệu hóa' : 'Kích hoạt'}
                           </button>
                         </div>
                       </td>
