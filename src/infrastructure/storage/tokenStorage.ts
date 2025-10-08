@@ -221,7 +221,7 @@ const authStore: AuthStoreCreator = (set, get) => ({
     }
   },
 
-  refreshTokenAsync: async (refreshToken: string) => {
+  refreshTokenAsync: async () => {
     try {
       console.log('Refreshing token...');
       const response = await api.get('Account/refresh-token');
