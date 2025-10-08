@@ -1,7 +1,6 @@
 import { create, StateCreator } from 'zustand';
 import { persist, PersistOptions } from 'zustand/middleware';
 import { api } from '../api/axiosClient';
-import axios from 'axios';
 
 // ========== Kiểu dữ liệu ==========
 interface UserObject {
@@ -226,15 +225,22 @@ const authStore: AuthStoreCreator = (set, get) => ({
     try {
       console.log('Refreshing token...');
       
-      // Tạo một axios instance riêng để tránh vòng lặp interceptor
-      const refreshApi = axios.create({
-        baseURL: 'https://bookingpickleball.onrender.com/api',
-        withCredentials: true,
-        timeout: 10000
+      // Sử dụng fetch thay vì axios để tránh vòng lặp interceptor
+      const response = await fetch('https://bookingpickleball.onrender.com/api/Account/refresh-token', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
       });
       
-      const response = await refreshApi.get('Account/refresh-token');
-      const { data } = response.data;
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      const { data } = result;
       
       if (!data || !data.accessToken) {
         throw new Error('No access token in refresh response');
