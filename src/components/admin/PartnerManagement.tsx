@@ -148,14 +148,25 @@ const PartnerManagement: React.FC = () => {
 
     setLoading(true);
     try {
+      console.log('Creating partner with data:', formData);
       await adminService.registerPartner(formData);
+      console.log('Partner created successfully');
       showToast.success('Tạo thành công', 'Tài khoản partner đã được tạo thành công.');
       setShowModal(false);
       resetForm();
       fetchPartners(); // Refresh danh sách sau khi tạo
     } catch (error: any) {
       console.error('Error creating partner:', error);
-      const errorMessage = error.response?.data?.Message || 'Không thể tạo tài khoản partner.';
+      let errorMessage = 'Không thể tạo tài khoản partner.';
+      
+      if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+        errorMessage = 'Request timeout. Backend đang xử lý chậm, vui lòng thử lại sau.';
+      } else if (error.response?.data?.Message) {
+        errorMessage = error.response.data.Message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       showToast.error('Lỗi tạo tài khoản', errorMessage);
     } finally {
       setLoading(false);
@@ -538,7 +549,9 @@ const PartnerManagement: React.FC = () => {
                   ) : (
                     <Save className="h-4 w-4" />
                   )}
-                  <span>{loading ? 'Đang tạo...' : 'Tạo Partner'}</span>
+                  <span>
+                    {loading ? 'Đang tạo... (có thể mất vài phút)' : 'Tạo Partner'}
+                  </span>
                 </button>
               </div>
             </form>
