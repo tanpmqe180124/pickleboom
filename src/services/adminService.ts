@@ -7,6 +7,7 @@ export interface AdminUser {
   UserName: string;
   Email: string;
   PhoneNumber: string;
+  Address: string;
   Avatar: string;
   Status: number; // 0: Active, 1: Inactive
 }
@@ -22,6 +23,14 @@ export interface AdminUserParams {
 
 export interface AdminUserUpdateRequest {
   Status: number;
+}
+
+export interface RegisterPartnerRequest {
+  Email: string;
+  FullName: string;
+  BussinessName: string;
+  Address: string;
+  PhoneNumber: string;
 }
 
 export interface AdminCourt {
@@ -139,6 +148,16 @@ export const adminService = {
     }
   },
 
+  async registerPartner(data: RegisterPartnerRequest): Promise<string> {
+    try {
+      const response = await api.post<ApiResponse<string>>('/Account/register-partner', data);
+      return response.data.Message;
+    } catch (error) {
+      console.error('Error registering partner:', error);
+      throw error;
+    }
+  },
+
   // ========== COURT MANAGEMENT ==========
   async getCourts(params?: { Name?: string; CourtStatus?: number }): Promise<AdminCourt[]> {
     try {
@@ -155,8 +174,8 @@ export const adminService = {
       // Handle response structure
       if (Array.isArray(response.data)) {
         return response.data;
-      } else if (response.data && Array.isArray(response.data.data)) {
-        return response.data.data;
+      } else if (response.data && Array.isArray(response.data.Data)) {
+        return response.data.Data;
       } else {
         console.warn('Unexpected API response structure for courts:', response.data);
         return [];

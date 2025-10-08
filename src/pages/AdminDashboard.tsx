@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { showToast } from '@/utils/toastManager';
 import { 
   Users, 
+  UserPlus,
   MapPin, 
   Clock, 
   FileText, 
@@ -21,12 +22,13 @@ import {
 
 // ========== COMPONENT IMPORTS ==========
 import UserManagement from '@/components/admin/UserManagement';
+import PartnerManagement from '@/components/admin/PartnerManagement';
 import CourtManagement from '@/components/admin/CourtManagement';
 import TimeSlotManagement from '@/components/admin/TimeSlotManagement';
 import BlogManagement from '@/components/admin/BlogManagement';
 import BookingManagement from '@/components/admin/BookingManagement';
 
-type AdminTab = 'users' | 'courts' | 'timeslots' | 'blogs' | 'bookings';
+type AdminTab = 'users' | 'partners' | 'courts' | 'timeslots' | 'blogs' | 'bookings';
 
 const AdminDashboard: React.FC = () => {
   const { userRole, logout } = useAuth();
@@ -75,6 +77,14 @@ const AdminDashboard: React.FC = () => {
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
       hoverColor: 'hover:bg-blue-100'
+    },
+    {
+      id: 'partners' as AdminTab,
+      name: 'Quản lý Partner',
+      icon: UserPlus,
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50',
+      hoverColor: 'hover:bg-purple-100'
     },
     {
       id: 'courts' as AdminTab,
@@ -206,6 +216,7 @@ const AdminDashboard: React.FC = () => {
               {/* ========== TAB CONTENT ========== */}
               <div className="p-6">
                 {activeTab === 'users' && <UserManagement />}
+                {activeTab === 'partners' && <PartnerManagement />}
                 {activeTab === 'courts' && <CourtManagement />}
                 {activeTab === 'timeslots' && <TimeSlotManagement />}
                 {activeTab === 'blogs' && <BlogManagement />}

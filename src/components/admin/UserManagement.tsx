@@ -292,6 +292,9 @@ const UserManagement: React.FC = () => {
                       Liên hệ
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Địa chỉ
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Trạng thái
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -332,6 +335,11 @@ const UserManagement: React.FC = () => {
                       <td className="px-6 py-5 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">{user.email}</div>
                         <div className="text-sm text-gray-500 font-medium">{user.phoneNumber}</div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="text-sm text-gray-900 max-w-xs truncate" title={user.address}>
+                          {user.address || 'Chưa cập nhật'}
+                        </div>
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap">
                         {renderStatusBadge(user.status)}
