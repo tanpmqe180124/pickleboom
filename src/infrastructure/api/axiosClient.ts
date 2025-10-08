@@ -87,10 +87,10 @@ api.interceptors.response.use(
 
         if (!refreshToken) throw new Error('No refresh token found');
 
-        // const refreshed = await store.refreshTokenAsync(refreshToken);
-        // if (!refreshed) throw new Error('Token refresh failed');
+        const refreshed = await store.refreshTokenAsync(refreshToken);
+        if (!refreshed) throw new Error('Token refresh failed');
 
-        originalRequest.headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
+        originalRequest.headers.Authorization = `Bearer ${refreshed.accessToken}`;
         return api(originalRequest);
       } catch (err) {
         clearAuthToken();

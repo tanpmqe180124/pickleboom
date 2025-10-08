@@ -23,6 +23,7 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
   login: (credential: LoginCredential) => Promise<void>;
+  refreshTokenAsync: (refreshToken: string) => Promise<{ accessToken: string } | null>;
   logout: () => Promise<void>;
   setUser: (user: UserObject | null) => void;
 }
@@ -217,6 +218,28 @@ const authStore: AuthStoreCreator = (set, get) => ({
       });
 
       throw new Error(errorMessage);
+    }
+  },
+
+  refreshTokenAsync: async (refreshToken: string) => {
+    try {
+      console.log('Refreshing token...');
+      const response = await api.get('Account/refresh-token');
+      const { data } = response.data;
+      
+      if (!data || !data.accessToken) {
+        throw new Error('No access token in refresh response');
+      }
+      
+      // Cập nhật token mới
+      setAuthToken(data.accessToken);
+      localStorage.setItem('token', data.accessToken);
+      
+      console.log('Token refreshed successfully');
+      return { accessToken: data.accessToken };
+    } catch (error) {
+      console.error('Refresh token failed:', error);
+      return null;
     }
   },
 
