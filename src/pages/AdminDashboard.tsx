@@ -3,7 +3,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { showToast } from '@/utils/toastManager';
 import { 
   Users, 
-  UserPlus,
   MapPin, 
   Clock, 
   FileText, 
@@ -72,7 +71,7 @@ const AdminDashboard: React.FC = () => {
     {
       id: 'partners' as AdminTab,
       name: 'Quản lý Partner',
-      icon: UserPlus,
+      icon: Users,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
       hoverColor: 'hover:bg-purple-100'

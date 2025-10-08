@@ -60,9 +60,9 @@ const PartnerManagement: React.FC = () => {
       const response = await adminService.getPartners(params);
       console.log('Partners API Response:', response);
       
-      setPartners(response.Items);
-      setTotalPages(response.TotalPages);
-      setTotalCount(response.TotalCount);
+      setPartners(response.data);
+      setTotalPages(Math.ceil(response.total / response.pageSize));
+      setTotalCount(response.total);
     } catch (error) {
       console.error('Error fetching partners:', error);
       showToast.error('Lỗi tải dữ liệu', 'Không thể tải danh sách Partner.');
@@ -122,14 +122,7 @@ const PartnerManagement: React.FC = () => {
     
     // Validate required fields
     if (!formData.Email || !formData.FullName || !formData.BussinessName || !formData.Address || !formData.PhoneNumber) {
-      showToast.error('Lỗi dữ liệu', 'Vui lòng điền đầy đủ thông tin bắt buộc.');
-      return;
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.Email)) {
-      showToast.error('Lỗi dữ liệu', 'Địa chỉ email không hợp lệ.');
+      showToast.error('Lỗi xác thực', 'Vui lòng điền đầy đủ thông tin bắt buộc.');
       return;
     }
 
@@ -238,18 +231,13 @@ const PartnerManagement: React.FC = () => {
     <div className="space-y-6">
       {/* ========== HEADER ========== */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg p-2">
-            <UserPlus className="h-6 w-6 text-white" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Quản lý Partner</h2>
-            <p className="text-sm text-gray-500">Tạo và quản lý tài khoản đối tác</p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Quản lý Partner</h1>
+          <p className="text-gray-600 mt-1">Quản lý tài khoản đối tác và sân Pickleball</p>
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md"
+          className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 text-sm font-medium shadow-sm hover:shadow-md flex items-center space-x-2"
         >
           <Plus className="h-4 w-4" />
           <span className="font-medium">Tạo Partner</span>
@@ -372,7 +360,7 @@ const PartnerManagement: React.FC = () => {
                         <div className="text-sm text-gray-500 font-medium">{partner.PhoneNumber}</div>
                       </td>
                       <td className="px-6 py-5">
-                        <div className="text-sm text-gray-900 max-w-xs truncate" title={partner.Address}>
+                        <div className="text-sm text-gray-900 max-w-xs truncate" title={partner.Address || 'Chưa có địa chỉ'}>
                           {partner.Address || 'Chưa cập nhật'}
                         </div>
                       </td>
@@ -413,131 +401,123 @@ const PartnerManagement: React.FC = () => {
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Tạo tài khoản Partner mới
-              </h3>
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+                <UserPlus className="h-5 w-5 mr-2 text-purple-600" />
+                Tạo tài khoản Partner
+              </h2>
               <button
                 onClick={handleModalClose}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
               >
                 <X className="h-6 w-6" />
               </button>
             </div>
 
+            {/* Modal Body */}
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Email */}
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <Mail className="inline h-4 w-4 mr-1" />
-                    Email *
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 flex items-center">
+                    <Mail className="h-4 w-4 mr-2 text-gray-500" />
+                    Email <span className="text-red-500 ml-1">*</span>
                   </label>
                   <input
                     type="email"
-                    required
                     value={formData.Email}
                     onChange={(e) => setFormData({ ...formData, Email: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
                     placeholder="partner@example.com"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    required
                   />
                 </div>
 
                 {/* Full Name */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <User className="inline h-4 w-4 mr-1" />
-                    Họ và tên *
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 flex items-center">
+                    <User className="h-4 w-4 mr-2 text-gray-500" />
+                    Họ và tên <span className="text-red-500 ml-1">*</span>
                   </label>
                   <input
                     type="text"
-                    required
                     value={formData.FullName}
                     onChange={(e) => setFormData({ ...formData, FullName: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
                     placeholder="Nguyễn Văn A"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  />
-                </div>
-
-                {/* Phone Number */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <Phone className="inline h-4 w-4 mr-1" />
-                    Số điện thoại *
-                  </label>
-                  <input
-                    type="tel"
                     required
-                    value={formData.PhoneNumber}
-                    onChange={(e) => setFormData({ ...formData, PhoneNumber: e.target.value })}
-                    placeholder="0123456789"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
 
                 {/* Business Name */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <Building className="inline h-4 w-4 mr-1" />
-                    Tên doanh nghiệp *
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 flex items-center">
+                    <Building className="h-4 w-4 mr-2 text-gray-500" />
+                    Tên doanh nghiệp <span className="text-red-500 ml-1">*</span>
                   </label>
                   <input
                     type="text"
-                    required
                     value={formData.BussinessName}
                     onChange={(e) => setFormData({ ...formData, BussinessName: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
                     placeholder="Công ty TNHH ABC"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    required
                   />
                 </div>
 
-                {/* Address */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <MapPin className="inline h-4 w-4 mr-1" />
-                    Địa chỉ *
+                {/* Phone Number */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 flex items-center">
+                    <Phone className="h-4 w-4 mr-2 text-gray-500" />
+                    Số điện thoại <span className="text-red-500 ml-1">*</span>
                   </label>
                   <input
-                    type="text"
+                    type="tel"
+                    value={formData.PhoneNumber}
+                    onChange={(e) => setFormData({ ...formData, PhoneNumber: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                    placeholder="0123456789"
                     required
-                    value={formData.Address}
-                    onChange={(e) => setFormData({ ...formData, Address: e.target.value })}
-                    placeholder="123 Đường ABC, Quận 1, TP.HCM"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
               </div>
 
-              {/* Info Note */}
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <div className="flex items-start space-x-3">
-                  <div className="bg-yellow-100 rounded-full p-1">
-                    <UserPlus className="h-4 w-4 text-yellow-600" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium text-yellow-800">Thông tin quan trọng</h4>
-                    <p className="text-sm text-yellow-700 mt-1">
-                      Partner sẽ nhận được email chứa thông tin đăng nhập. Mật khẩu mặc định là <strong>123456</strong>.
-                    </p>
-                  </div>
-                </div>
+              {/* Address */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 flex items-center">
+                  <MapPin className="h-4 w-4 mr-2 text-gray-500" />
+                  Địa chỉ <span className="text-red-500 ml-1">*</span>
+                </label>
+                <textarea
+                  value={formData.Address}
+                  onChange={(e) => setFormData({ ...formData, Address: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm resize-none"
+                  placeholder="123 Đường ABC, Quận XYZ, TP.HCM"
+                  rows={3}
+                  required
+                />
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center justify-end space-x-3 pt-4 border-t">
+              {/* Modal Footer */}
+              <div className="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
                 <button
                   type="button"
                   onClick={handleModalClose}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200 text-sm font-medium"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex items-center space-x-2 px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 text-sm font-medium shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
                 >
-                  <Save className="h-4 w-4" />
+                  {loading ? (
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
                   <span>{loading ? 'Đang tạo...' : 'Tạo Partner'}</span>
                 </button>
               </div>

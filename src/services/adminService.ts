@@ -7,7 +7,6 @@ export interface AdminUser {
   UserName: string;
   Email: string;
   PhoneNumber: string;
-  Address: string;
   Avatar: string;
   Status: number; // 0: Active, 1: Inactive
 }
@@ -23,14 +22,6 @@ export interface AdminUserParams {
 
 export interface AdminUserUpdateRequest {
   Status: number;
-}
-
-export interface RegisterPartnerRequest {
-  Email: string;
-  FullName: string;
-  BussinessName: string;
-  Address: string;
-  PhoneNumber: string;
 }
 
 export interface AdminCourt {
@@ -148,44 +139,6 @@ export const adminService = {
     }
   },
 
-  async registerPartner(data: RegisterPartnerRequest): Promise<string> {
-    try {
-      const response = await api.post<ApiResponse<string>>('/Account/register-partner', data);
-      return response.data.Message;
-    } catch (error) {
-      console.error('Error registering partner:', error);
-      throw error;
-    }
-  },
-
-  // ========== PARTNER MANAGEMENT ==========
-  async getPartners(params?: { Page?: number; PageSize?: number; FullName?: string; Status?: number }): Promise<PaginatedResponse<AdminUser>> {
-    try {
-      const response = await api.get<ApiResponse<PaginatedResponse<AdminUser>>>('/Admin/user', { params });
-      return (response.data as any).data;
-    } catch (error) {
-      console.error('Error fetching partners:', error);
-      throw error;
-    }
-  },
-
-  async updatePartnerStatus(partnerId: string, partnerData: AdminUserUpdateRequest): Promise<string> {
-    try {
-      const formData = new FormData();
-      formData.append('Status', partnerData.Status.toString());
-
-      const response = await api.patch<ApiResponse<string>>(`/User/${partnerId}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return response.data.Message;
-    } catch (error) {
-      console.error('Error updating partner status:', error);
-      throw error;
-    }
-  },
-
   // ========== COURT MANAGEMENT ==========
   async getCourts(params?: { Name?: string; CourtStatus?: number }): Promise<AdminCourt[]> {
     try {
@@ -202,8 +155,8 @@ export const adminService = {
       // Handle response structure
       if (Array.isArray(response.data)) {
         return response.data;
-      } else if (response.data && Array.isArray(response.data.Data)) {
-        return response.data.Data;
+      } else if (response.data && Array.isArray(response.data.data)) {
+        return response.data.data;
       } else {
         console.warn('Unexpected API response structure for courts:', response.data);
         return [];
