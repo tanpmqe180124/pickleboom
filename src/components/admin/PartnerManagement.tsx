@@ -149,12 +149,16 @@ const PartnerManagement: React.FC = () => {
     setLoading(true);
     try {
       console.log('Creating partner with data:', formData);
-      await adminService.registerPartner(formData);
-      console.log('Partner created successfully');
-      showToast.success('Tạo thành công', 'Tài khoản partner đã được tạo thành công.');
-      setShowModal(false);
-      resetForm();
-      fetchPartners(); // Refresh danh sách sau khi tạo
+      const response = await adminService.registerPartner(formData);
+      console.log('Partner created successfully, response:', response);
+      
+      // Handle both 200 and 204 responses
+      if (response || response === '') {
+        showToast.success('Tạo thành công', 'Tài khoản partner đã được tạo thành công.');
+        setShowModal(false);
+        resetForm();
+        fetchPartners(); // Refresh danh sách sau khi tạo
+      }
     } catch (error: any) {
       console.error('Error creating partner:', error);
       let errorMessage = 'Không thể tạo tài khoản partner.';

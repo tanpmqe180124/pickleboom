@@ -153,8 +153,16 @@ export const adminService = {
 
   async registerPartner(data: RegisterPartnerRequest): Promise<string> {
     try {
-      const response = await api.post<ApiResponse<string>>('/Account/register-partner', data);
-      return response.data.Message;
+      const response = await api.post('/Account/register-partner', data);
+      console.log('Register partner response:', response);
+      
+      // Handle 204 No Content response
+      if (response.status === 204) {
+        return 'Partner created successfully'; // Return success message for 204
+      }
+      
+      // Handle 200 response with data
+      return response.data?.Message || 'Partner created successfully';
     } catch (error) {
       console.error('Error registering partner:', error);
       throw error;
