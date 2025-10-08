@@ -23,7 +23,6 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
   login: (credential: LoginCredential) => Promise<void>;
-  refreshTokenAsync: (refreshToken: string) => Promise<{ accessToken: string } | null>;
   logout: () => Promise<void>;
   setUser: (user: UserObject | null) => void;
 }
@@ -218,43 +217,6 @@ const authStore: AuthStoreCreator = (set, get) => ({
       });
 
       throw new Error(errorMessage);
-    }
-  },
-
-  refreshTokenAsync: async () => {
-    try {
-      console.log('Refreshing token...');
-      
-      // Sử dụng fetch thay vì axios để tránh vòng lặp interceptor
-      const response = await fetch('https://bookingpickleball.onrender.com/api/Account/refresh-token', {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const result = await response.json();
-      const { data } = result;
-      
-      if (!data || !data.accessToken) {
-        throw new Error('No access token in refresh response');
-      }
-      
-      // Cập nhật token mới
-      setAuthToken(data.accessToken);
-      localStorage.setItem('token', data.accessToken);
-      
-      console.log('Token refreshed successfully');
-      return { accessToken: data.accessToken };
-    } catch (error) {
-      console.error('Refresh token failed:', error);
-      return null;
     }
   },
 

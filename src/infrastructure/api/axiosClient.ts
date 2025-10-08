@@ -26,18 +26,12 @@ api.interceptors.request.use(
     const store = useAuthStore.getState();
 
     if (token && !isTokenValid(token)) {
-      try {
-        const refreshed = await store.refreshTokenAsync();
-        if (!refreshed) {
-          clearAuthToken();
-          return config;
-        }
-        token = refreshed.accessToken;
-      } catch (error) {
-        console.error('Token refresh failed in request interceptor:', error);
-        clearAuthToken();
-        return config;
-      }
+      // const refreshed = await store.refreshTokenAsync();
+      // if (!refreshed) {
+      //   clearAuthToken();
+      //   return config;
+      // }
+      token = localStorage.getItem('token');
     }
 
     if (token) {
@@ -89,11 +83,14 @@ api.interceptors.response.use(
 
       try {
         const store = useAuthStore.getState();
+        const refreshToken = localStorage.getItem('refreshToken');
 
-        const refreshed = await store.refreshTokenAsync();
-        if (!refreshed) throw new Error('Token refresh failed');
+        if (!refreshToken) throw new Error('No refresh token found');
 
-        originalRequest.headers.Authorization = `Bearer ${refreshed.accessToken}`;
+        // const refreshed = await store.refreshTokenAsync(refreshToken);
+        // if (!refreshed) throw new Error('Token refresh failed');
+
+        originalRequest.headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
         return api(originalRequest);
       } catch (err) {
         clearAuthToken();
