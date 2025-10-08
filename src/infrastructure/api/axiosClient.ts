@@ -26,12 +26,18 @@ api.interceptors.request.use(
     const store = useAuthStore.getState();
 
     if (token && !isTokenValid(token)) {
-      const refreshed = await store.refreshTokenAsync();
-      if (!refreshed) {
+      try {
+        const refreshed = await store.refreshTokenAsync();
+        if (!refreshed) {
+          clearAuthToken();
+          return config;
+        }
+        token = refreshed.accessToken;
+      } catch (error) {
+        console.error('Token refresh failed in request interceptor:', error);
         clearAuthToken();
         return config;
       }
-      token = refreshed.accessToken;
     }
 
     if (token) {
