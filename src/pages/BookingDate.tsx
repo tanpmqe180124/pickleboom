@@ -39,7 +39,7 @@ export default function BookingDate() {
   // State management for workflow
   const [currentStep, setCurrentStep] = useState<Step>('partners');
   const [partners, setPartners] = useState<Partner[]>([]);
-  const [selectedPartner, setSelectedPartnerLocal] = useState<Partner | null>(selectedPartnerFromStore);
+  const [selectedPartner, setSelectedPartnerLocal] = useState<Partner | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [courts, setCourts] = useState<CourtWithTimeSlots[]>([]);
   const [selectedCourt, setSelectedCourt] = useState<CourtWithTimeSlots | null>(null);
@@ -83,13 +83,13 @@ export default function BookingDate() {
 
   // Load courts when partner and date are selected
   useEffect(() => {
-    if (selectedPartnerLocal && selectedDate) {
+    if (selectedPartner && selectedDate) {
       const loadCourts = async () => {
         setLoading(true);
         setError(null);
         try {
           const dateString = selectedDate.toISOString().split('T')[0];
-          const courtsData = await bookingService.getCourtsByPartnerAndDate(selectedPartnerLocal.id, dateString);
+          const courtsData = await bookingService.getCourtsByPartnerAndDate(selectedPartner.id, dateString);
           setCourts(courtsData);
         } catch (err) {
           console.error('Error loading courts:', err);
@@ -102,7 +102,7 @@ export default function BookingDate() {
 
       loadCourts();
     }
-  }, [selectedPartnerLocal, selectedDate]);
+  }, [selectedPartner, selectedDate]);
 
   // Get available times from selected court
   const availableTimes = selectedCourt 
@@ -277,7 +277,7 @@ export default function BookingDate() {
             <div className="lg:col-span-3">
               <div className="text-center mb-8">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Chọn ngày đặt sân</h1>
-                <p className="text-gray-600">Sân của {selectedPartnerLocal?.bussinessName} - Chọn ngày bạn muốn đặt</p>
+                <p className="text-gray-600">Sân của {selectedPartner?.bussinessName} - Chọn ngày bạn muốn đặt</p>
               </div>
               
               <div className="max-w-md mx-auto">
@@ -285,7 +285,7 @@ export default function BookingDate() {
                   <div className="text-center mb-6">
                     <Calendar className="h-12 w-12 text-blue-600 mx-auto mb-4" />
                     <h3 className="text-xl font-semibold mb-2">Chọn ngày đặt sân</h3>
-                    <p className="text-gray-600">Chọn ngày bạn muốn đặt sân tại {selectedPartnerLocal?.bussinessName}</p>
+                    <p className="text-gray-600">Chọn ngày bạn muốn đặt sân tại {selectedPartner?.bussinessName}</p>
                   </div>
                   
                   <div className="flex justify-center">
