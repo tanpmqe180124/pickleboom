@@ -156,14 +156,14 @@ export default function CheckOut() {
       // Call payment service to create booking and get payment URL
       const response = await paymentService.createPayment(paymentRequest);
       
-      if (response.StatusCode === 200) {
-        console.log('Payment created successfully:', response.Data);
-        setCheckoutUrl(response.Data.checkoutUrl);
-        setOrderCode(response.Data.orderCode.toString());
+      if (response.statusCode === 200) {
+        console.log('Payment created successfully:', response.data);
+        setCheckoutUrl(response.data.checkoutUrl);
+        setOrderCode(response.data.orderCode.toString());
         setBookingCreated(true);
         setShowPayOS(true);
       } else {
-        setError(response.Message || 'Có lỗi xảy ra khi tạo đơn đặt sân.');
+        setError(response.message || 'Có lỗi xảy ra khi tạo đơn đặt sân.');
       }
     } catch (err: any) {
       console.error('Payment error:', err);

@@ -28,12 +28,13 @@ export interface BookingStatus {
 }
 
 export interface PaymentResponse {
-  Message: string;
-  StatusCode: number;
-  Data: {
+  message: string;
+  statusCode: number;
+  data: {
     orderCode: number;
     checkoutUrl: string;
     amount: number;
+    qrCode?: string;
   };
 }
 
