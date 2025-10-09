@@ -23,7 +23,7 @@ interface CourtWithTimeSlots {
   description?: string;
   imageUrl?: string;
   courtStatus?: number;
-  timeSlots: TimeSlot[];
+  timeSlotIDs: TimeSlot[]; // Backend returns TimeSlotIDs, not timeSlots
 }
 
 type Step = 'partners' | 'date' | 'time';
@@ -104,8 +104,8 @@ export default function BookingDate() {
   }, [selectedPartner, selectedDate]);
 
   // Get available times from selected court
-  const availableTimes = selectedCourt && selectedCourt.timeSlots
-    ? selectedCourt.timeSlots
+  const availableTimes = selectedCourt && selectedCourt.timeSlotIDs
+    ? selectedCourt.timeSlotIDs
         .filter(slot => slot && slot.startTime)
         .map(slot => slot.startTime)
         .sort()
@@ -178,12 +178,12 @@ export default function BookingDate() {
   };
 
   const handleContinue = () => {
-    if (!selectedDate || selectedTimes.length === 0 || !selectedCourt || !selectedCourt.timeSlots) return;
+    if (!selectedDate || selectedTimes.length === 0 || !selectedCourt || !selectedCourt.timeSlotIDs) return;
     
     // Map selected time strings to time slot IDs
     const selectedTimeSlotIds = selectedTimes
       .map(timeString => {
-        const slot = selectedCourt.timeSlots?.find(slot => slot.startTime === timeString);
+        const slot = selectedCourt.timeSlotIDs?.find(slot => slot.startTime === timeString);
         return slot ? slot.id : null;
       })
       .filter((id): id is string => id !== null);
