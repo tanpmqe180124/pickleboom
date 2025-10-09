@@ -43,13 +43,24 @@ export interface ApiResponse<T> {
 
 // API Service Functions
 export const bookingService = {
-  // Lấy tất cả time slots
-  async getTimeSlots(): Promise<TimeSlot[]> {
+  // Lấy danh sách partners
+  async getPartners(): Promise<any[]> {
     try {
-      const response = await api.get<ApiResponse<TimeSlot[]>>('/TimeSlot');
+      const response = await api.get<ApiResponse<any[]>>('/Common/courts');
       return response.data.data;
     } catch (error) {
-      console.error('Error fetching time slots:', error);
+      console.error('Error fetching partners:', error);
+      throw error;
+    }
+  },
+
+  // Lấy sân + time slots của partner trong ngày cụ thể
+  async getCourtsByPartnerAndDate(partnerId: string, date: string): Promise<any[]> {
+    try {
+      const response = await api.get<ApiResponse<any[]>>(`/Common/courts/${partnerId}?date=${date}`);
+      return response.data.data;
+    } catch (error) {
+      console.error('Error fetching courts by partner and date:', error);
       throw error;
     }
   },

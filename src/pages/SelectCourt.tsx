@@ -1,31 +1,74 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowLeft, Calendar, Clock } from 'lucide-react';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
 import { useBookingStore } from '@/stores/useBookingStore';
 import { bookingService, Court, TimeSlot } from '@/services/bookingService';
 
-interface CourtCardProps {
-  court: Court;
+interface Partner {
+  id: string;
+  bussinessName: string;
+  address: string;
+}
+
+interface CourtWithTimeSlots {
+  id: string;
+  name: string;
+  timeSlotIDs: TimeSlot[];
+}
+
+type Step = 'partners' | 'date' | 'courts';
+
+interface PartnerCardProps {
+  partner: Partner;
   selected: boolean;
-  onSelect: (court: Court) => void;
+  onSelect: (partner: Partner) => void;
+}
+
+interface CourtCardProps {
+  court: CourtWithTimeSlots;
+  selected: boolean;
+  onSelect: (court: CourtWithTimeSlots) => void;
+}
+
+function PartnerCard({ partner, selected, onSelect }: PartnerCardProps) {
+  const [ref, inView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.12 });
+
+  return (
+    <div
+      ref={ref}
+      className={`bg-white rounded-xl shadow-lg transition-all duration-300 overflow-hidden hover:shadow-xl cursor-pointer hover:-translate-y-2 ${
+        selected ? 'ring-2 ring-blue-500 border-blue-500' : 'hover:border-blue-300'
+      } ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+      onClick={() => onSelect(partner)}
+    >
+      <div className="p-6">
+        <h3 className="font-sport text-xl mb-2 text-gray-900">
+          {partner.bussinessName}
+        </h3>
+        <p className="text-sm mb-3 line-clamp-2 text-gray-600">
+          {partner.address || 'Địa chỉ chưa cập nhật'}
+        </p>
+        
+        <button
+          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-sport py-3 rounded-lg transition-all duration-200 transform hover:scale-105"
+        >
+          Xem sân của {partner.bussinessName}
+        </button>
+      </div>
+    </div>
+  );
 }
 function CourtCard({ court, selected, onSelect }: CourtCardProps) {
   const [ref, inView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.12 });
   
-  const getStatusInfo = (status: number | undefined) => {
+  const getTimeSlotStatus = (status: number | undefined) => {
     switch (status) {
-      case 0: return { text: 'Hoạt động', color: 'text-green-600', bgColor: 'bg-green-100' };
-      case 1: return { text: 'Bảo trì', color: 'text-yellow-600', bgColor: 'bg-yellow-100' };
-      case 2: return { text: 'Ngưng hoạt động', color: 'text-gray-600', bgColor: 'bg-gray-100' };
-      default: return { text: 'Kín lịch', color: 'text-red-600', bgColor: 'bg-red-100' };
+      case 0: return { text: 'Trống', color: 'text-green-600', bgColor: 'bg-green-100' };
+      case 1: return { text: 'Đã đặt', color: 'text-red-600', bgColor: 'bg-red-100' };
+      default: return { text: 'Trống', color: 'text-green-600', bgColor: 'bg-green-100' };
     }
   };
-
-  const statusInfo = getStatusInfo(court.courtStatus);
-  
-  // Check if court is disabled (not active)
-  const isDisabled = court.courtStatus !== 0;
 
   return (
     <div
@@ -96,106 +139,93 @@ function CourtCard({ court, selected, onSelect }: CourtCardProps) {
 
 export default function SelectCourt() {
   const navigate = useNavigate();
-  const setSelectedCourt = useBookingStore((state) => state.setSelectedCourt);
-  const [allCourts, setAllCourts] = useState<Court[]>([]); // Store all courts for sorting
-  const [courts, setCourts] = useState<Court[]>([]); // Displayed courts for current page
+  const setSelectedCourtStore = useBookingStore((state) => state.setSelectedCourt);
+  
+  // State management
+  const [currentStep, setCurrentStep] = useState<Step>('partners');
+  const [partners, setPartners] = useState<Partner[]>([]);
+  const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>('');
+  const [courts, setCourts] = useState<CourtWithTimeSlots[]>([]);
+  const [selectedCourt, setSelectedCourt] = useState<CourtWithTimeSlots | null>(null);
   const [loading, setLoading] = useState(false);
-  const [selectedCourt, setSelectedCourtState] = useState<Court | null>(null);
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const pageSize = 6;
+  
   const [containerRef, containerInView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.12 });
 
-  // Load all courts from API (only once) for proper sorting
+  // Load partners on mount
   useEffect(() => {
-    const loadAllCourts = async () => {
+    const loadPartners = async () => {
       setLoading(true);
       setError(null);
       try {
-        // Load all courts to enable proper sorting across all data
-        const response = await bookingService.getCourts(1, 1000); // Load all courts
-        
-        // Sort courts: Active courts first (status = 0), then by name
-        const sortedCourts = response.data.sort((a, b) => {
-          // First priority: Active courts (status = 0) come first
-          if (a.courtStatus === 0 && b.courtStatus !== 0) return -1;
-          if (a.courtStatus !== 0 && b.courtStatus === 0) return 1;
-          
-          // Second priority: Sort by name for consistent ordering
-          return a.name.localeCompare(b.name);
-        });
-        
-        setAllCourts(sortedCourts);
-        setTotal(sortedCourts.length);
+        const partnersData = await bookingService.getPartners();
+        setPartners(partnersData);
       } catch (err) {
-        console.error('Error loading courts:', err);
-        setError('Không thể tải danh sách sân. Vui lòng thử lại.');
-        setAllCourts([]);
-        setTotal(0);
+        console.error('Error loading partners:', err);
+        setError('Không thể tải danh sách đối tác. Vui lòng thử lại.');
+        setPartners([]);
       } finally {
         setLoading(false);
       }
     };
 
-    loadAllCourts();
-  }, []); // Only load once
-
-  // Update displayed courts when page changes (frontend pagination)
-  useEffect(() => {
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const paginatedCourts = allCourts.slice(startIndex, endIndex);
-    setCourts(paginatedCourts);
-  }, [page, allCourts, pageSize]);
-
-  // Function to refresh courts data (can be called when admin updates courts)
-  const refreshCourts = async () => {
-    try {
-      const response = await bookingService.getCourts(1, 1000);
-      
-      // Sort courts: Active courts first (status = 0), then by name
-      const sortedCourts = response.data.sort((a, b) => {
-        if (a.courtStatus === 0 && b.courtStatus !== 0) return -1;
-        if (a.courtStatus !== 0 && b.courtStatus === 0) return 1;
-        return a.name.localeCompare(b.name);
-      });
-      
-      setAllCourts(sortedCourts);
-      setTotal(sortedCourts.length);
-    } catch (err) {
-      console.error('Error refreshing courts:', err);
-    }
-  };
-
-  // Listen for storage events to refresh when admin updates courts
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'courtsUpdated') {
-        refreshCourts();
-        // Clear the flag
-        localStorage.removeItem('courtsUpdated');
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    loadPartners();
   }, []);
 
-  const handleSelectCourt = async (court: Court) => {
-    try {
-      // Store selected court
-      setSelectedCourt(court);
-      
-      // Navigate to date selection page
-      navigate('/booking/date');
-    } catch (err) {
-      console.error('Error selecting court:', err);
-      alert('Không thể chọn sân. Vui lòng thử lại.');
+  // Load courts when partner and date are selected
+  useEffect(() => {
+    if (selectedPartner && selectedDate) {
+      const loadCourts = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const courtsData = await bookingService.getCourtsByPartnerAndDate(selectedPartner.id, selectedDate);
+          setCourts(courtsData);
+        } catch (err) {
+          console.error('Error loading courts:', err);
+          setError('Không thể tải danh sách sân. Vui lòng thử lại.');
+          setCourts([]);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      loadCourts();
+    }
+  }, [selectedPartner, selectedDate]);
+
+  // Handlers
+  const handleSelectPartner = (partner: Partner) => {
+    setSelectedPartner(partner);
+    setCurrentStep('date');
+  };
+
+  const handleSelectDate = (date: string) => {
+    setSelectedDate(date);
+    setCurrentStep('courts');
+  };
+
+  const handleSelectCourt = (court: CourtWithTimeSlots) => {
+    setSelectedCourt(court);
+    // Store selected court in global store and navigate to booking date page
+    setSelectedCourtStore(court as any);
+    navigate('/booking/date');
+  };
+
+  const handleBack = () => {
+    if (currentStep === 'date') {
+      setCurrentStep('partners');
+      setSelectedPartner(null);
+    } else if (currentStep === 'courts') {
+      setCurrentStep('date');
+      setSelectedDate('');
+      setCourts([]);
     }
   };
 
-  const totalPages = Math.ceil(total / pageSize);
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -213,8 +243,16 @@ export default function SelectCourt() {
 
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-sport text-gray-900 mb-2">Chọn sân muốn đặt</h1>
-          <p className="text-gray-600">Vui lòng chọn sân phù hợp để tiếp tục đặt lịch</p>
+          <h1 className="text-3xl font-sport text-gray-900 mb-2">
+            {currentStep === 'partners' && 'Chọn đối tác'}
+            {currentStep === 'date' && 'Chọn ngày đặt sân'}
+            {currentStep === 'courts' && 'Chọn sân và khung giờ'}
+          </h1>
+          <p className="text-gray-600">
+            {currentStep === 'partners' && 'Vui lòng chọn đối tác để xem danh sách sân'}
+            {currentStep === 'date' && `Sân của ${selectedPartner?.bussinessName} - Chọn ngày bạn muốn đặt`}
+            {currentStep === 'courts' && `Ngày ${selectedDate} - Chọn sân và khung giờ phù hợp`}
+          </p>
         </div>
 
         {/* Loading State */}
@@ -248,18 +286,58 @@ export default function SelectCourt() {
           </div>
         )}
 
-        {/* Courts Grid */}
+        {/* Content based on current step */}
         {!loading && !error && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {courts.map((court: Court) => (
-              <CourtCard
-                key={court.id}
-                court={court}
-                selected={selectedCourt?.id === court.id}
-                onSelect={handleSelectCourt}
-              />
-            ))}
-          </div>
+          <>
+            {/* Step 1: Partners */}
+            {currentStep === 'partners' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                {partners.map((partner: Partner) => (
+                  <PartnerCard
+                    key={partner.id}
+                    partner={partner}
+                    selected={selectedPartner?.id === partner.id}
+                    onSelect={handleSelectPartner}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Step 2: Date Selection */}
+            {currentStep === 'date' && (
+              <div className="max-w-md mx-auto">
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  <div className="text-center mb-6">
+                    <Calendar className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">Chọn ngày đặt sân</h3>
+                    <p className="text-gray-600">Chọn ngày bạn muốn đặt sân tại {selectedPartner?.bussinessName}</p>
+                  </div>
+                  
+                  <input
+                    type="date"
+                    min={new Date().toISOString().split('T')[0]}
+                    value={selectedDate}
+                    onChange={(e) => handleSelectDate(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Courts with Time Slots */}
+            {currentStep === 'courts' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                {courts.map((court: CourtWithTimeSlots) => (
+                  <CourtCard
+                    key={court.id}
+                    court={court}
+                    selected={selectedCourt?.id === court.id}
+                    onSelect={handleSelectCourt}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
 
         {/* Empty State */}
