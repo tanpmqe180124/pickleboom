@@ -148,7 +148,7 @@ export default function CheckOut() {
         customerName: customerName.trim(),
         phoneNumber: phoneNumber.trim(),
         email: email.trim(),
-        amount: selectedCourt.pricePerHour,
+        amount: selectedCourt.pricePerHour || 0,
         timeSlots: selectedTimeSlotIds // Array of Guid strings
       };
 
@@ -251,7 +251,9 @@ export default function CheckOut() {
 
                     <div className="flex items-center justify-between">
                       <span className="text-gray-600">Giá 1 giờ:</span>
-                      <span className="font-medium">{pricePerHour.toLocaleString('vi-VN')} ₫</span>
+                      <span className="font-medium">
+                        {pricePerHour > 0 ? `${pricePerHour.toLocaleString('vi-VN')} ₫` : 'Liên hệ để biết giá'}
+                      </span>
                     </div>
                     
                     <div className="flex items-center justify-between">
@@ -263,7 +265,10 @@ export default function CheckOut() {
                       <div className="flex items-center justify-between">
                         <span className="text-lg font-semibold text-gray-900">Tổng:</span>
                         <span className="text-lg font-bold text-blue-600">
-                          {(pricePerHour * numHours).toLocaleString('vi-VN')} ₫
+                          {pricePerHour > 0 
+                            ? `${(pricePerHour * numHours).toLocaleString('vi-VN')} ₫`
+                            : 'Liên hệ để biết giá'
+                          }
                         </span>
                       </div>
                     </div>

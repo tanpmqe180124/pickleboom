@@ -6,8 +6,7 @@ import CalendarComponent from 'react-calendar';
 import '../css/booking-date.css';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
 import { useBookingStore } from '@/stores/useBookingStore';
-import { bookingService } from '@/services/bookingService';
-import { TimeSlot } from '@/services/bookingService';
+import { bookingService, Court, TimeSlot } from '@/services/bookingService';
 
 interface Partner {
   id: string;
@@ -15,16 +14,7 @@ interface Partner {
   address: string;
 }
 
-interface CourtWithTimeSlots {
-  id: string;
-  name: string;
-  location: string;
-  pricePerHour: number;
-  description?: string;
-  imageUrl?: string;
-  courtStatus?: number;
-  timeSlotIDs: TimeSlot[]; // Backend returns TimeSlotIDs, not timeSlots
-}
+// Use Court interface from bookingService which matches backend structure
 
 type Step = 'partners' | 'date' | 'time';
 
@@ -34,15 +24,15 @@ export default function BookingDate() {
 
   // Get selected partner from store
   const selectedPartnerFromStore = useBookingStore((state) => state.selectedPartner);
-  const setSelectedPartner = useBookingStore((state) => state.setSelectedPartner);
+  const setSelectedPartnerStore = useBookingStore((state) => state.setSelectedPartner);
 
   // State management for workflow
   const [currentStep, setCurrentStep] = useState<Step>('partners');
   const [partners, setPartners] = useState<Partner[]>([]);
-  const [selectedPartner, setSelectedPartnerLocal] = useState<Partner | null>(null);
+  const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [courts, setCourts] = useState<CourtWithTimeSlots[]>([]);
-  const [selectedCourt, setSelectedCourt] = useState<CourtWithTimeSlots | null>(null);
+  const [courts, setCourts] = useState<Court[]>([]);
+  const [selectedCourt, setSelectedCourt] = useState<Court | null>(null);
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,7 +45,7 @@ export default function BookingDate() {
   // Sync selectedPartner from store and auto-advance step
   useEffect(() => {
     if (selectedPartnerFromStore) {
-      setSelectedPartnerLocal(selectedPartnerFromStore);
+      setSelectedPartner(selectedPartnerFromStore);
       setCurrentStep('date'); // Auto-advance to date selection
     }
   }, [selectedPartnerFromStore]);
@@ -103,10 +93,10 @@ export default function BookingDate() {
     }
   }, [selectedPartner, selectedDate]);
 
-  // Get available times from selected court
+  // Get available times from selected court (only Free slots)
   const availableTimes = selectedCourt && selectedCourt.timeSlotIDs
     ? selectedCourt.timeSlotIDs
-        .filter(slot => slot && slot.startTime)
+        .filter(slot => slot && slot.startTime && slot.status === 'Free')
         .map(slot => slot.startTime)
         .sort()
     : [];
@@ -139,8 +129,8 @@ export default function BookingDate() {
 
   // Handlers
   const handleSelectPartner = (partner: Partner) => {
-    setSelectedPartnerLocal(partner);
-    setSelectedPartner(partner); // Also save to store
+    setSelectedPartner(partner);
+    setSelectedPartnerStore(partner); // Save to store
     setCurrentStep('date');
   };
 
@@ -149,7 +139,7 @@ export default function BookingDate() {
     setCurrentStep('time');
   };
 
-  const handleSelectCourt = (court: CourtWithTimeSlots) => {
+  const handleSelectCourt = (court: Court) => {
     setSelectedCourt(court);
     setSelectedTimes([]); // Reset selected times when changing court
   };
@@ -157,8 +147,8 @@ export default function BookingDate() {
   const handleBack = () => {
     if (currentStep === 'date') {
       setCurrentStep('partners');
-      setSelectedPartnerLocal(null);
-      setSelectedPartner(null); // Reset in store
+      setSelectedPartner(null);
+      setSelectedPartnerStore(null); // Reset in store
     } else if (currentStep === 'time') {
       setCurrentStep('date');
       setSelectedDate(null);
@@ -348,7 +338,7 @@ export default function BookingDate() {
                             <p>Không có sân nào khả dụng</p>
                           </div>
                         ) : (
-                          courts.map((court: CourtWithTimeSlots) => (
+                          courts.map((court: Court) => (
                             <div
                               key={court.id}
                               className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
@@ -359,9 +349,9 @@ export default function BookingDate() {
                               onClick={() => handleSelectCourt(court)}
                             >
                               <h3 className="font-semibold text-gray-900 mb-1">{court.name}</h3>
-                              <p className="text-gray-600 text-sm mb-2">{court.location}</p>
+                              <p className="text-gray-600 text-sm mb-2">{court.location || 'Địa chỉ chưa cập nhật'}</p>
                               <p className="text-lg font-bold text-green-600">
-                                {court.pricePerHour.toLocaleString('vi-VN')} VNĐ/giờ
+                                {court.pricePerHour ? `${court.pricePerHour.toLocaleString('vi-VN')} VNĐ/giờ` : 'Liên hệ để biết giá'}
                               </p>
                             </div>
                           ))

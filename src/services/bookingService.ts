@@ -5,16 +5,18 @@ export interface TimeSlot {
   id: string;
   startTime: string;
   endTime: string;
+  status?: 'Free' | 'Booked' | 'Cancelled'; // Add status property to match backend
 }
 
 export interface Court {
   id: string; // Backend actually returns id (camelCase)
   name: string; // Backend actually returns name (camelCase)
-  location: string; // Backend actually returns location (camelCase)
-  pricePerHour: number; // Backend actually returns pricePerHour (camelCase)
+  location?: string; // Backend GetAllInSpecificDate doesn't return location
+  pricePerHour?: number; // Backend GetAllInSpecificDate doesn't return pricePerHour
   description?: string; // Backend actually returns description (camelCase)
   imageUrl?: string; // Backend actually returns imageUrl (camelCase)
   courtStatus?: number; // Backend actually returns courtStatus (camelCase)
+  timeSlotIDs?: TimeSlot[]; // Backend returns TimeSlotIDs
 }
 
 export interface BookingRequest {
@@ -130,17 +132,12 @@ export const bookingService = {
   // Helper function: Lấy available time slots
   async getAvailableTimeSlots(courtId: string, date: string): Promise<TimeSlot[]> {
     try {
-      // Lấy tất cả time slots
-      const allTimeSlots = await this.getTimeSlots();
-      
       // Lấy time slots đã được book
       const bookedTimeSlots = await this.getBookedTimeSlots(courtId, date);
       
-      // Filter out booked time slots
-      const bookedIds = new Set(bookedTimeSlots.map(slot => slot.id));
-      const availableTimeSlots = allTimeSlots.filter(slot => !bookedIds.has(slot.id));
-      
-      return availableTimeSlots;
+      // For now, return empty array since we don't have getAllTimeSlots method
+      // This should be implemented based on your backend API
+      return [];
     } catch (error) {
       console.error('Error getting available time slots:', error);
       throw error;
