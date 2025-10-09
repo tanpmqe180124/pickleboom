@@ -73,65 +73,44 @@ function CourtCard({ court, selected, onSelect }: CourtCardProps) {
   return (
     <div
       ref={ref}
-      className={`bg-white rounded-xl shadow-lg transition-all duration-300 overflow-hidden ${
-        isDisabled 
-          ? 'opacity-60 grayscale cursor-not-allowed' 
-          : `hover:shadow-xl cursor-pointer hover:-translate-y-2 ${
-              selected ? 'ring-2 ring-blue-500 border-blue-500' : 'hover:border-blue-300'
-            }`
+      className={`bg-white rounded-xl shadow-lg transition-all duration-300 overflow-hidden hover:shadow-xl cursor-pointer hover:-translate-y-2 ${
+        selected ? 'ring-2 ring-blue-500 border-blue-500' : 'hover:border-blue-300'
       } ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
-      onClick={() => !isDisabled && onSelect(court)}
+      onClick={() => onSelect(court)}
     >
-      {/* Court Image */}
-      <div className="relative">
-        <img 
-          src={court.imageUrl} 
-          alt={court.name} 
-          className={`w-full h-48 object-cover bg-gray-100 ${isDisabled ? 'grayscale' : ''}`} 
-        />
-        <div className="absolute top-3 right-3">
-          <div className={`px-2 py-1 rounded-full text-xs font-medium ${statusInfo.bgColor} ${statusInfo.color}`}>
-            {statusInfo.text}
-          </div>
-        </div>
-      </div>
-
       {/* Court Info */}
-      <div className={`p-6 ${isDisabled ? 'opacity-75' : ''}`}>
-        <h3 className={`font-sport text-xl mb-2 ${isDisabled ? 'text-gray-500' : 'text-gray-900'}`}>
+      <div className="p-6">
+        <h3 className="font-sport text-xl mb-4 text-gray-900">
           {court.name}
         </h3>
-        <p className={`text-sm mb-3 line-clamp-2 ${isDisabled ? 'text-gray-400' : 'text-gray-600'}`}>
-          {court.description}
-        </p>
         
-        <div className={`flex items-center mb-3 ${isDisabled ? 'text-gray-400' : 'text-gray-600'}`}>
-          <span className="text-sm">📍 {court.location}</span>
+        {/* Time Slots */}
+        <div className="mb-4">
+          <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+            <Clock className="h-4 w-4 mr-1" />
+            Khung giờ khả dụng:
+          </h4>
+          <div className="grid grid-cols-2 gap-2">
+            {court.timeSlotIDs.map((slot, index) => {
+              const statusInfo = getTimeSlotStatus(slot.status);
+              return (
+                <div
+                  key={index}
+                  className={`px-2 py-1 rounded text-xs text-center ${statusInfo.bgColor} ${statusInfo.color}`}
+                >
+                  {slot.startTime} - {slot.endTime}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="flex items-center justify-between mb-4">
-          <span className={`text-sm ${isDisabled ? 'text-gray-400' : 'text-gray-600'}`}>Giá:</span>
-          <span className={`font-bold text-lg ${isDisabled ? 'text-gray-400' : 'text-blue-600'}`}>
-            {court.pricePerHour.toLocaleString()}đ/giờ
-          </span>
-        </div>
-
-        {isDisabled ? (
-          <button
-            className="w-full bg-gray-300 text-gray-500 font-sport py-3 rounded-lg cursor-not-allowed"
-            disabled
-          >
-            {court.courtStatus === 1 ? 'Đang bảo trì' : 
-             court.courtStatus === 2 ? 'Ngưng hoạt động' : 'Kín lịch'}
-          </button>
-        ) : (
-          <button
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-sport py-3 rounded-lg transition-all duration-200 transform hover:scale-105"
-            onClick={e => { e.stopPropagation(); onSelect(court); }}
-          >
-            Chọn sân này
-          </button>
-        )}
+        <button
+          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-sport py-3 rounded-lg transition-all duration-200 transform hover:scale-105"
+          onClick={e => { e.stopPropagation(); onSelect(court); }}
+        >
+          Chọn sân này
+        </button>
       </div>
     </div>
   );
@@ -351,34 +330,6 @@ export default function SelectCourt() {
           </div>
         )}
 
-        {/* Pagination */}
-        {!loading && totalPages > 1 && (
-          <div className="flex justify-center items-center gap-4">
-            <button
-              className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium hover:bg-blue-50 transition disabled:opacity-50 flex items-center gap-2"
-              onClick={() => setPage(page - 1)}
-              disabled={page === 1}
-            >
-              <ChevronLeft size={16} />
-              Trang trước
-            </button>
-            
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-700">
-                Trang {page} / {totalPages}
-              </span>
-            </div>
-
-            <button
-              className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium hover:bg-blue-50 transition disabled:opacity-50 flex items-center gap-2"
-              onClick={() => setPage(page + 1)}
-              disabled={page === totalPages}
-            >
-              Trang sau
-              <ChevronRight size={16} />
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
