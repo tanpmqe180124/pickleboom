@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
 import { Users, Building2, Calendar, DollarSign, Search, Shield, Clock, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
   navigateMenu,
   navigationExtra,
@@ -79,9 +80,18 @@ const RenderNavChildren = ({ children }: { children: NavChild[] }) => {
 };
 
 const Home = () => {
+  const navigate = useNavigate();
   const navItems: NavItem[] = useMemo(() => navigateMenu(), []);
   const specialItems: NavItem[] = useMemo(() => productFilter(), []);
   const extra: NavItem[] = useMemo(() => navigationExtra(), []);
+
+  const handleFindCourt = () => {
+    navigate('/playertype');
+  };
+
+  const handleRegisterCourt = () => {
+    navigate('/playertype');
+  };
 
   return (
     <div className="min-h-screen w-full">
@@ -156,6 +166,7 @@ const Home = () => {
                 <Button 
                   size="lg" 
                   className="bg-[#EAB308] hover:bg-[#D4A017] text-[#2F3C54] font-bold px-8 py-4 text-lg rounded-full shadow-2xl hover:shadow-[#EAB308]/25 transition-all duration-300"
+                  onClick={handleFindCourt}
                 >
                   Tìm sân ngay
                 </Button>
@@ -172,6 +183,7 @@ const Home = () => {
                     backgroundColor: 'transparent',
                     borderColor: 'white'
                   }}
+                  onClick={handleRegisterCourt}
                 >
                   Đăng ký sân
                 </Button>
@@ -333,6 +345,7 @@ const Home = () => {
               </div>
               <Button 
                 className="w-full bg-[#EAB308] hover:bg-[#D4A017] text-[#2F3C54] font-bold py-3 rounded-full"
+                onClick={handleRegisterCourt}
               >
                 Đăng ký sân ngay
               </Button>
@@ -369,9 +382,10 @@ const Home = () => {
                   <Users size={24} className="mr-4 text-[#FCBA6B]" />
                   <span className="font-medium">Kết nối bạn bè cùng chơi</span>
                 </div>
-              </div>
+          </div>
               <Button 
                 className="w-full bg-[#FCBA6B] hover:bg-[#F4A847] text-[#2F3C54] font-bold py-3 rounded-full"
+                onClick={handleFindCourt}
               >
                 Tìm sân ngay
               </Button>
@@ -411,7 +425,7 @@ const Home = () => {
           >
             <Banner />
           </motion.div>
-        </div>
+      </div>
       </motion.div>
       
       {/* Blog Section - Thêm lại */}
