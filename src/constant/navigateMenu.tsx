@@ -116,32 +116,32 @@ export const imageHome2 = (): Slide[] => [
 export const siteFeature = () => [
   {
     icon: <Rocket size={50} color="#FCBA6B" />,
-    title: 'Free Delivery',
-    content: 'For all oders over $99',
+    title: 'Đặt sân dễ dàng',
+    content: 'Tìm và đặt sân pickleball nhanh chóng, tiện lợi',
   },
 
   {
     icon: <RefreshCcw size={50} color="#FCBA6B" />,
-    title: '90 Days Return',
-    content: 'If good have problems',
+    title: 'Quản lý sân hiệu quả',
+    content: 'Công cụ quản lý sân và lịch đặt cho chủ sân',
   },
 
   {
     icon: <CreditCard size={50} color="#FCBA6B" />,
-    title: 'Secure Payment',
-    content: '100% Secure Payment',
+    title: 'Thanh toán an toàn',
+    content: 'Hệ thống thanh toán bảo mật, đa dạng phương thức',
   },
 
   {
     icon: <MessagesSquare size={50} color="#FCBA6B" />,
-    title: '24/7 Support',
-    content: 'Dedicate Support',
+    title: 'Hỗ trợ 24/7',
+    content: 'Đội ngũ hỗ trợ chuyên nghiệp, luôn sẵn sàng',
   },
 
   {
     icon: <Gift size={50} color="#FCBA6B" />,
-    title: 'Gift Service',
-    content: 'Support Gift Service',
+    title: 'Kết nối cộng đồng',
+    content: 'Tạo cộng đồng pickleball sôi động, kết nối người chơi',
   },
 ];
 

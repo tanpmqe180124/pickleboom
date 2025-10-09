@@ -123,10 +123,13 @@ const Home = () => {
                 Tìm sân ngay
               </Button>
               <Button 
-                variant="outline" 
                 size="lg"
-                className="border-2 border-white text-white hover:bg-white hover:text-[#2F3C54] font-bold px-8 py-4 text-lg rounded-full shadow-2xl transition-all duration-300 hover:scale-105"
-                style={{ color: 'white' }}
+                className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-[#2F3C54] font-bold px-8 py-4 text-lg rounded-full shadow-2xl transition-all duration-300 hover:scale-105"
+                style={{ 
+                  color: 'white',
+                  backgroundColor: 'transparent',
+                  borderColor: 'white'
+                }}
               >
                 Đăng ký sân
               </Button>
@@ -149,7 +152,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </div>
+                        </div>
       
       {/* Features Section */}
       <div className="py-20 bg-gray-50">
