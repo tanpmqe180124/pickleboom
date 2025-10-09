@@ -1,6 +1,7 @@
 import { NavigationMenuLink } from '@/components/ui/navigation-menu';
 import HeaderNew from '@/components/HeaderNew';
 import { Banner } from '@/components/BannerHealth';
+import { BlogCard } from '@/components/Blog';
 import FeaturesPage from '@/pages/FeaturesPage';
 import { Button } from '@/components/ui/button';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
@@ -256,6 +257,21 @@ const Home = () => {
             </p>
           </div>
           <Banner />
+        </div>
+      </div>
+      
+      {/* Blog Section - Thêm lại */}
+      <div className="py-20 bg-gray-50">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-[#2F3C54] mb-6">
+              BLOG & TIN TỨC
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Cập nhật tin tức mới nhất về pickleball và cộng đồng
+            </p>
+          </div>
+          <BlogCard />
         </div>
       </div>
     </div>
