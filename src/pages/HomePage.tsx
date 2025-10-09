@@ -110,7 +110,7 @@ const Home = () => {
 
             {/* Subtitle */}
             <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed">
-              Nền tảng trung gian hàng đầu Việt Nam giúp kết nối các sân pickleball 
+              Nền tảng trung gian hàng đầu tại Quy Nhơn giúp kết nối các sân pickleball 
               với cộng đồng người chơi. Đặt sân dễ dàng, quản lý hiệu quả.
             </p>
 
@@ -126,6 +126,7 @@ const Home = () => {
                 variant="outline" 
                 size="lg"
                 className="border-2 border-white text-white hover:bg-white hover:text-[#2F3C54] font-bold px-8 py-4 text-lg rounded-full shadow-2xl transition-all duration-300 hover:scale-105"
+                style={{ color: 'white' }}
               >
                 Đăng ký sân
               </Button>
