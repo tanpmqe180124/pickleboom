@@ -1,5 +1,5 @@
 import { NavigationMenuLink } from '@/components/ui/navigation-menu';
-import Header from '@/components/Header';
+import HeaderNew from '@/components/HeaderNew';
 import { Banner } from '@/components/BannerHealth';
 import FeaturesPage from '@/pages/FeaturesPage';
 import { Button } from '@/components/ui/button';
@@ -83,7 +83,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen w-full">
-      <Header />
+      <HeaderNew />
       
       {/* Hero Section - Web trung gian */}
       <div className="relative min-h-screen bg-gradient-to-br from-[#2F3C54] via-[#1E2A3A] to-[#0F1419] overflow-hidden">
