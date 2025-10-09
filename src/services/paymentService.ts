@@ -49,7 +49,18 @@ export const paymentService = {
     timeSlots: string[]; // Array of Guid strings
   }): Promise<PaymentResponse> {
     try {
-      const response = await api.post<PaymentResponse>('/Payment', bookingData);
+      // Map timeSlots to BookingTimeSlot để match với backend
+      const payload = {
+        courtID: bookingData.courtID,
+        bookingDate: bookingData.bookingDate,
+        customerName: bookingData.customerName,
+        phoneNumber: bookingData.phoneNumber,
+        email: bookingData.email,
+        amount: bookingData.amount,
+        BookingTimeSlot: bookingData.timeSlots // Map timeSlots -> BookingTimeSlot
+      };
+      
+      const response = await api.post<PaymentResponse>('/Payment', payload);
       return response.data;
     } catch (error) {
       console.error('Error creating payment:', error);
