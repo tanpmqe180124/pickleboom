@@ -44,7 +44,6 @@ export default function BookingDate() {
   const [courts, setCourts] = useState<CourtWithTimeSlots[]>([]);
   const [selectedCourt, setSelectedCourt] = useState<CourtWithTimeSlots | null>(null);
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
-  const [drinkOption, setDrinkOption] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -194,13 +193,11 @@ export default function BookingDate() {
     const setSelectedTimesStore = useBookingStore.getState().setSelectedTimes;
     const setSelectedTimeSlotIdsStore = useBookingStore.getState().setSelectedTimeSlotIds;
     const setSelectedCourtStore = useBookingStore.getState().setSelectedCourt;
-    const setDrinkOptionStore = useBookingStore.getState().setDrinkOption;
     
     setSelectedDateStore(selectedDate);
     setSelectedTimesStore(selectedTimes);
     setSelectedTimeSlotIdsStore(selectedTimeSlotIds);
     setSelectedCourtStore(selectedCourt);
-    setDrinkOptionStore(drinkOption);
     
     navigate('/booking/checkout');
   };
@@ -319,42 +316,6 @@ export default function BookingDate() {
 
               {selectedDate ? (
                 <div className="space-y-6">
-                  {/* Service Info & Drink Options */}
-                  <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-                    <div className="text-center mb-6">
-                      <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-xl">🏓</span>
-                      </div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Dịch vụ bổ sung</h3>
-                      <p className="text-sm text-gray-600">Quý khách có muốn thêm nước uống giải khát vào đơn đặt sân không?</p>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <label className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <input 
-                          type="radio" 
-                          name="drink" 
-                          value="yes" 
-                          className="w-4 h-4 text-blue-600 focus:ring-blue-500" 
-                          checked={drinkOption === 'yes'}
-                          onChange={(e) => setDrinkOption(e.target.value)}
-                        />
-                        <span className="text-sm font-medium text-gray-700">Có, tôi muốn sử dụng</span>
-                      </label>
-                      <label className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <input 
-                          type="radio" 
-                          name="drink" 
-                          value="no" 
-                          className="w-4 h-4 text-blue-600 focus:ring-blue-500" 
-                          checked={drinkOption === 'no'}
-                          onChange={(e) => setDrinkOption(e.target.value)}
-                        />
-                        <span className="text-sm font-medium text-gray-700">Không, tôi không có nhu cầu</span>
-                      </label>
-                    </div>
-                  </div>
-
                   {/* Court Selection */}
                   <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
                     <div className="text-center mb-6">
