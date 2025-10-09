@@ -96,7 +96,7 @@ export default function BookingDate() {
   // Get available times from selected court (only Free slots)
   const availableTimes = selectedCourt && selectedCourt.timeSlotIDs
     ? selectedCourt.timeSlotIDs
-        .filter(slot => slot && slot.startTime && slot.status === 'Free')
+        .filter(slot => slot && slot.startTime && slot.status === 0) // Backend returns 0 for Free
         .map(slot => slot.startTime)
         .sort()
     : [];

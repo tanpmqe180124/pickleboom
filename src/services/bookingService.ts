@@ -5,7 +5,7 @@ export interface TimeSlot {
   id: string;
   startTime: string;
   endTime: string;
-  status?: 'Free' | 'Booked' | 'Cancelled'; // Add status property to match backend
+  status?: number; // Backend returns 0=Free, 1=Booked, 2=Cancelled
 }
 
 export interface Court {
