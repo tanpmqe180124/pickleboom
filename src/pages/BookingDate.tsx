@@ -1,13 +1,22 @@
 
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, MapPin, Clock, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import '../css/booking-date.css';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
 import { useBookingStore } from '@/stores/useBookingStore';
-import { bookingService } from '@/services/bookingService';
-import { TimeSlot } from '@/services/bookingService';
+import { bookingService, Court, TimeSlot } from '@/services/bookingService';
+
+interface Partner {
+  id: string;
+  bussinessName: string;
+  address: string;
+}
+
+interface CourtWithTimeSlots extends Court {
+  timeSlots: TimeSlot[];
+}
 
 export default function BookingDate() {
   const selectedDate = useBookingStore((state) => state.selectedDate);
@@ -31,6 +40,34 @@ export default function BookingDate() {
   // Loading state for API calls
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // New states for partners and courts
+  const [partners, setPartners] = useState<Partner[]>([]);
+  const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
+  const [courts, setCourts] = useState<CourtWithTimeSlots[]>([]);
+  const [selectedCourt, setSelectedCourt] = useState<CourtWithTimeSlots | null>(null);
+  const [currentStep, setCurrentStep] = useState<'partners' | 'date' | 'courts'>('partners');
+
+  // Load partners on mount
+  useEffect(() => {
+    const loadPartners = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const partnersData = await bookingService.getPartners();
+        setPartners(partnersData);
+        setShowCard1(true);
+      } catch (err) {
+        console.error('Error loading partners:', err);
+        setError('Không thể tải danh sách đối tác. Vui lòng thử lại.');
+        setPartners([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPartners();
+  }, []);
 
   // Load time slots from API
   useEffect(() => {
@@ -54,6 +91,30 @@ export default function BookingDate() {
 
     loadTimeSlots();
   }, [allTimeSlots.length, setAllTimeSlots]);
+
+  // Load courts when partner and date are selected
+  useEffect(() => {
+    if (selectedPartner && selectedDate) {
+      const loadCourts = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const courtsData = await bookingService.getCourtsByPartnerAndDate(selectedPartner.id, selectedDate);
+          setCourts(courtsData);
+          setCurrentStep('courts');
+          setShowCard3(true);
+        } catch (err) {
+          console.error('Error loading courts:', err);
+          setError('Không thể tải danh sách sân. Vui lòng thử lại.');
+          setCourts([]);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      loadCourts();
+    }
+  }, [selectedPartner, selectedDate]);
 
   // Get available times from API data
   const availableTimes = allTimeSlots
@@ -110,6 +171,26 @@ export default function BookingDate() {
       return () => clearTimeout(timer);
     }
   }, [selectedDate]);
+
+  // Handlers
+  const handleSelectPartner = (partner: Partner) => {
+    setSelectedPartner(partner);
+    setCurrentStep('date');
+    setShowCard2(true);
+  };
+
+  const handleSelectDate = (date: Date) => {
+    setSelectedDate(date);
+    setSelectedTimes([]);
+  };
+
+  const handleSelectCourt = (court: CourtWithTimeSlots) => {
+    setSelectedCourt(court);
+    // Extract time slots from selected court
+    const courtTimeSlots = court.timeSlots || [];
+    const timeStrings = courtTimeSlots.map(slot => slot.startTime);
+    setSelectedTimes(timeStrings);
+  };
 
   const handleToggleTime = (slot: string) => {
     if (selectedTimes.includes(slot)) {
@@ -213,44 +294,149 @@ export default function BookingDate() {
             </div>
           </div>
 
-          {/* Middle Section - Calendar */}
+          {/* Middle Section - Partners, Calendar, or Courts */}
           <div className={`lg:col-span-1 transition-all duration-700 transform ${
             showCard2 
               ? 'opacity-100 translate-x-0' 
               : 'opacity-0 -translate-x-8'
           }`}>
             <div className="bg-white rounded-2xl shadow-2xl p-8 h-full">
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <span className="text-2xl">📅</span>
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Chọn ngày</h2>
-                <p className="text-gray-600">Vui lòng chọn ngày bạn muốn đặt sân</p>
-              </div>
+              {/* Partners Selection */}
+              {currentStep === 'partners' && (
+                <>
+                  <div className="text-center mb-8">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                      <MapPin className="h-8 w-8 text-white" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Chọn đối tác</h2>
+                    <p className="text-gray-600">Chọn đối tác bạn muốn đặt sân</p>
+                  </div>
 
-              <div className="flex justify-center">
-                <div className="w-full max-w-sm animate-fade-in">
-                  <Calendar
-                    onChange={(date) => {
-                      setSelectedDate(date as Date);
-                      setSelectedTimes([]);
-                    }}
-                    value={selectedDate}
-                    minDate={new Date()}
-                    locale="vi-VN"
-                    tileClassName={({ date }) =>
-                      selectedDate && date.toDateString() === selectedDate.toDateString()
-                        ? 'bg-blue-600 text-white rounded-lg' : 'hover:bg-blue-50 rounded-lg'
-                    }
-                    formatMonthYear={(locale, date) => `${date.getMonth() + 1} - ${date.getFullYear()}`}
-                    className="rounded-xl shadow-sm border border-gray-200 p-4 bg-white"
-                  />
-                </div>
-              </div>
+                  {loading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                      <span className="ml-2 text-gray-600">Đang tải...</span>
+                    </div>
+                  ) : error ? (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+                      <p className="text-red-600 text-sm">{error}</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                      {partners.map((partner) => (
+                        <button
+                          key={partner.id}
+                          onClick={() => handleSelectPartner(partner)}
+                          className={`w-full p-4 text-left rounded-xl border-2 transition-all duration-200 ${
+                            selectedPartner?.id === partner.id
+                              ? 'border-blue-500 bg-blue-50 shadow-md'
+                              : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          <h3 className="font-semibold text-gray-900 mb-1">{partner.bussinessName}</h3>
+                          <p className="text-sm text-gray-600">{partner.address}</p>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Date Selection */}
+              {currentStep === 'date' && (
+                <>
+                  <div className="text-center mb-8">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                      <Calendar className="h-8 w-8 text-white" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Chọn ngày</h2>
+                    <p className="text-gray-600">Chọn ngày bạn muốn đặt sân tại {selectedPartner?.bussinessName}</p>
+                  </div>
+
+                  <div className="flex justify-center">
+                    <div className="w-full max-w-sm animate-fade-in">
+                      <Calendar
+                        onChange={handleSelectDate}
+                        value={selectedDate}
+                        minDate={new Date()}
+                        locale="vi-VN"
+                        tileClassName={({ date }) =>
+                          selectedDate && date.toDateString() === selectedDate.toDateString()
+                            ? 'bg-blue-600 text-white rounded-lg' : 'hover:bg-blue-50 rounded-lg'
+                        }
+                        formatMonthYear={(locale, date) => `${date.getMonth() + 1} - ${date.getFullYear()}`}
+                        className="rounded-xl shadow-sm border border-gray-200 p-4 bg-white"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Courts Selection */}
+              {currentStep === 'courts' && (
+                <>
+                  <div className="text-center mb-8">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                      <MapPin className="h-8 w-8 text-white" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Chọn sân</h2>
+                    <p className="text-gray-600">Chọn sân và khung giờ phù hợp</p>
+                  </div>
+
+                  {loading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                      <span className="ml-2 text-gray-600">Đang tải sân...</span>
+                    </div>
+                  ) : error ? (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+                      <p className="text-red-600 text-sm">{error}</p>
+                    </div>
+                  ) : courts.length === 0 ? (
+                    <div className="text-center py-8">
+                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <MapPin className="h-6 w-6 text-gray-400" />
+                      </div>
+                      <p className="text-gray-500">Không có sân nào khả dụng</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                      {courts.map((court) => (
+                        <button
+                          key={court.id}
+                          onClick={() => handleSelectCourt(court)}
+                          className={`w-full p-4 text-left rounded-xl border-2 transition-all duration-200 ${
+                            selectedCourt?.id === court.id
+                              ? 'border-blue-500 bg-blue-50 shadow-md'
+                              : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          <h3 className="font-semibold text-gray-900 mb-1">{court.name}</h3>
+                          <p className="text-sm text-gray-600 mb-2">{court.address}</p>
+                          {court.timeSlots && court.timeSlots.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {court.timeSlots.slice(0, 3).map((slot, index) => (
+                                <span key={index} className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                                  {slot.startTime} - {slot.endTime}
+                                </span>
+                              ))}
+                              {court.timeSlots.length > 3 && (
+                                <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                                  +{court.timeSlots.length - 3} khác
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
 
-          {/* Right Section - Time Selection */}
+          {/* Right Section - Time Selection or Summary */}
           <div className={`lg:col-span-1 transition-all duration-700 transform ${
             showCard3 
               ? 'opacity-100 translate-x-0' 
@@ -259,7 +445,7 @@ export default function BookingDate() {
             <div className="bg-white rounded-2xl shadow-2xl p-8 h-full">
               <div className="text-center mb-8">
                 <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <span className="text-2xl">⏰</span>
+                  <Clock className="h-8 w-8 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Chọn giờ</h2>
                 <p className="text-gray-600">
@@ -267,57 +453,78 @@ export default function BookingDate() {
                 </p>
               </div>
 
-              {selectedDate ? (
+              {/* Show different content based on current step */}
+              {currentStep === 'partners' && (
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MapPin className="h-6 w-6 text-gray-400" />
+                  </div>
+                  <p className="text-gray-600">Vui lòng chọn đối tác để tiếp tục</p>
+                </div>
+              )}
+
+              {currentStep === 'date' && (
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Calendar className="h-6 w-6 text-gray-400" />
+                  </div>
+                  <p className="text-gray-600">Vui lòng chọn ngày để xem các sân khả dụng</p>
+                </div>
+              )}
+
+              {currentStep === 'courts' && selectedDate && (
                 <div className="space-y-6">
                   <div className="bg-blue-50 px-4 py-2 rounded-lg text-center animate-fade-in">
                     <p className="text-sm font-medium text-blue-800">
                       📅 Ngày đã chọn: {selectedDate.toLocaleDateString('vi-VN')}
                     </p>
+                    {selectedPartner && (
+                      <p className="text-xs text-blue-600 mt-1">
+                        Đối tác: {selectedPartner.bussinessName}
+                      </p>
+                    )}
                   </div>
 
-                  {/* Loading State */}
-                  {loading && (
-                    <div className="flex items-center justify-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                      <span className="ml-2 text-gray-600">Đang tải khung giờ...</span>
+                  {/* Selected Court Info */}
+                  {selectedCourt && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 animate-fade-in">
+                      <h4 className="font-semibold text-green-900 mb-2">Sân đã chọn:</h4>
+                      <p className="text-sm text-green-800 font-medium">{selectedCourt.name}</p>
+                      <p className="text-xs text-green-700 mt-1">{selectedCourt.address}</p>
+                      {selectedCourt.timeSlots && selectedCourt.timeSlots.length > 0 && (
+                        <div className="mt-2">
+                          <p className="text-xs text-green-700 mb-1">Khung giờ khả dụng:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {selectedCourt.timeSlots.map((slot, index) => (
+                              <span key={index} className="px-2 py-1 bg-green-200 text-green-800 text-xs rounded-full">
+                                {slot.startTime} - {slot.endTime}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
-                  {/* Error State */}
-                  {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                      <p className="text-red-600 text-sm">{error}</p>
-                      <button 
-                        onClick={() => window.location.reload()} 
-                        className="mt-2 text-red-600 hover:text-red-800 text-sm underline"
-                      >
-                        Thử lại
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Time Slots */}
-                  {!loading && !error && (
-                    <div className="grid grid-cols-3 gap-2 animate-fade-in">
-                      {availableTimes.length > 0 ? (
-                        availableTimes.map((slot, index) => (
+                  {/* Time Slots Selection */}
+                  {selectedCourt && selectedCourt.timeSlots && selectedCourt.timeSlots.length > 0 && (
+                    <div className="space-y-4">
+                      <h4 className="font-semibold text-gray-900">Chọn khung giờ:</h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        {selectedCourt.timeSlots.map((slot, index) => (
                           <button
-                            key={`time-slot-${slot}-${index}`}
+                            key={`time-slot-${slot.id}-${index}`}
                             className={`px-3 py-2 text-sm font-medium rounded-lg border transition-all duration-200 ${
-                              selectedTimes.includes(slot)
+                              selectedTimes.includes(slot.startTime)
                                 ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-transparent shadow-lg'
                                 : 'bg-white text-blue-600 border-blue-300 hover:bg-blue-50 hover:border-blue-400'
                             }`}
-                            onClick={() => handleToggleTime(slot)}
+                            onClick={() => handleToggleTime(slot.startTime)}
                           >
-                            {slot}
+                            {slot.startTime} - {slot.endTime}
                           </button>
-                        ))
-                      ) : (
-                        <div className="col-span-3 text-center py-8 text-gray-500">
-                          <p>Không có khung giờ nào khả dụng</p>
-                        </div>
-                      )}
+                        ))}
+                      </div>
                     </div>
                   )}
 
@@ -338,13 +545,6 @@ export default function BookingDate() {
                       </button>
                     </div>
                   )}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-xl">⏰</span>
-                  </div>
-                  <p className="text-gray-600">Vui lòng chọn ngày để xem các khung giờ khả dụng</p>
                 </div>
               )}
             </div>

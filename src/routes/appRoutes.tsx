@@ -17,7 +17,6 @@ import MyBookings from '../pages/MyBookings';
 import PrivateRoute from './PrivateRoute';
 import AdminRoute from './AdminRoute';
 import PartnerRoute from './PartnerRoute';
-import SelectCourt from '../pages/SelectCourt';
 import PartnerDashboard from '../pages/PartnerDashboard';
 
 const AppRoutes = () => {
@@ -25,7 +24,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/playertype" element={<PlayerType />} />
-      <Route path="/booking/select-court" element={<SelectCourt />} />
+      <Route path="/booking/select-court" element={<BookingDate />} />
       <Route path="/booking/date" element={<BookingDate />} />
       <Route path="/booking/checkout" element={<CheckOut />} />
       <Route path="/payment/success" element={<PaymentSuccess />} />

@@ -86,46 +86,69 @@ const TimeSlotCard: React.FC<TimeSlotCardProps> = ({ timeSlot, onEdit, onDelete,
   };
 
   return (
-    <div className={`p-4 rounded-lg border-2 transition-all duration-200 hover:shadow-md ${
+    <div className={`p-6 rounded-2xl border-2 transition-all duration-300 hover:shadow-lg hover:transform hover:scale-[1.02] group ${
       timeSlot.isAvailable 
-        ? 'bg-green-50 border-green-200 hover:border-green-300' 
-        : 'bg-red-50 border-red-200 hover:border-red-300'
+        ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:border-green-300' 
+        : 'bg-gradient-to-br from-red-50 to-rose-50 border-red-200 hover:border-red-300'
     }`}>
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="text-2xl">{getPeriodIcon(period)}</div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className="font-semibold text-gray-900">
+        <div className="flex items-center space-x-4">
+          <div className="text-3xl group-hover:scale-110 transition-transform duration-200">
+            {getPeriodIcon(period)}
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center space-x-3 mb-2">
+              <span className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
                 {formatTime(timeSlot.startTime)} - {formatTime(timeSlot.endTime)}
               </span>
-              <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getPeriodColor(period)}`}>
-                {period === 'morning' ? 'Sáng' : period === 'afternoon' ? 'Chiều' : 'Tối'}
+              <span className={`px-3 py-1 text-xs font-semibold rounded-full border shadow-sm ${getPeriodColor(period)}`}>
+                {period === 'morning' ? '🌅 Sáng' : period === 'afternoon' ? '☀️ Chiều' : '🌙 Tối'}
               </span>
             </div>
-            <div className="text-sm text-gray-600">
-              {timeSlot.isAvailable ? 'Có sẵn' : 'Không khả dụng'}
+            <div className="flex items-center space-x-2">
+              <div className={`w-2 h-2 rounded-full ${timeSlot.isAvailable ? 'bg-green-500' : 'bg-red-500'}`}></div>
+              <span className={`text-sm font-medium ${
+                timeSlot.isAvailable ? 'text-green-700' : 'text-red-700'
+              }`}>
+                {timeSlot.isAvailable ? 'Có sẵn' : 'Không khả dụng'}
+              </span>
+            </div>
+            <div className="text-xs text-gray-500 mt-1">
+              {timeSlot.startTime} - {timeSlot.endTime}
             </div>
           </div>
         </div>
         
-        <div className="flex space-x-2">
+        <div className="flex space-x-1">
           {canEdit && (
             <button
               onClick={() => onEdit(timeSlot)}
-              className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-lg transition-colors"
+              className="p-3 text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded-xl transition-all duration-200 hover:shadow-md group/edit"
+              title="Chỉnh sửa khung giờ"
             >
-              <Edit size={16} />
+              <Edit size={18} />
             </button>
           )}
           {canDelete && (
             <button
               onClick={() => onDelete(timeSlot)}
-              className="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-lg transition-colors"
+              className="p-3 text-red-600 hover:text-red-700 hover:bg-red-100 rounded-xl transition-all duration-200 hover:shadow-md group/delete"
+              title="Xóa khung giờ"
             >
-              <Trash2 size={16} />
+              <Trash2 size={18} />
             </button>
           )}
+        </div>
+      </div>
+
+      {/* Additional Info */}
+      <div className="mt-4 pt-4 border-t border-gray-200">
+        <div className="flex items-center justify-between text-xs text-gray-500">
+          <span>ID: {timeSlot.id.slice(0, 8)}...</span>
+          <span className="flex items-center">
+            <div className="w-2 h-2 bg-green-400 rounded-full mr-1"></div>
+            Hoạt động
+          </span>
         </div>
       </div>
     </div>
@@ -369,99 +392,237 @@ const BaseTimeSlotManagement: React.FC<BaseTimeSlotManagementProps> = ({
 
       {/* Create/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">
-                {editingTimeSlot ? 'Chỉnh sửa khung giờ' : 'Thêm khung giờ mới'}
-              </h3>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X size={24} />
-              </button>
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
+            {/* Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-2xl">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <Clock className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900">
+                      {editingTimeSlot ? 'Chỉnh sửa khung giờ' : 'Thêm khung giờ mới'}
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      {editingTimeSlot ? 'Cập nhật thông tin khung giờ' : 'Tạo khung giờ hoạt động mới'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X size={24} />
+                </button>
+              </div>
             </div>
             
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Giờ bắt đầu *
-                </label>
-                <input
-                  type="time"
-                  value={formData.StartTime}
-                  onChange={(e) => setFormData({...formData, StartTime: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Giờ kết thúc *
-                </label>
-                <input
-                  type="time"
-                  value={formData.EndTime}
-                  onChange={(e) => setFormData({...formData, EndTime: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-              
-              <div className="flex justify-end space-x-3 pt-4">
+            {/* Content */}
+            <div className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Time Selection */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <div className="w-1 h-6 bg-purple-600 rounded-full mr-3"></div>
+                    Thời gian hoạt động
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Giờ bắt đầu *
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="time"
+                          value={formData.StartTime}
+                          onChange={(e) => setFormData({...formData, StartTime: e.target.value})}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
+                          required
+                        />
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                          <Clock size={16} />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Giờ kết thúc *
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="time"
+                          value={formData.EndTime}
+                          onChange={(e) => setFormData({...formData, EndTime: e.target.value})}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
+                          required
+                        />
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                          <Clock size={16} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Time Preview */}
+                  {formData.StartTime && formData.EndTime && (
+                    <div className="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-xl">
+                      <div className="flex items-center space-x-3">
+                        <div className="p-2 bg-purple-100 rounded-lg">
+                          <Clock className="h-5 w-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-purple-900">Xem trước khung giờ:</p>
+                          <p className="text-lg font-bold text-purple-700">
+                            {(() => {
+                              const formatTime = (time: string) => {
+                                const [hours, minutes] = time.split(':');
+                                const hour = parseInt(hours);
+                                const ampm = hour >= 12 ? 'PM' : 'AM';
+                                const displayHour = hour % 12 || 12;
+                                return `${displayHour}:${minutes} ${ampm}`;
+                              };
+                              return `${formatTime(formData.StartTime)} - ${formatTime(formData.EndTime)}`;
+                            })()}
+                          </p>
+                          <p className="text-xs text-purple-600">
+                            {formData.StartTime} - {formData.EndTime}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Court Selection (if applicable) */}
+                {formData.CourtId !== undefined && (
+                  <div className="space-y-4">
+                    <h4 className="text-lg font-semibold text-gray-900 flex items-center">
+                      <div className="w-1 h-6 bg-blue-600 rounded-full mr-3"></div>
+                      Sân áp dụng
+                    </h4>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Chọn sân (tùy chọn)
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.CourtId}
+                        onChange={(e) => setFormData({...formData, CourtId: e.target.value})}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
+                        placeholder="Nhập ID sân hoặc để trống"
+                      />
+                    </div>
+                  </div>
+                )}
+              </form>
+            </div>
+
+            {/* Footer */}
+            <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4 rounded-b-2xl">
+              <div className="flex justify-end space-x-3">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+                  className="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors font-medium"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
+                  onClick={handleSubmit}
                   disabled={loading}
-                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center space-x-2"
                 >
-                  <Save size={16} />
-                  <span>{loading ? 'Đang lưu...' : editingTimeSlot ? 'Cập nhật' : 'Tạo mới'}</span>
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Đang lưu...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save size={16} />
+                      <span>{editingTimeSlot ? 'Cập nhật' : 'Tạo mới'}</span>
+                    </>
+                  )}
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && timeSlotToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="flex-shrink-0">
-                <Trash2 className="h-6 w-6 text-red-600" />
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div className="p-6">
+              <div className="flex items-center space-x-4 mb-6">
+                <div className="flex-shrink-0 p-3 bg-red-100 rounded-full">
+                  <Trash2 className="h-8 w-8 text-red-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">Xác nhận xóa khung giờ</h3>
+                  <p className="text-sm text-gray-600">
+                    Hành động này không thể hoàn tác. Khung giờ sẽ bị xóa vĩnh viễn.
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Xác nhận xóa</h3>
-                <p className="text-sm text-gray-500">
-                  Bạn có chắc chắn muốn xóa khung giờ này?
-                </p>
+
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+                <div className="flex items-start space-x-3">
+                  <div className="flex-shrink-0">
+                    <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-red-900 mb-1">Khung giờ sẽ bị xóa:</h4>
+                    <p className="text-sm text-red-700 font-medium">
+                      {(() => {
+                        const formatTime = (time: string) => {
+                          const [hours, minutes] = time.split(':');
+                          const hour = parseInt(hours);
+                          const ampm = hour >= 12 ? 'PM' : 'AM';
+                          const displayHour = hour % 12 || 12;
+                          return `${displayHour}:${minutes} ${ampm}`;
+                        };
+                        return `${formatTime(timeSlotToDelete.startTime)} - ${formatTime(timeSlotToDelete.endTime)}`;
+                      })()}
+                    </p>
+                    <p className="text-xs text-red-600 mt-1">
+                      {timeSlotToDelete.startTime} - {timeSlotToDelete.endTime}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-            
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={handleDeleteConfirm}
-                disabled={loading}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {loading ? 'Đang xóa...' : 'Xóa'}
-              </button>
+              
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                >
+                  Hủy
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  disabled={loading}
+                  className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center space-x-2"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Đang xóa...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={16} />
+                      <span>Xóa khung giờ</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
