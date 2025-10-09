@@ -12,33 +12,23 @@ import {
 export const navigateMenu = (): NavItem[] => [
   {
     key: 'home',
-    label: 'Trang chủ',
+    label: 'Home',
     roles: [],
     path: '/home',
     children: [
-      { key: 'homelist1', path: '/home/about', label: 'Về chúng tôi' },
-      { key: 'homelist2', path: '/home/features', label: 'Tính năng' },
-      { key: 'homelist3', path: '/home/contact', label: 'Liên hệ' },
+      { key: 'homelist1', path: '/home/item1-link1', label: 'Link Home 1' },
+      { key: 'homelist2', path: '/home/item1-link2', label: 'Link Home 2' },
+      { key: 'homelist3', path: '/home/item1-link3', label: 'Link Home 3' },
     ],
   },
   {
-    key: 'courts',
-    label: 'Tìm sân',
+    key: 'shop',
+    label: 'Shop',
     roles: [],
-    path: '/courts',
+    path: '/shop',
     children: [
-      { key: 'courtlist1', path: '/courts/search', label: 'Tìm sân gần đây' },
-      { key: 'courtlist2', path: '/courts/booking', label: 'Đặt sân' },
-    ],
-  },
-  {
-    key: 'partner',
-    label: 'Đối tác',
-    roles: [],
-    path: '/partner',
-    children: [
-      { key: 'partnerlist1', path: '/partner/register', label: 'Đăng ký sân' },
-      { key: 'partnerlist2', path: '/partner/dashboard', label: 'Quản lý sân' },
+      { key: 'shoplist1', path: '/shop/item1-link1', label: 'Link Shop 1' },
+      { key: 'shoplist2', path: '/shop/item1-link2', label: 'Link Shop 2' },
     ],
   },
 ];
@@ -77,27 +67,27 @@ export const productFilter = (): NavItem[] => [
 export const navigationExtra = (): NavItem[] => [
   {
     key: 'extra1',
-    label: 'Đăng ký sân',
+    label: 'Sell on Martfury',
     roles: [],
-    path: '/partner/register',
+    path: '/sellonmartfury',
   },
   {
     key: 'extra2',
-    label: 'Lịch đặt của tôi',
-    roles: ['User'],
-    path: '/my-bookings',
+    label: 'Tract your order',
+    roles: [],
+    path: '/tractyourorder',
   },
   {
     key: 'extra3',
-    label: 'VND',
+    label: 'USD',
     roles: [],
-    path: '/currency',
+    path: '/usd',
   },
   {
     key: 'extra4',
-    label: 'Tiếng Việt',
+    label: 'VietNamese',
     roles: [],
-    path: '/language',
+    path: '/vietnam',
     children: [{ key: 'english', path: '/english', label: 'English' }],
   },
 ];
@@ -126,32 +116,32 @@ export const imageHome2 = (): Slide[] => [
 export const siteFeature = () => [
   {
     icon: <Rocket size={50} color="#FCBA6B" />,
-    title: 'Đặt sân dễ dàng',
-    content: 'Tìm và đặt sân pickleball nhanh chóng, tiện lợi',
+    title: 'Free Delivery',
+    content: 'For all oders over $99',
   },
 
   {
     icon: <RefreshCcw size={50} color="#FCBA6B" />,
-    title: 'Quản lý sân hiệu quả',
-    content: 'Công cụ quản lý sân và lịch đặt cho chủ sân',
+    title: '90 Days Return',
+    content: 'If good have problems',
   },
 
   {
     icon: <CreditCard size={50} color="#FCBA6B" />,
-    title: 'Thanh toán an toàn',
-    content: 'Hệ thống thanh toán bảo mật, đa dạng phương thức',
+    title: 'Secure Payment',
+    content: '100% Secure Payment',
   },
 
   {
     icon: <MessagesSquare size={50} color="#FCBA6B" />,
-    title: 'Hỗ trợ 24/7',
-    content: 'Đội ngũ hỗ trợ chuyên nghiệp, luôn sẵn sàng',
+    title: '24/7 Support',
+    content: 'Dedicate Support',
   },
 
   {
     icon: <Gift size={50} color="#FCBA6B" />,
-    title: 'Kết nối cộng đồng',
-    content: 'Tạo cộng đồng pickleball sôi động, kết nối người chơi',
+    title: 'Gift Service',
+    content: 'Support Gift Service',
   },
 ];
 

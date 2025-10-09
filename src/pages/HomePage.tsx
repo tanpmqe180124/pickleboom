@@ -1,8 +1,5 @@
 import { NavigationMenuLink } from '@/components/ui/navigation-menu';
 import Header from '@/components/Header';
-import { Banner } from '@/components/BannerHealth';
-import FeaturesPage from '@/pages/FeaturesPage';
-import CarouselPage from '@/pages/CarouselPage';
 import {
   navigateMenu,
   navigationExtra,
@@ -82,27 +79,148 @@ const Home = () => {
   return (
     <div className="min-h-screen w-full">
       <Header />
-      
-      {/* Carousel Section - Landing page cũ */}
-      <CarouselPage />
-      
-      {/* Features Section - Landing page cũ */}
-      <FeaturesPage />
-      
-      {/* Health Benefits Banner - Giữ nguyên */}
-      <div className="py-20 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-[#2F3C54] mb-6">
-              Lợi ích sức khỏe của Pickleball
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Khám phá những lợi ích tuyệt vời mà môn thể thao pickleball mang lại cho sức khỏe của bạn
-            </p>
+
+      {/* <div className="grid grid-cols-12 bg-[#EAB308] h-[50px] ">
+        <div className='col-span-3 w-full flex justify-center items-center'>
+              {specialItems.map((item) => (
+                <NavigationMenu key={item.key}>
+                  <NavigationMenuList>
+                    <NavigationMenuItem className='relative' >
+                      <NavigationMenuTrigger
+                        className={cn(
+                          "bg-[#EAB308] h-full ",
+                          "font-[600] text-[16px] ",
+                          "flex items-center gap-2 transition-colors",
+                          "nav-underline-effect",
+                          
+                        )}
+                      >
+                        <Menu className="w-4 h-4 text-gray-800" />
+                        {item.label}
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent
+                        className={cn(
+                          "bg-white border",
+                          
+                        )}
+                      >
+                        {item.children ? (
+                          <RenderNavChildren children={item.children} />
+                        ) : (
+                          <div>No children</div>
+                        )}
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                  </NavigationMenuList>
+                </NavigationMenu>
+              ))}
           </div>
-          <Banner />
+        <div className='col-span-9   grid grid-cols-[45%_55%] px-4 py-2'>
+          <div>
+            <NavigationMenu >
+              <NavigationMenuList>
+                {navItems.map((item) => (
+                  <NavigationMenuItem key={item.key} className='relative mr-5' >
+                    {item.children ? (
+                      <>
+                        <NavigationMenuTrigger className={cn("font-[400] text-[18px] bg-[#EAB308] ")} >
+                          {item.label}
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent className={cn("border-[1px]  ")} >
+                        <div className="absolute top-[-10px] left-10 w-0 h-0 z-50
+                          border-l-[10px] border-l-transparent
+                          border-r-[10px] border-r-transparent 
+                          border-b-[10px] border-b-white
+                          ">
+                        </div>
+                          <ul>
+                            {item?.children.map((child) => (
+                              <li key={child.key} className={cn("w-[230px] px-4 py-2 bg-white ")}>
+                                <NavigationMenuLink
+                                  href={child.path}
+                                  className={cn(
+                                    
+                                    "rounded-md hover:text-orange-500 w-full",
+                                    "transition-colors"
+                                  )}>
+                                  {child.label}
+                                </NavigationMenuLink>
+                              </li>
+                            ))}
+                          </ul>
+                        </NavigationMenuContent>                      
+                      </>
+                    ) : (
+                      <NavigationMenuLink
+                        href={item.path}
+                        className={cn(
+                          "text-lg font-medium p-2 rounded-md hover:bg-gray-100",
+                          "transition-colors"
+                        )}
+                        aria-label={`Navigate to ${item.label}`}
+                      >
+                        {item.label}
+                      </NavigationMenuLink>
+                    )}
+                  </NavigationMenuItem>
+                  
+                ))}
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
+          <div className='flex items-center justify-center'>
+            {extra.map((item) => (
+                  <NavigationMenu key={item.key}>
+                    <NavigationMenuList>
+                      <NavigationMenuItem>
+                        <NavigationMenuTrigger
+                          className={cn(
+                            "bg-[#EAB308] h-full ",
+                            "font-[400] text-[16px] ",
+                            "flex items-center gap-2 ",
+                            "hover:text-blue-500"
+                          
+                          )}
+                          showChevron={!!item.children}
+                        >
+                          {item.children ? (
+                            <span>
+                              {item.label}
+                            </span>
+                          ): (
+                            <span>
+                              <NavigationMenuLink href={item.path}>
+                                {item.label}
+                              </NavigationMenuLink>
+                            </span>
+                            
+                          )}
+                          
+                          
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent
+                          className={cn(
+                            "bg-white shadow-lg ",
+                            "border border-gray-200",
+                            
+                          )}
+                        >
+                          {item.children ? (
+                            <RenderNavChildren children={item.children} />
+                          ) : (
+                            <div></div>
+                          )}
+                        </NavigationMenuContent>
+                      </NavigationMenuItem>
+                    </NavigationMenuList>
+                  </NavigationMenu>
+                ))}
+          </div>
         </div>
       </div>
+      
+      <CarouselPage/>  
+      <FeaturesPage/> */}
     </div>
   );
 };
