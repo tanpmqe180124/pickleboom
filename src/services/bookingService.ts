@@ -65,7 +65,7 @@ export const bookingService = {
     }
   },
 
-  // Lấy danh sách sân
+  // Lấy danh sách sân từ Common endpoint
   async getCourts(page: number = 1, pageSize: number = 6): Promise<{
     data: Court[];
     total: number;
@@ -73,14 +73,32 @@ export const bookingService = {
     pageSize: number;
   }> {
     try {
-      const response = await api.get<ApiResponse<{
-        data: Court[];
-        total: number;
-        page: number;
-        pageSize: number;
-      }>>(`/Court?Page=${page}&PageSize=${pageSize}`);
+      // Lấy danh sách partner trước
+      const partnersResponse = await api.get<ApiResponse<any[]>>('/Common/courts');
+      const partners = partnersResponse.data.data;
       
-      return response.data.data;
+      // Tạo danh sách sân giả lập từ thông tin partner
+      const courts: Court[] = partners.map((partner, index) => ({
+        id: partner.id || `court-${index}`,
+        name: partner.bussinessName || `Sân ${index + 1}`,
+        location: partner.address || 'Địa chỉ chưa cập nhật',
+        pricePerHour: 100000 + (index * 50000), // Giá giả lập
+        description: `Sân Pickleball tại ${partner.bussinessName}`,
+        imageUrl: 'https://via.placeholder.com/300x200?text=Court',
+        courtStatus: 0 // Mặc định là hoạt động
+      }));
+      
+      // Phân trang frontend
+      const startIndex = (page - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      const paginatedCourts = courts.slice(startIndex, endIndex);
+      
+      return {
+        data: paginatedCourts,
+        total: courts.length,
+        page,
+        pageSize
+      };
     } catch (error) {
       console.error('Error fetching courts:', error);
       throw error;
