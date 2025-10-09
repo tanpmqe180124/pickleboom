@@ -117,10 +117,11 @@ export default function CheckOut() {
       return;
     }
 
-    if (!isAuthenticated || !user?.userId) {
-      setError('Vui lòng đăng nhập để đặt sân.');
-      return;
-    }
+    // Removed login requirement for user role
+    // if (!isAuthenticated || !user?.userId) {
+    //   setError('Vui lòng đăng nhập để đặt sân.');
+    //   return;
+    // }
 
     if (!customerName.trim()) {
       setError('Vui lòng nhập tên khách hàng.');
