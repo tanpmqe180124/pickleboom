@@ -104,7 +104,7 @@ export default function BookingDate() {
   }, [selectedPartner, selectedDate]);
 
   // Get available times from selected court
-  const availableTimes = selectedCourt 
+  const availableTimes = selectedCourt && selectedCourt.timeSlots
     ? selectedCourt.timeSlots
         .filter(slot => slot && slot.startTime)
         .map(slot => slot.startTime)
@@ -178,12 +178,12 @@ export default function BookingDate() {
   };
 
   const handleContinue = () => {
-    if (!selectedDate || selectedTimes.length === 0 || !selectedCourt) return;
+    if (!selectedDate || selectedTimes.length === 0 || !selectedCourt || !selectedCourt.timeSlots) return;
     
     // Map selected time strings to time slot IDs
     const selectedTimeSlotIds = selectedTimes
       .map(timeString => {
-        const slot = selectedCourt.timeSlots.find(slot => slot.startTime === timeString);
+        const slot = selectedCourt.timeSlots?.find(slot => slot.startTime === timeString);
         return slot ? slot.id : null;
       })
       .filter((id): id is string => id !== null);
@@ -191,11 +191,13 @@ export default function BookingDate() {
     // Store in booking store for checkout
     const setSelectedDateStore = useBookingStore.getState().setSelectedDate;
     const setSelectedTimesStore = useBookingStore.getState().setSelectedTimes;
+    const setSelectedTimeSlotsStore = useBookingStore.getState().setSelectedTimeSlots;
     const setSelectedTimeSlotIdsStore = useBookingStore.getState().setSelectedTimeSlotIds;
     const setSelectedCourtStore = useBookingStore.getState().setSelectedCourt;
     
     setSelectedDateStore(selectedDate);
     setSelectedTimesStore(selectedTimes);
+    setSelectedTimeSlotsStore(selectedTimes); // Also save to selectedTimeSlots for CheckOut compatibility
     setSelectedTimeSlotIdsStore(selectedTimeSlotIds);
     setSelectedCourtStore(selectedCourt);
     
