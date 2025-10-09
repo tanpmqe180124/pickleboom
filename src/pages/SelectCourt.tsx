@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar } from 'lucide-react';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
+import { useBookingStore } from '@/stores/useBookingStore';
 import { bookingService } from '@/services/bookingService';
 
 interface Partner {
@@ -50,6 +51,7 @@ function PartnerCard({ partner, selected, onSelect }: PartnerCardProps) {
 
 export default function SelectCourt() {
   const navigate = useNavigate();
+  const setSelectedPartner = useBookingStore((state) => state.setSelectedPartner);
   
   // State management
   const [partners, setPartners] = useState<Partner[]>([]);
@@ -80,7 +82,9 @@ export default function SelectCourt() {
 
   // Handlers
   const handleSelectPartner = (partner: Partner) => {
-    // Redirect to BookingDate.tsx instead of showing date selection in this page
+    // Save selected partner to store
+    setSelectedPartner(partner);
+    // Redirect to BookingDate.tsx
     navigate('/booking/date');
   };
 

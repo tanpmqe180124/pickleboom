@@ -1,5 +1,11 @@
 import { TimeSlot, Court } from '@/services/bookingService';
 
+interface Partner {
+  id: string;
+  bussinessName: string;
+  address: string;
+}
+
 export interface BookingState {
   selectedDate: Date | null;
   selectedTime: string | null;
@@ -12,6 +18,7 @@ export interface BookingState {
   selectedTimeSlots: string[];
   selectedTimeSlotIds: string[]; // New: Array of time slot IDs
   selectedCourt: Court | null; // Updated: Proper Court type
+  selectedPartner: Partner | null; // New: Selected partner
   drinkOption: string;
   
   // API Data
@@ -32,6 +39,7 @@ export interface BookingState {
   setSelectedTimeSlots: (slots: string[]) => void;
   setSelectedTimeSlotIds: (ids: string[]) => void; // New setter
   setSelectedCourt: (court: Court | null) => void; // Updated: Proper Court type
+  setSelectedPartner: (partner: Partner | null) => void; // New setter
   setDrinkOption: (option: string) => void;
   
   // New setters for API data

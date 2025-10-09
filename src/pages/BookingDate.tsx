@@ -32,10 +32,14 @@ export default function BookingDate() {
   const navigate = useNavigate();
   const [ref, inView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.12 });
 
+  // Get selected partner from store
+  const selectedPartnerFromStore = useBookingStore((state) => state.selectedPartner);
+  const setSelectedPartner = useBookingStore((state) => state.setSelectedPartner);
+
   // State management for workflow
   const [currentStep, setCurrentStep] = useState<Step>('partners');
   const [partners, setPartners] = useState<Partner[]>([]);
-  const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
+  const [selectedPartner, setSelectedPartnerLocal] = useState<Partner | null>(selectedPartnerFromStore);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [courts, setCourts] = useState<CourtWithTimeSlots[]>([]);
   const [selectedCourt, setSelectedCourt] = useState<CourtWithTimeSlots | null>(null);
@@ -48,6 +52,14 @@ export default function BookingDate() {
   const [showCard1, setShowCard1] = useState(false);
   const [showCard2, setShowCard2] = useState(false);
   const [showCard3, setShowCard3] = useState(false);
+
+  // Sync selectedPartner from store and auto-advance step
+  useEffect(() => {
+    if (selectedPartnerFromStore) {
+      setSelectedPartnerLocal(selectedPartnerFromStore);
+      setCurrentStep('date'); // Auto-advance to date selection
+    }
+  }, [selectedPartnerFromStore]);
 
   // Load partners on mount
   useEffect(() => {
@@ -71,13 +83,13 @@ export default function BookingDate() {
 
   // Load courts when partner and date are selected
   useEffect(() => {
-    if (selectedPartner && selectedDate) {
+    if (selectedPartnerLocal && selectedDate) {
       const loadCourts = async () => {
         setLoading(true);
         setError(null);
         try {
           const dateString = selectedDate.toISOString().split('T')[0];
-          const courtsData = await bookingService.getCourtsByPartnerAndDate(selectedPartner.id, dateString);
+          const courtsData = await bookingService.getCourtsByPartnerAndDate(selectedPartnerLocal.id, dateString);
           setCourts(courtsData);
         } catch (err) {
           console.error('Error loading courts:', err);
@@ -90,7 +102,7 @@ export default function BookingDate() {
 
       loadCourts();
     }
-  }, [selectedPartner, selectedDate]);
+  }, [selectedPartnerLocal, selectedDate]);
 
   // Get available times from selected court
   const availableTimes = selectedCourt 
@@ -128,7 +140,8 @@ export default function BookingDate() {
 
   // Handlers
   const handleSelectPartner = (partner: Partner) => {
-    setSelectedPartner(partner);
+    setSelectedPartnerLocal(partner);
+    setSelectedPartner(partner); // Also save to store
     setCurrentStep('date');
   };
 
@@ -145,7 +158,8 @@ export default function BookingDate() {
   const handleBack = () => {
     if (currentStep === 'date') {
       setCurrentStep('partners');
-      setSelectedPartner(null);
+      setSelectedPartnerLocal(null);
+      setSelectedPartner(null); // Reset in store
     } else if (currentStep === 'time') {
       setCurrentStep('date');
       setSelectedDate(null);
@@ -263,7 +277,7 @@ export default function BookingDate() {
             <div className="lg:col-span-3">
               <div className="text-center mb-8">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Chọn ngày đặt sân</h1>
-                <p className="text-gray-600">Sân của {selectedPartner?.bussinessName} - Chọn ngày bạn muốn đặt</p>
+                <p className="text-gray-600">Sân của {selectedPartnerLocal?.bussinessName} - Chọn ngày bạn muốn đặt</p>
               </div>
               
               <div className="max-w-md mx-auto">
@@ -271,7 +285,7 @@ export default function BookingDate() {
                   <div className="text-center mb-6">
                     <Calendar className="h-12 w-12 text-blue-600 mx-auto mb-4" />
                     <h3 className="text-xl font-semibold mb-2">Chọn ngày đặt sân</h3>
-                    <p className="text-gray-600">Chọn ngày bạn muốn đặt sân tại {selectedPartner?.bussinessName}</p>
+                    <p className="text-gray-600">Chọn ngày bạn muốn đặt sân tại {selectedPartnerLocal?.bussinessName}</p>
                   </div>
                   
                   <div className="flex justify-center">

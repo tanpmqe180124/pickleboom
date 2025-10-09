@@ -2,6 +2,12 @@ import { create } from 'zustand';
 import { BookingState } from '@/types/BookingState';
 import { TimeSlot, Court } from '@/services/bookingService';
 
+interface Partner {
+  id: string;
+  bussinessName: string;
+  address: string;
+}
+
 export const useBookingStore = create<BookingState>((set) => ({
   selectedDate: null,
   selectedTime: null,
@@ -14,6 +20,7 @@ export const useBookingStore = create<BookingState>((set) => ({
   selectedTimeSlots: [],
   selectedTimeSlotIds: [], // New: Array of time slot IDs
   selectedCourt: null,
+  selectedPartner: null, // New: Selected partner
   drinkOption: '',
   
   // API Data
@@ -33,6 +40,7 @@ export const useBookingStore = create<BookingState>((set) => ({
   setSelectedTimeSlots: (slots) => set({ selectedTimeSlots: slots }),
   setSelectedTimeSlotIds: (ids) => set({ selectedTimeSlotIds: ids }), // New setter
   setSelectedCourt: (court) => set({ selectedCourt: court }),
+  setSelectedPartner: (partner: Partner | null) => set({ selectedPartner: partner }), // New setter
   setDrinkOption: (option) => set({ drinkOption: option }),
   
   // New setters for API data
@@ -54,6 +62,7 @@ export const useBookingStore = create<BookingState>((set) => ({
       selectedTimeSlots: [],
       selectedTimeSlotIds: [], // Reset new fields
       selectedCourt: null,
+      selectedPartner: null, // Reset selected partner
       drinkOption: '',
       allTimeSlots: [], // Reset API data
       availableTimeSlots: [],
