@@ -88,49 +88,75 @@ const Home = () => {
       
       {/* Hero Section - Web trung gian */}
       <div className="relative min-h-screen bg-gradient-to-br from-[#2F3C54] via-[#1E2A3A] to-[#0F1419] overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-15"
+          style={{
+            backgroundImage: "url('/img/tohopcafe.png')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat"
+          }}
+        ></div>
+        
+        {/* Background Pattern Overlay */}
+        <div className="absolute inset-0 opacity-25">
           <div className="absolute top-20 left-10 w-32 h-32 bg-[#EAB308] rounded-full blur-3xl"></div>
           <div className="absolute bottom-20 right-10 w-48 h-48 bg-[#FCBA6B] rounded-full blur-3xl"></div>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#EAB308] rounded-full blur-3xl opacity-20"></div>
+          <div className="absolute top-1/4 right-1/4 w-24 h-24 bg-[#FCBA6B] rounded-full blur-2xl opacity-30"></div>
+          <div className="absolute bottom-1/4 left-1/4 w-40 h-40 bg-[#EAB308] rounded-full blur-2xl opacity-20"></div>
         </div>
+        
+        {/* Geometric Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-full h-full" style={{
+            backgroundImage: `radial-gradient(circle at 25% 25%, rgba(234, 179, 8, 0.1) 0%, transparent 50%),
+                             radial-gradient(circle at 75% 75%, rgba(252, 186, 107, 0.1) 0%, transparent 50%)`
+          }}></div>
+        </div>
+        
+        {/* Dark Overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/40"></div>
 
         <div className="relative z-10 container mx-auto px-6 py-20">
           <div className="text-center">
             {/* Main Heading */}
             <div className="mb-8">
-              <h1 className="text-6xl md:text-8xl font-black text-white mb-4 leading-none tracking-tight">
+              <h1 className="text-6xl md:text-8xl font-black text-white mb-4 leading-none tracking-tight drop-shadow-2xl" style={{textShadow: '0 4px 20px rgba(0,0,0,0.8)'}}>
                 Nền tảng
               </h1>
-              <div className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#EAB308] via-[#FCBA6B] to-[#EAB308] mb-6 leading-none tracking-tight">
+              <div className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#EAB308] via-[#FCBA6B] to-[#EAB308] mb-6 leading-none tracking-tight drop-shadow-2xl" style={{textShadow: '0 4px 20px rgba(0,0,0,0.6)'}}>
                 Pickleball
               </div>
-              <h2 className="text-3xl md:text-5xl font-bold text-white leading-tight tracking-wide">
+              <h2 className="text-3xl md:text-5xl font-bold text-white leading-tight tracking-wide drop-shadow-xl" style={{textShadow: '0 2px 15px rgba(0,0,0,0.7)'}}>
                 Kết nối sân và người chơi
               </h2>
             </div>
 
             {/* Subtitle */}
-            <p className="text-lg md:text-xl text-gray-200 mb-12 max-w-3xl mx-auto leading-relaxed font-light tracking-wide">
+            <p className="text-lg md:text-xl text-gray-100 mb-12 max-w-3xl mx-auto leading-relaxed font-light tracking-wide drop-shadow-lg" style={{textShadow: '0 2px 10px rgba(0,0,0,0.6)'}}>
               Nền tảng trung gian hàng đầu tại Quy Nhơn giúp kết nối các sân pickleball 
               với cộng đồng người chơi. Đặt sân dễ dàng, quản lý hiệu quả.
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">
               <Button 
                 size="lg" 
-                className="bg-[#EAB308] hover:bg-[#D4A017] text-[#2F3C54] font-bold px-8 py-4 text-lg rounded-full shadow-2xl hover:shadow-[#EAB308]/25 transition-all duration-300 hover:scale-105"
+                className="bg-[#EAB308] hover:bg-[#D4A017] text-[#2F3C54] font-black px-10 py-5 text-xl rounded-full shadow-2xl hover:shadow-[#EAB308]/40 transition-all duration-300 hover:scale-105"
+                style={{boxShadow: '0 8px 30px rgba(234, 179, 8, 0.3)'}}
               >
                 Tìm sân ngay
               </Button>
               <Button 
                 size="lg"
-                className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-[#2F3C54] font-bold px-8 py-4 text-lg rounded-full shadow-2xl transition-all duration-300 hover:scale-105"
+                className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-[#2F3C54] font-black px-10 py-5 text-xl rounded-full shadow-2xl transition-all duration-300 hover:scale-105"
                 style={{ 
                   color: 'white',
                   backgroundColor: 'transparent',
-                  borderColor: 'white'
+                  borderColor: 'white',
+                  boxShadow: '0 8px 30px rgba(255, 255, 255, 0.2)'
                 }}
               >
                 Đăng ký sân
@@ -140,16 +166,16 @@ const Home = () => {
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-5xl mx-auto">
               <div className="text-center">
-                <div className="text-6xl md:text-7xl font-black text-[#EAB308] mb-4 tracking-tight">50+</div>
-                <div className="text-gray-200 text-xl font-medium tracking-wide">Sân đối tác</div>
+                <div className="text-6xl md:text-7xl font-black text-[#EAB308] mb-4 tracking-tight drop-shadow-2xl" style={{textShadow: '0 4px 20px rgba(234, 179, 8, 0.5)'}}>50+</div>
+                <div className="text-gray-100 text-xl font-medium tracking-wide drop-shadow-lg" style={{textShadow: '0 2px 10px rgba(0,0,0,0.6)'}}>Sân đối tác</div>
               </div>
               <div className="text-center">
-                <div className="text-6xl md:text-7xl font-black text-[#EAB308] mb-4 tracking-tight">1000+</div>
-                <div className="text-gray-200 text-xl font-medium tracking-wide">Người chơi</div>
+                <div className="text-6xl md:text-7xl font-black text-[#EAB308] mb-4 tracking-tight drop-shadow-2xl" style={{textShadow: '0 4px 20px rgba(234, 179, 8, 0.5)'}}>1000+</div>
+                <div className="text-gray-100 text-xl font-medium tracking-wide drop-shadow-lg" style={{textShadow: '0 2px 10px rgba(0,0,0,0.6)'}}>Người chơi</div>
               </div>
               <div className="text-center">
-                <div className="text-6xl md:text-7xl font-black text-[#EAB308] mb-4 tracking-tight">5000+</div>
-                <div className="text-gray-200 text-xl font-medium tracking-wide">Lượt đặt sân</div>
+                <div className="text-6xl md:text-7xl font-black text-[#EAB308] mb-4 tracking-tight drop-shadow-2xl" style={{textShadow: '0 4px 20px rgba(234, 179, 8, 0.5)'}}>5000+</div>
+                <div className="text-gray-100 text-xl font-medium tracking-wide drop-shadow-lg" style={{textShadow: '0 2px 10px rgba(0,0,0,0.6)'}}>Lượt đặt sân</div>
               </div>
             </div>
           </div>
