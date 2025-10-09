@@ -117,31 +117,26 @@ export const siteFeature = () => [
   {
     icon: <Rocket size={50} color="#FCBA6B" />,
     title: 'Đặt sân dễ dàng',
-    content: 'Tìm và đặt sân pickleball nhanh chóng, tiện lợi',
   },
 
   {
     icon: <RefreshCcw size={50} color="#FCBA6B" />,
     title: 'Quản lý sân hiệu quả',
-    content: 'Công cụ quản lý sân và lịch đặt cho chủ sân',
   },
 
   {
     icon: <CreditCard size={50} color="#FCBA6B" />,
     title: 'Thanh toán an toàn',
-    content: 'Hệ thống thanh toán bảo mật, đa dạng phương thức',
   },
 
   {
     icon: <MessagesSquare size={50} color="#FCBA6B" />,
     title: 'Hỗ trợ 24/7',
-    content: 'Đội ngũ hỗ trợ chuyên nghiệp, luôn sẵn sàng',
   },
 
   {
     icon: <Gift size={50} color="#FCBA6B" />,
     title: 'Kết nối cộng đồng',
-    content: 'Tạo cộng đồng pickleball sôi động, kết nối người chơi',
   },
 ];
 
