@@ -1,83 +1,118 @@
 
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Calendar, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import Calendar from 'react-calendar';
+import CalendarComponent from 'react-calendar';
 import '../css/booking-date.css';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
 import { useBookingStore } from '@/stores/useBookingStore';
 import { bookingService } from '@/services/bookingService';
 import { TimeSlot } from '@/services/bookingService';
 
+interface Partner {
+  id: string;
+  bussinessName: string;
+  address: string;
+}
+
+interface CourtWithTimeSlots {
+  id: string;
+  name: string;
+  location: string;
+  pricePerHour: number;
+  description?: string;
+  imageUrl?: string;
+  courtStatus?: number;
+  timeSlots: TimeSlot[];
+}
+
+type Step = 'partners' | 'date' | 'time';
+
 export default function BookingDate() {
-  const selectedDate = useBookingStore((state) => state.selectedDate);
-  const selectedTimes = useBookingStore((state) => state.selectedTimes);
-  const drinkOption = useBookingStore((state) => state.drinkOption);
-  const allTimeSlots = useBookingStore((state) => state.allTimeSlots);
-  const setSelectedDate = useBookingStore((state) => state.setSelectedDate);
-  const setSelectedTimes = useBookingStore((state) => state.setSelectedTimes);
-  const setSelectedTimeSlots = useBookingStore((state) => state.setSelectedTimeSlots);
-  const setSelectedTimeSlotIds = useBookingStore((state) => state.setSelectedTimeSlotIds);
-  const setAllTimeSlots = useBookingStore((state) => state.setAllTimeSlots);
-  const setDrinkOption = useBookingStore((state) => state.setDrinkOption);
   const navigate = useNavigate();
   const [ref, inView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.12 });
+
+  // State management for workflow
+  const [currentStep, setCurrentStep] = useState<Step>('partners');
+  const [partners, setPartners] = useState<Partner[]>([]);
+  const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [courts, setCourts] = useState<CourtWithTimeSlots[]>([]);
+  const [selectedCourt, setSelectedCourt] = useState<CourtWithTimeSlots | null>(null);
+  const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
+  const [drinkOption, setDrinkOption] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Animation states for each card
   const [showCard1, setShowCard1] = useState(false);
   const [showCard2, setShowCard2] = useState(false);
   const [showCard3, setShowCard3] = useState(false);
-  
-  // Loading state for API calls
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  // Load time slots from API
+  // Load partners on mount
   useEffect(() => {
-    const loadTimeSlots = async () => {
-      if (allTimeSlots.length > 0) return; // Already loaded
-      
+    const loadPartners = async () => {
       setLoading(true);
       setError(null);
       try {
-        console.log('Loading time slots...');
-        const timeSlots = await bookingService.getTimeSlots();
-        console.log('Time slots loaded:', timeSlots);
-        setAllTimeSlots(timeSlots);
+        const partnersData = await bookingService.getPartners();
+        setPartners(partnersData);
       } catch (err) {
-        console.error('Error loading time slots:', err);
-        setError('Không thể tải danh sách khung giờ. Vui lòng thử lại.');
+        console.error('Error loading partners:', err);
+        setError('Không thể tải danh sách đối tác. Vui lòng thử lại.');
+        setPartners([]);
       } finally {
         setLoading(false);
       }
     };
 
-    loadTimeSlots();
-  }, [allTimeSlots.length, setAllTimeSlots]);
+    loadPartners();
+  }, []);
 
-  // Get available times from API data
-  const availableTimes = allTimeSlots
-    .filter(slot => slot && slot.startTime) // Filter out invalid slots
-    .map(slot => slot.startTime)
-    .sort();
-  
-  // Debug logging
-  console.log('Available times for display:', availableTimes);
-  console.log('All time slots:', allTimeSlots);
-  console.log('Filtered time slots:', allTimeSlots.filter(slot => slot && slot.startTime));
+  // Load courts when partner and date are selected
+  useEffect(() => {
+    if (selectedPartner && selectedDate) {
+      const loadCourts = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const dateString = selectedDate.toISOString().split('T')[0];
+          const courtsData = await bookingService.getCourtsByPartnerAndDate(selectedPartner.id, dateString);
+          setCourts(courtsData);
+        } catch (err) {
+          console.error('Error loading courts:', err);
+          setError('Không thể tải danh sách sân. Vui lòng thử lại.');
+          setCourts([]);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-  // Initialize animations on mount
+      loadCourts();
+    }
+  }, [selectedPartner, selectedDate]);
+
+  // Get available times from selected court
+  const availableTimes = selectedCourt 
+    ? selectedCourt.timeSlots
+        .filter(slot => slot && slot.startTime)
+        .map(slot => slot.startTime)
+        .sort()
+    : [];
+
+  // Initialize animations based on current step
   useEffect(() => {
     // Show first card immediately
     setShowCard1(true);
     
-    // Show cards progressively based on user's progress
-    if (drinkOption) {
+    // Show second card when partner is selected
+    if (currentStep === 'date' || currentStep === 'time') {
       const timer1 = setTimeout(() => {
         setShowCard2(true);
       }, 300);
       
-      if (selectedDate) {
+      // Show third card when date is selected
+      if (currentStep === 'time') {
         const timer2 = setTimeout(() => {
           setShowCard3(true);
         }, 600);
@@ -89,27 +124,37 @@ export default function BookingDate() {
       
       return () => clearTimeout(timer1);
     }
-  }, []);
+  }, [currentStep]);
 
-  // Show second card when drink option is selected
-  useEffect(() => {
-    if (drinkOption) {
-      const timer = setTimeout(() => {
-        setShowCard2(true);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [drinkOption]);
+  // Handlers
+  const handleSelectPartner = (partner: Partner) => {
+    setSelectedPartner(partner);
+    setCurrentStep('date');
+  };
 
-  // Show third card when date is selected
-  useEffect(() => {
-    if (selectedDate) {
-      const timer = setTimeout(() => {
-        setShowCard3(true);
-      }, 500);
-      return () => clearTimeout(timer);
+  const handleSelectDate = (date: Date) => {
+    setSelectedDate(date);
+    setCurrentStep('time');
+  };
+
+  const handleSelectCourt = (court: CourtWithTimeSlots) => {
+    setSelectedCourt(court);
+    setSelectedTimes([]); // Reset selected times when changing court
+  };
+
+  const handleBack = () => {
+    if (currentStep === 'date') {
+      setCurrentStep('partners');
+      setSelectedPartner(null);
+    } else if (currentStep === 'time') {
+      setCurrentStep('date');
+      setSelectedDate(null);
+      setCourts([]);
+      setSelectedCourt(null);
+    } else {
+      navigate(-1);
     }
-  }, [selectedDate]);
+  };
 
   const handleToggleTime = (slot: string) => {
     if (selectedTimes.includes(slot)) {
@@ -120,26 +165,29 @@ export default function BookingDate() {
   };
 
   const handleContinue = () => {
-    if (!selectedDate || selectedTimes.length === 0) return;
-    
-    console.log('Selected times:', selectedTimes);
-    console.log('All time slots:', allTimeSlots);
+    if (!selectedDate || selectedTimes.length === 0 || !selectedCourt) return;
     
     // Map selected time strings to time slot IDs
     const selectedTimeSlotIds = selectedTimes
       .map(timeString => {
-        const slot = allTimeSlots.find(slot => slot.startTime === timeString);
-        console.log(`Mapping ${timeString} to slot:`, slot);
+        const slot = selectedCourt.timeSlots.find(slot => slot.startTime === timeString);
         return slot ? slot.id : null;
       })
       .filter((id): id is string => id !== null);
     
-    console.log('Selected time slot IDs:', selectedTimeSlotIds);
+    // Store in booking store for checkout
+    const setSelectedDateStore = useBookingStore.getState().setSelectedDate;
+    const setSelectedTimesStore = useBookingStore.getState().setSelectedTimes;
+    const setSelectedTimeSlotIdsStore = useBookingStore.getState().setSelectedTimeSlotIds;
+    const setSelectedCourtStore = useBookingStore.getState().setSelectedCourt;
+    const setDrinkOptionStore = useBookingStore.getState().setDrinkOption;
     
-    // Sắp xếp các slot đã chọn theo thứ tự thời gian
-    const sortedTimes = [...selectedTimes].sort();
-    setSelectedTimeSlots(sortedTimes);
-    setSelectedTimeSlotIds(selectedTimeSlotIds);
+    setSelectedDateStore(selectedDate);
+    setSelectedTimesStore(selectedTimes);
+    setSelectedTimeSlotIdsStore(selectedTimeSlotIds);
+    setSelectedCourtStore(selectedCourt);
+    setDrinkOptionStore(drinkOption);
+    
     navigate('/booking/checkout');
   };
 
@@ -150,7 +198,7 @@ export default function BookingDate() {
         <div className="mb-6">
           <button 
             className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors group" 
-            onClick={() => navigate(-1)}
+            onClick={handleBack}
           >
             <ChevronLeft size={20} className="mr-2 group-hover:-translate-x-1 transition-transform" />
             <span>Quay lại</span>
@@ -159,196 +207,301 @@ export default function BookingDate() {
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Section - Service Info & Drink Options */}
-          <div className={`lg:col-span-1 transition-all duration-700 transform ${
-            showCard1 
-              ? 'opacity-100 translate-x-0' 
-              : 'opacity-0 -translate-x-8'
-          }`}>
-            <div className="bg-white rounded-2xl shadow-2xl p-8 h-full">
+          {/* Step 1: Partners */}
+          {currentStep === 'partners' && (
+            <div className="lg:col-span-3">
               <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <span className="text-2xl">🏓</span>
-                </div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">Pickle Boom</h1>
-                <p className="text-gray-600">Dịch vụ đặt sân chuyên nghiệp</p>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Chọn đối tác</h1>
+                <p className="text-gray-600">Chọn đối tác bạn muốn đặt sân</p>
               </div>
-
-              <div className="space-y-6">
-                <div className="space-y-4">
-                  <h4 className="font-semibold text-gray-900 flex items-center animate-fade-in">
-                    <span className="mr-2"></span>
-                    Dịch vụ bổ sung
-                  </h4>
-                  <p className="text-sm text-gray-600 animate-fade-in">
-                    Quý khách có muốn thêm nước uống giải khát vào đơn đặt sân không?
-                  </p>
-                  
-                  <div className="space-y-3 animate-fade-in">
-                    <label className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                      <input 
-                        type="radio" 
-                        name="drink" 
-                        value="yes" 
-                        className="w-4 h-4 text-blue-600 focus:ring-blue-500" 
-                        checked={drinkOption === 'yes'}
-                        onChange={(e) => setDrinkOption(e.target.value)}
-                      />
-                      <span className="text-sm font-medium text-gray-700">Có, tôi muốn sử dụng</span>
-                    </label>
-                    <label className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                      <input 
-                        type="radio" 
-                        name="drink" 
-                        value="no" 
-                        className="w-4 h-4 text-blue-600 focus:ring-blue-500" 
-                        checked={drinkOption === 'no'}
-                        onChange={(e) => setDrinkOption(e.target.value)}
-                      />
-                      <span className="text-sm font-medium text-gray-700">Không, tôi không có nhu cầu</span>
-                    </label>
-                  </div>
+              
+              {loading && (
+                <div className="flex justify-center items-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span className="ml-3 text-gray-600">Đang tải...</span>
                 </div>
-              </div>
-            </div>
-          </div>
+              )}
 
-          {/* Middle Section - Calendar */}
-          <div className={`lg:col-span-1 transition-all duration-700 transform ${
-            showCard2 
-              ? 'opacity-100 translate-x-0' 
-              : 'opacity-0 -translate-x-8'
-          }`}>
-            <div className="bg-white rounded-2xl shadow-2xl p-8 h-full">
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <span className="text-2xl">📅</span>
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8 text-center">
+                  <p className="text-red-600">{error}</p>
+                  <button 
+                    onClick={() => window.location.reload()} 
+                    className="mt-2 text-red-600 hover:text-red-800 underline"
+                  >
+                    Thử lại
+                  </button>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Chọn ngày</h2>
-                <p className="text-gray-600">Vui lòng chọn ngày bạn muốn đặt sân</p>
-              </div>
+              )}
 
-              <div className="flex justify-center">
-                <div className="w-full max-w-sm animate-fade-in">
-                  <Calendar
-                    onChange={(date) => {
-                      setSelectedDate(date as Date);
-                      setSelectedTimes([]);
-                    }}
-                    value={selectedDate}
-                    minDate={new Date()}
-                    locale="vi-VN"
-                    tileClassName={({ date }) =>
-                      selectedDate && date.toDateString() === selectedDate.toDateString()
-                        ? 'bg-blue-600 text-white rounded-lg' : 'hover:bg-blue-50 rounded-lg'
-                    }
-                    formatMonthYear={(locale, date) => `${date.getMonth() + 1} - ${date.getFullYear()}`}
-                    className="rounded-xl shadow-sm border border-gray-200 p-4 bg-white"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Section - Time Selection */}
-          <div className={`lg:col-span-1 transition-all duration-700 transform ${
-            showCard3 
-              ? 'opacity-100 translate-x-0' 
-              : 'opacity-0 -translate-x-8'
-          }`}>
-            <div className="bg-white rounded-2xl shadow-2xl p-8 h-full">
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <span className="text-2xl">⏰</span>
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Chọn giờ</h2>
-                <p className="text-gray-600">
-                  {selectedDate ? `Ngày: ${selectedDate.toLocaleDateString('vi-VN')}` : 'Vui lòng chọn ngày trước'}
-                </p>
-              </div>
-
-              {selectedDate ? (
-                <div className="space-y-6">
-                  <div className="bg-blue-50 px-4 py-2 rounded-lg text-center animate-fade-in">
-                    <p className="text-sm font-medium text-blue-800">
-                      📅 Ngày đã chọn: {selectedDate.toLocaleDateString('vi-VN')}
-                    </p>
-                  </div>
-
-                  {/* Loading State */}
-                  {loading && (
-                    <div className="flex items-center justify-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                      <span className="ml-2 text-gray-600">Đang tải khung giờ...</span>
-                    </div>
-                  )}
-
-                  {/* Error State */}
-                  {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                      <p className="text-red-600 text-sm">{error}</p>
-                      <button 
-                        onClick={() => window.location.reload()} 
-                        className="mt-2 text-red-600 hover:text-red-800 text-sm underline"
-                      >
-                        Thử lại
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Time Slots */}
-                  {!loading && !error && (
-                    <div className="grid grid-cols-3 gap-2 animate-fade-in">
-                      {availableTimes.length > 0 ? (
-                        availableTimes.map((slot, index) => (
-                          <button
-                            key={`time-slot-${slot}-${index}`}
-                            className={`px-3 py-2 text-sm font-medium rounded-lg border transition-all duration-200 ${
-                              selectedTimes.includes(slot)
-                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-transparent shadow-lg'
-                                : 'bg-white text-blue-600 border-blue-300 hover:bg-blue-50 hover:border-blue-400'
-                            }`}
-                            onClick={() => handleToggleTime(slot)}
-                          >
-                            {slot}
-                          </button>
-                        ))
-                      ) : (
-                        <div className="col-span-3 text-center py-8 text-gray-500">
-                          <p>Không có khung giờ nào khả dụng</p>
+              {!loading && !error && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {partners.map((partner: Partner) => (
+                    <div
+                      key={partner.id}
+                      className="p-6 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:shadow-lg border-gray-200 hover:border-blue-300 hover:bg-gray-50"
+                      onClick={() => handleSelectPartner(partner)}
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                          <Calendar className="h-6 w-6 text-white" />
                         </div>
-                      )}
-                    </div>
-                  )}
-
-                  {selectedTimes.length > 0 && (
-                    <div className="space-y-4 animate-fade-in">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Đã chọn:</span>
-                        <span className="font-medium text-blue-600">
-                          {selectedTimes.length} khung giờ
-                        </span>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1">{partner.bussinessName}</h3>
+                          <p className="text-gray-600 text-sm">{partner.address}</p>
+                        </div>
                       </div>
-                      
-                      <button
-                        onClick={handleContinue}
-                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-                      >
-                        Tiếp tục
-                      </button>
                     </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-xl">⏰</span>
-                  </div>
-                  <p className="text-gray-600">Vui lòng chọn ngày để xem các khung giờ khả dụng</p>
+                  ))}
                 </div>
               )}
             </div>
-          </div>
+          )}
+
+          {/* Step 2: Date Selection */}
+          {currentStep === 'date' && (
+            <div className="lg:col-span-3">
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Chọn ngày đặt sân</h1>
+                <p className="text-gray-600">Sân của {selectedPartner?.bussinessName} - Chọn ngày bạn muốn đặt</p>
+              </div>
+              
+              <div className="max-w-md mx-auto">
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  <div className="text-center mb-6">
+                    <Calendar className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">Chọn ngày đặt sân</h3>
+                    <p className="text-gray-600">Chọn ngày bạn muốn đặt sân tại {selectedPartner?.bussinessName}</p>
+                  </div>
+                  
+                  <div className="flex justify-center">
+                    <CalendarComponent
+                      onChange={(date) => handleSelectDate(date as Date)}
+                      value={selectedDate}
+                      minDate={new Date()}
+                      locale="vi-VN"
+                      tileClassName={({ date }) =>
+                        selectedDate && date.toDateString() === selectedDate.toDateString()
+                          ? 'bg-blue-600 text-white rounded-lg' : 'hover:bg-blue-50 rounded-lg'
+                      }
+                      formatMonthYear={(locale, date) => `${date.getMonth() + 1} - ${date.getFullYear()}`}
+                      className="rounded-xl shadow-sm border border-gray-200 p-4 bg-white"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Court and Time Selection */}
+          {currentStep === 'time' && (
+            <>
+              {/* Left Section - Service Info & Drink Options */}
+              <div className={`lg:col-span-1 transition-all duration-700 transform ${
+                showCard1 
+                  ? 'opacity-100 translate-x-0' 
+                  : 'opacity-0 -translate-x-8'
+              }`}>
+                <div className="bg-white rounded-2xl shadow-2xl p-8 h-full">
+                  <div className="text-center mb-8">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                      <span className="text-2xl">🏓</span>
+                    </div>
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Pickle Boom</h1>
+                    <p className="text-gray-600">Dịch vụ đặt sân chuyên nghiệp</p>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <h4 className="font-semibold text-gray-900 flex items-center animate-fade-in">
+                        <span className="mr-2"></span>
+                        Dịch vụ bổ sung
+                      </h4>
+                      <p className="text-sm text-gray-600 animate-fade-in">
+                        Quý khách có muốn thêm nước uống giải khát vào đơn đặt sân không?
+                      </p>
+                      
+                      <div className="space-y-3 animate-fade-in">
+                        <label className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                          <input 
+                            type="radio" 
+                            name="drink" 
+                            value="yes" 
+                            className="w-4 h-4 text-blue-600 focus:ring-blue-500" 
+                            checked={drinkOption === 'yes'}
+                            onChange={(e) => setDrinkOption(e.target.value)}
+                          />
+                          <span className="text-sm font-medium text-gray-700">Có, tôi muốn sử dụng</span>
+                        </label>
+                        <label className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                          <input 
+                            type="radio" 
+                            name="drink" 
+                            value="no" 
+                            className="w-4 h-4 text-blue-600 focus:ring-blue-500" 
+                            checked={drinkOption === 'no'}
+                            onChange={(e) => setDrinkOption(e.target.value)}
+                          />
+                          <span className="text-sm font-medium text-gray-700">Không, tôi không có nhu cầu</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Middle Section - Court Selection */}
+              <div className={`lg:col-span-1 transition-all duration-700 transform ${
+                showCard2 
+                  ? 'opacity-100 translate-x-0' 
+                  : 'opacity-0 -translate-x-8'
+              }`}>
+                <div className="bg-white rounded-2xl shadow-2xl p-8 h-full">
+                  <div className="text-center mb-8">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                      <span className="text-2xl">🏟️</span>
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Chọn sân</h2>
+                    <p className="text-gray-600">
+                      {selectedDate ? `Ngày: ${selectedDate.toLocaleDateString('vi-VN')}` : 'Vui lòng chọn ngày trước'}
+                    </p>
+                  </div>
+
+                  {selectedDate ? (
+                    <div className="space-y-4">
+                      {loading && (
+                        <div className="flex items-center justify-center py-8">
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                          <span className="ml-2 text-gray-600">Đang tải sân...</span>
+                        </div>
+                      )}
+
+                      {error && (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                          <p className="text-red-600 text-sm">{error}</p>
+                        </div>
+                      )}
+
+                      {!loading && !error && (
+                        <div className="space-y-3">
+                          {courts.length === 0 ? (
+                            <div className="text-center py-8 text-gray-500">
+                              <p>Không có sân nào khả dụng</p>
+                            </div>
+                          ) : (
+                            courts.map((court: CourtWithTimeSlots) => (
+                              <div
+                                key={court.id}
+                                className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                                  selectedCourt?.id === court.id
+                                    ? 'border-green-500 bg-green-50 shadow-md'
+                                    : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
+                                }`}
+                                onClick={() => handleSelectCourt(court)}
+                              >
+                                <h3 className="font-semibold text-gray-900 mb-1">{court.name}</h3>
+                                <p className="text-gray-600 text-sm mb-2">{court.location}</p>
+                                <p className="text-lg font-bold text-green-600">
+                                  {court.pricePerHour.toLocaleString('vi-VN')} VNĐ/giờ
+                                </p>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="text-xl">🏟️</span>
+                      </div>
+                      <p className="text-gray-600">Vui lòng chọn ngày để xem các sân khả dụng</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Right Section - Time Selection */}
+              <div className={`lg:col-span-1 transition-all duration-700 transform ${
+                showCard3 
+                  ? 'opacity-100 translate-x-0' 
+                  : 'opacity-0 -translate-x-8'
+              }`}>
+                <div className="bg-white rounded-2xl shadow-2xl p-8 h-full">
+                  <div className="text-center mb-8">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                      <span className="text-2xl">⏰</span>
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Chọn giờ</h2>
+                    <p className="text-gray-600">
+                      {selectedDate ? `Ngày: ${selectedDate.toLocaleDateString('vi-VN')}` : 'Vui lòng chọn ngày trước'}
+                    </p>
+                  </div>
+
+                  {selectedDate && selectedCourt ? (
+                    <div className="space-y-6">
+                      <div className="bg-blue-50 px-4 py-2 rounded-lg text-center animate-fade-in">
+                        <p className="text-sm font-medium text-blue-800">
+                          📅 Ngày đã chọn: {selectedDate.toLocaleDateString('vi-VN')}
+                        </p>
+                        <p className="text-sm font-medium text-blue-800">
+                          🏟️ Sân: {selectedCourt.name}
+                        </p>
+                      </div>
+
+                      {/* Time Slots */}
+                      <div className="grid grid-cols-3 gap-2 animate-fade-in">
+                        {availableTimes.length > 0 ? (
+                          availableTimes.map((slot, index) => (
+                            <button
+                              key={`time-slot-${slot}-${index}`}
+                              className={`px-3 py-2 text-sm font-medium rounded-lg border transition-all duration-200 ${
+                                selectedTimes.includes(slot)
+                                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-transparent shadow-lg'
+                                  : 'bg-white text-blue-600 border-blue-300 hover:bg-blue-50 hover:border-blue-400'
+                              }`}
+                              onClick={() => handleToggleTime(slot)}
+                            >
+                              {slot}
+                            </button>
+                          ))
+                        ) : (
+                          <div className="col-span-3 text-center py-8 text-gray-500">
+                            <p>Không có khung giờ nào khả dụng</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {selectedTimes.length > 0 && (
+                        <div className="space-y-4 animate-fade-in">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-600">Đã chọn:</span>
+                            <span className="font-medium text-blue-600">
+                              {selectedTimes.length} khung giờ
+                            </span>
+                          </div>
+                          
+                          <button
+                            onClick={handleContinue}
+                            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                          >
+                            Tiếp tục
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="text-xl">⏰</span>
+                      </div>
+                      <p className="text-gray-600">Vui lòng chọn ngày và sân để xem các khung giờ khả dụng</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
