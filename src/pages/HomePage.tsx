@@ -1,9 +1,8 @@
 import { NavigationMenuLink } from '@/components/ui/navigation-menu';
 import Header from '@/components/Header';
-import { HeroSection } from '@/components/HeroSection';
-import { CTASection } from '@/components/CTASection';
 import { Banner } from '@/components/BannerHealth';
 import FeaturesPage from '@/pages/FeaturesPage';
+import CarouselPage from '@/pages/CarouselPage';
 import {
   navigateMenu,
   navigationExtra,
@@ -84,25 +83,13 @@ const Home = () => {
     <div className="min-h-screen w-full">
       <Header />
       
-      {/* Hero Section */}
-      <HeroSection />
+      {/* Carousel Section - Landing page cũ */}
+      <CarouselPage />
       
-      {/* Features Section */}
-      <div className="py-20 bg-gray-50">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-[#2F3C54] mb-6">
-              Tại sao chọn chúng tôi?
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Nền tảng pickleball hàng đầu với công nghệ hiện đại và dịch vụ chuyên nghiệp
-            </p>
-          </div>
-          <FeaturesPage />
-        </div>
-      </div>
+      {/* Features Section - Landing page cũ */}
+      <FeaturesPage />
       
-      {/* Health Benefits Banner */}
+      {/* Health Benefits Banner - Giữ nguyên */}
       <div className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
@@ -116,9 +103,6 @@ const Home = () => {
           <Banner />
         </div>
       </div>
-      
-      {/* CTA Section */}
-      <CTASection />
     </div>
   );
 };
