@@ -3,6 +3,7 @@ import Header from '@/components/Header';
 import { HeroSection } from '@/components/HeroSection';
 import { CTASection } from '@/components/CTASection';
 import { Banner } from '@/components/BannerHealth';
+import FeaturesPage from '@/pages/FeaturesPage';
 import {
   navigateMenu,
   navigationExtra,
