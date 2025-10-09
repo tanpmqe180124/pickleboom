@@ -6,7 +6,8 @@ import Calendar from 'react-calendar';
 import '../css/booking-date.css';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
 import { useBookingStore } from '@/stores/useBookingStore';
-import { bookingService, TimeSlot } from '@/services/bookingService';
+import { bookingService } from '@/services/bookingService';
+import { TimeSlot } from '@/services/bookingService';
 
 export default function BookingDate() {
   const selectedDate = useBookingStore((state) => state.selectedDate);

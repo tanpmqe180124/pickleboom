@@ -111,38 +111,30 @@ const PartnerDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gray-50">
       {/* ========== HEADER ========== */}
-      <header className="bg-white shadow-lg border-b border-gray-200">
+      <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center space-x-4">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
               <button
                 onClick={handleBack}
-                className="p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all duration-200 hover:shadow-md"
+                className="mr-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <ArrowLeft size={20} />
               </button>
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl">
-                  <Settings className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Partner Dashboard</h1>
-                  <p className="text-sm text-gray-500">Quản lý sân Pickleball của bạn</p>
-                </div>
-              </div>
+              <h1 className="text-xl font-semibold text-gray-900">Partner Dashboard</h1>
             </div>
             
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3 px-4 py-2 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border border-green-200">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm font-medium text-gray-700">Partner</span>
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <Settings size={16} />
+                <span>Partner</span>
               </div>
               
               <button
                 onClick={handleLogout}
-                className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all duration-200 hover:shadow-md font-medium"
+                className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
               >
                 <LogOut size={16} />
                 <span>Đăng xuất</span>
@@ -155,56 +147,35 @@ const PartnerDashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* ========== SIDEBAR ========== */}
-          <div className="lg:w-72">
-            <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-8">
-              <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
-                <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full mr-3"></div>
-                Quản lý
-              </h2>
-              <nav className="space-y-3">
-                {tabs.map((tab) => {
-                  const Icon = tab.icon;
-                  const isActive = activeTab === tab.id;
-                  
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`w-full flex items-center space-x-4 px-4 py-4 rounded-xl text-left transition-all duration-200 group ${
-                        isActive
-                          ? `${tab.bgColor} ${tab.color} border-l-4 border-current shadow-md transform scale-[1.02]`
-                          : `text-gray-600 hover:bg-gray-50 ${tab.hoverColor} hover:shadow-sm hover:transform hover:scale-[1.01]`
-                      }`}
-                    >
-                      <div className={`p-2 rounded-lg transition-colors ${
-                        isActive ? 'bg-white bg-opacity-50' : 'bg-gray-100 group-hover:bg-white group-hover:bg-opacity-50'
-                      }`}>
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <div className="flex-1">
-                        <span className="font-medium">{tab.name}</span>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {tab.id === 'courts' && 'Quản lý sân bóng'}
-                          {tab.id === 'timeslots' && 'Quản lý khung giờ'}
-                          {tab.id === 'blogs' && 'Quản lý bài viết'}
-                          {tab.id === 'bookings' && 'Quản lý đặt sân'}
-                        </p>
-                      </div>
-                      {isActive && (
-                        <div className="w-2 h-2 bg-current rounded-full animate-pulse"></div>
-                      )}
-                    </button>
-                  );
-                })}
-              </nav>
-            </div>
+          <div className="lg:w-64">
+            <nav className="space-y-2">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                      isActive
+                        ? `${tab.bgColor} ${tab.color} border-l-4 border-current`
+                        : `text-gray-600 hover:bg-gray-100 ${tab.hoverColor}`
+                    }`}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span className="font-medium">{tab.name}</span>
+                  </button>
+                );
+              })}
+            </nav>
           </div>
 
           {/* ========== MAIN CONTENT ========== */}
           <div className="flex-1">
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div className="bg-white rounded-lg shadow-sm">
               {/* ========== TAB CONTENT ========== */}
-              <div className="p-8">
+              <div className="p-6">
                 {activeTab === 'courts' && <CourtManagement />}
                 {activeTab === 'timeslots' && <TimeSlotManagement />}
                 {activeTab === 'blogs' && <BlogManagement />}
