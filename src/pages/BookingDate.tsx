@@ -309,212 +309,253 @@ export default function BookingDate() {
 
           {/* Step 3: Court and Time Selection */}
           {currentStep === 'time' && (
-            <>
-              {/* Left Section - Service Info & Drink Options */}
-              <div className={`lg:col-span-1 transition-all duration-700 transform ${
-                showCard1 
-                  ? 'opacity-100 translate-x-0' 
-                  : 'opacity-0 -translate-x-8'
-              }`}>
-                <div className="bg-white rounded-2xl shadow-2xl p-8 h-full">
-                  <div className="text-center mb-8">
-                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                      <span className="text-2xl">🏓</span>
-                    </div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Pickle Boom</h1>
-                    <p className="text-gray-600">Dịch vụ đặt sân chuyên nghiệp</p>
-                  </div>
-
-                  <div className="space-y-6">
-                    <div className="space-y-4">
-                      <h4 className="font-semibold text-gray-900 flex items-center animate-fade-in">
-                        <span className="mr-2"></span>
-                        Dịch vụ bổ sung
-                      </h4>
-                      <p className="text-sm text-gray-600 animate-fade-in">
-                        Quý khách có muốn thêm nước uống giải khát vào đơn đặt sân không?
-                      </p>
-                      
-                      <div className="space-y-3 animate-fade-in">
-                        <label className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                          <input 
-                            type="radio" 
-                            name="drink" 
-                            value="yes" 
-                            className="w-4 h-4 text-blue-600 focus:ring-blue-500" 
-                            checked={drinkOption === 'yes'}
-                            onChange={(e) => setDrinkOption(e.target.value)}
-                          />
-                          <span className="text-sm font-medium text-gray-700">Có, tôi muốn sử dụng</span>
-                        </label>
-                        <label className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                          <input 
-                            type="radio" 
-                            name="drink" 
-                            value="no" 
-                            className="w-4 h-4 text-blue-600 focus:ring-blue-500" 
-                            checked={drinkOption === 'no'}
-                            onChange={(e) => setDrinkOption(e.target.value)}
-                          />
-                          <span className="text-sm font-medium text-gray-700">Không, tôi không có nhu cầu</span>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            <div className="lg:col-span-3">
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Chọn sân và khung giờ</h1>
+                <p className="text-gray-600">
+                  {selectedDate ? `Ngày ${selectedDate.toLocaleDateString('vi-VN')} - Chọn sân và khung giờ phù hợp` : 'Vui lòng chọn ngày trước'}
+                </p>
               </div>
 
-              {/* Middle Section - Court Selection */}
-              <div className={`lg:col-span-1 transition-all duration-700 transform ${
-                showCard2 
-                  ? 'opacity-100 translate-x-0' 
-                  : 'opacity-0 -translate-x-8'
-              }`}>
-                <div className="bg-white rounded-2xl shadow-2xl p-8 h-full">
-                  <div className="text-center mb-8">
-                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                      <span className="text-2xl">🏟️</span>
+              {selectedDate ? (
+                <div className="space-y-6">
+                  {/* Service Info & Drink Options */}
+                  <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+                    <div className="text-center mb-6">
+                      <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="text-xl">🏓</span>
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Dịch vụ bổ sung</h3>
+                      <p className="text-sm text-gray-600">Quý khách có muốn thêm nước uống giải khát vào đơn đặt sân không?</p>
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Chọn sân</h2>
-                    <p className="text-gray-600">
-                      {selectedDate ? `Ngày: ${selectedDate.toLocaleDateString('vi-VN')}` : 'Vui lòng chọn ngày trước'}
-                    </p>
+                    
+                    <div className="space-y-3">
+                      <label className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <input 
+                          type="radio" 
+                          name="drink" 
+                          value="yes" 
+                          className="w-4 h-4 text-blue-600 focus:ring-blue-500" 
+                          checked={drinkOption === 'yes'}
+                          onChange={(e) => setDrinkOption(e.target.value)}
+                        />
+                        <span className="text-sm font-medium text-gray-700">Có, tôi muốn sử dụng</span>
+                      </label>
+                      <label className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <input 
+                          type="radio" 
+                          name="drink" 
+                          value="no" 
+                          className="w-4 h-4 text-blue-600 focus:ring-blue-500" 
+                          checked={drinkOption === 'no'}
+                          onChange={(e) => setDrinkOption(e.target.value)}
+                        />
+                        <span className="text-sm font-medium text-gray-700">Không, tôi không có nhu cầu</span>
+                      </label>
+                    </div>
                   </div>
 
-                  {selectedDate ? (
-                    <div className="space-y-4">
-                      {loading && (
-                        <div className="flex items-center justify-center py-8">
-                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-                          <span className="ml-2 text-gray-600">Đang tải sân...</span>
-                        </div>
-                      )}
-
-                      {error && (
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                          <p className="text-red-600 text-sm">{error}</p>
-                        </div>
-                      )}
-
-                      {!loading && !error && (
-                        <div className="space-y-3">
-                          {courts.length === 0 ? (
-                            <div className="text-center py-8 text-gray-500">
-                              <p>Không có sân nào khả dụng</p>
-                            </div>
-                          ) : (
-                            courts.map((court: CourtWithTimeSlots) => (
-                              <div
-                                key={court.id}
-                                className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
-                                  selectedCourt?.id === court.id
-                                    ? 'border-green-500 bg-green-50 shadow-md'
-                                    : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
-                                }`}
-                                onClick={() => handleSelectCourt(court)}
-                              >
-                                <h3 className="font-semibold text-gray-900 mb-1">{court.name}</h3>
-                                <p className="text-gray-600 text-sm mb-2">{court.location}</p>
-                                <p className="text-lg font-bold text-green-600">
-                                  {court.pricePerHour.toLocaleString('vi-VN')} VNĐ/giờ
-                                </p>
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  {/* Court Selection */}
+                  <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+                    <div className="text-center mb-6">
+                      <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
                         <span className="text-xl">🏟️</span>
                       </div>
-                      <p className="text-gray-600">Vui lòng chọn ngày để xem các sân khả dụng</p>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Chọn sân</h3>
+                      <p className="text-sm text-gray-600">Chọn sân bạn muốn đặt</p>
                     </div>
-                  )}
-                </div>
-              </div>
 
-              {/* Right Section - Time Selection */}
-              <div className={`lg:col-span-1 transition-all duration-700 transform ${
-                showCard3 
-                  ? 'opacity-100 translate-x-0' 
-                  : 'opacity-0 -translate-x-8'
-              }`}>
-                <div className="bg-white rounded-2xl shadow-2xl p-8 h-full">
-                  <div className="text-center mb-8">
-                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                      <span className="text-2xl">⏰</span>
-                    </div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Chọn giờ</h2>
-                    <p className="text-gray-600">
-                      {selectedDate ? `Ngày: ${selectedDate.toLocaleDateString('vi-VN')}` : 'Vui lòng chọn ngày trước'}
-                    </p>
+                    {loading && (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                        <span className="ml-2 text-gray-600">Đang tải sân...</span>
+                      </div>
+                    )}
+
+                    {error && (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                        <p className="text-red-600 text-sm">{error}</p>
+                      </div>
+                    )}
+
+                    {!loading && !error && (
+                      <div className="space-y-3">
+                        {courts.length === 0 ? (
+                          <div className="text-center py-8 text-gray-500">
+                            <p>Không có sân nào khả dụng</p>
+                          </div>
+                        ) : (
+                          courts.map((court: CourtWithTimeSlots) => (
+                            <div
+                              key={court.id}
+                              className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                                selectedCourt?.id === court.id
+                                  ? 'border-green-500 bg-green-50 shadow-md'
+                                  : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
+                              }`}
+                              onClick={() => handleSelectCourt(court)}
+                            >
+                              <h3 className="font-semibold text-gray-900 mb-1">{court.name}</h3>
+                              <p className="text-gray-600 text-sm mb-2">{court.location}</p>
+                              <p className="text-lg font-bold text-green-600">
+                                {court.pricePerHour.toLocaleString('vi-VN')} VNĐ/giờ
+                              </p>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
                   </div>
 
-                  {selectedDate && selectedCourt ? (
-                    <div className="space-y-6">
-                      <div className="bg-blue-50 px-4 py-2 rounded-lg text-center animate-fade-in">
-                        <p className="text-sm font-medium text-blue-800">
-                          📅 Ngày đã chọn: {selectedDate.toLocaleDateString('vi-VN')}
-                        </p>
-                        <p className="text-sm font-medium text-blue-800">
-                          🏟️ Sân: {selectedCourt.name}
-                        </p>
+                  {/* Time Selection */}
+                  {selectedCourt && (
+                    <div className="bg-white rounded-xl shadow-lg p-6">
+                      <div className="text-center mb-6">
+                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <span className="text-xl">⏰</span>
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Chọn khung giờ</h3>
+                        <p className="text-sm text-gray-600">Sân: {selectedCourt.name}</p>
                       </div>
 
-                      {/* Time Slots */}
-                      <div className="grid grid-cols-3 gap-2 animate-fade-in">
-                        {availableTimes.length > 0 ? (
-                          availableTimes.map((slot, index) => (
-                            <button
-                              key={`time-slot-${slot}-${index}`}
-                              className={`px-3 py-2 text-sm font-medium rounded-lg border transition-all duration-200 ${
-                                selectedTimes.includes(slot)
-                                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-transparent shadow-lg'
-                                  : 'bg-white text-blue-600 border-blue-300 hover:bg-blue-50 hover:border-blue-400'
-                              }`}
-                              onClick={() => handleToggleTime(slot)}
-                            >
-                              {slot}
-                            </button>
-                          ))
-                        ) : (
-                          <div className="col-span-3 text-center py-8 text-gray-500">
+                      <div className="space-y-6">
+                        {/* Morning Time Slots */}
+                        {availableTimes.filter(time => {
+                          const hour = parseInt(time.split(':')[0]);
+                          return hour >= 4 && hour < 12;
+                        }).length > 0 && (
+                          <div>
+                            <h4 className="text-md font-semibold text-gray-800 mb-3 flex items-center">
+                              <span className="text-lg mr-2">🌅</span>
+                              Sáng (4:00 - 12:00)
+                            </h4>
+                            <div className="grid grid-cols-4 gap-2">
+                              {availableTimes
+                                .filter(time => {
+                                  const hour = parseInt(time.split(':')[0]);
+                                  return hour >= 4 && hour < 12;
+                                })
+                                .map((slot, index) => (
+                                  <button
+                                    key={`morning-${slot}-${index}`}
+                                    className={`px-3 py-2 text-sm font-medium rounded-lg border transition-all duration-200 ${
+                                      selectedTimes.includes(slot)
+                                        ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-transparent shadow-lg'
+                                        : 'bg-white text-yellow-700 border-yellow-300 hover:bg-yellow-50 hover:border-yellow-400'
+                                    }`}
+                                    onClick={() => handleToggleTime(slot)}
+                                  >
+                                    {slot}
+                                  </button>
+                                ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Afternoon Time Slots */}
+                        {availableTimes.filter(time => {
+                          const hour = parseInt(time.split(':')[0]);
+                          return hour >= 12 && hour < 18;
+                        }).length > 0 && (
+                          <div>
+                            <h4 className="text-md font-semibold text-gray-800 mb-3 flex items-center">
+                              <span className="text-lg mr-2">☀️</span>
+                              Chiều (12:00 - 18:00)
+                            </h4>
+                            <div className="grid grid-cols-4 gap-2">
+                              {availableTimes
+                                .filter(time => {
+                                  const hour = parseInt(time.split(':')[0]);
+                                  return hour >= 12 && hour < 18;
+                                })
+                                .map((slot, index) => (
+                                  <button
+                                    key={`afternoon-${slot}-${index}`}
+                                    className={`px-3 py-2 text-sm font-medium rounded-lg border transition-all duration-200 ${
+                                      selectedTimes.includes(slot)
+                                        ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white border-transparent shadow-lg'
+                                        : 'bg-white text-orange-700 border-orange-300 hover:bg-orange-50 hover:border-orange-400'
+                                    }`}
+                                    onClick={() => handleToggleTime(slot)}
+                                  >
+                                    {slot}
+                                  </button>
+                                ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Evening Time Slots */}
+                        {availableTimes.filter(time => {
+                          const hour = parseInt(time.split(':')[0]);
+                          return hour >= 18 || hour < 4;
+                        }).length > 0 && (
+                          <div>
+                            <h4 className="text-md font-semibold text-gray-800 mb-3 flex items-center">
+                              <span className="text-lg mr-2">🌙</span>
+                              Tối (18:00 - 4:00)
+                            </h4>
+                            <div className="grid grid-cols-4 gap-2">
+                              {availableTimes
+                                .filter(time => {
+                                  const hour = parseInt(time.split(':')[0]);
+                                  return hour >= 18 || hour < 4;
+                                })
+                                .map((slot, index) => (
+                                  <button
+                                    key={`evening-${slot}-${index}`}
+                                    className={`px-3 py-2 text-sm font-medium rounded-lg border transition-all duration-200 ${
+                                      selectedTimes.includes(slot)
+                                        ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-transparent shadow-lg'
+                                        : 'bg-white text-purple-700 border-purple-300 hover:bg-purple-50 hover:border-purple-400'
+                                    }`}
+                                    onClick={() => handleToggleTime(slot)}
+                                  >
+                                    {slot}
+                                  </button>
+                                ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* No time slots available */}
+                        {availableTimes.length === 0 && (
+                          <div className="text-center py-8 text-gray-500">
                             <p>Không có khung giờ nào khả dụng</p>
                           </div>
                         )}
-                      </div>
 
-                      {selectedTimes.length > 0 && (
-                        <div className="space-y-4 animate-fade-in">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-600">Đã chọn:</span>
-                            <span className="font-medium text-blue-600">
-                              {selectedTimes.length} khung giờ
-                            </span>
+                        {/* Continue Button */}
+                        {selectedTimes.length > 0 && (
+                          <div className="space-y-4 pt-4 border-t border-gray-200">
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-gray-600">Đã chọn:</span>
+                              <span className="font-medium text-blue-600">
+                                {selectedTimes.length} khung giờ
+                              </span>
+                            </div>
+                            
+                            <button
+                              onClick={handleContinue}
+                              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                            >
+                              Tiếp tục
+                            </button>
                           </div>
-                          
-                          <button
-                            onClick={handleContinue}
-                            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-                          >
-                            Tiếp tục
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-xl">⏰</span>
+                        )}
                       </div>
-                      <p className="text-gray-600">Vui lòng chọn ngày và sân để xem các khung giờ khả dụng</p>
                     </div>
                   )}
                 </div>
-              </div>
-            </>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">📅</span>
+                  </div>
+                  <p className="text-gray-600">Vui lòng chọn ngày để xem các sân và khung giờ khả dụng</p>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
