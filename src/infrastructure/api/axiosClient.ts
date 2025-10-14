@@ -26,11 +26,13 @@ api.interceptors.request.use(
     const store = useAuthStore.getState();
 
     if (token && !isTokenValid(token)) {
-      // const refreshed = await store.refreshTokenAsync();
-      // if (!refreshed) {
-      //   clearAuthToken();
-      //   return config;
-      // }
+      console.log('Token expired, attempting refresh...');
+      const refreshed = await store.refreshTokenAsync();
+      if (!refreshed) {
+        console.log('Token refresh failed, clearing auth...');
+        clearAuthToken();
+        return config;
+      }
       token = localStorage.getItem('token');
     }
 
@@ -83,12 +85,10 @@ api.interceptors.response.use(
 
       try {
         const store = useAuthStore.getState();
-        const refreshToken = localStorage.getItem('refreshToken');
 
-        if (!refreshToken) throw new Error('No refresh token found');
-
-        // const refreshed = await store.refreshTokenAsync(refreshToken);
-        // if (!refreshed) throw new Error('Token refresh failed');
+        console.log('401 Unauthorized, attempting token refresh...');
+        const refreshed = await store.refreshTokenAsync();
+        if (!refreshed) throw new Error('Token refresh failed');
 
         originalRequest.headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
         return api(originalRequest);
