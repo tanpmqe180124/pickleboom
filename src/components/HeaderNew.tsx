@@ -1,12 +1,12 @@
 import { UserRound, Calendar, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthStore } from '@/infrastructure/storage/tokenStorage';
 import { useState } from 'react';
 
 const HeaderNew = () => {
-  const { userID, accessToken, logout } = useAuth();
-  const isAuthenticated = !!accessToken;
+  const { user, token, logout } = useAuthStore();
+  const isAuthenticated = !!token;
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const handleLogout = async () => {
@@ -84,7 +84,7 @@ const HeaderNew = () => {
                     onClick={() => setShowUserMenu(!showUserMenu)}
                   >
                     <UserRound className="mr-2 h-4 w-4" />
-                    {userID}
+                    {user?.fullName || 'Tài khoản'}
                   </Button>
                   {showUserMenu && (
                     <div className="absolute right-0 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
