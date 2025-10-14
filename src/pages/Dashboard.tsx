@@ -30,15 +30,15 @@ const Dashboard = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [userInfo, setUserInfo] = useState<any>(null);
   
-  // Refresh token khi vào trang (chỉ khi cần)
-  useRefreshTokenOnLoad();
-  
   // Animation refs
   const [headerRef, headerInView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.1 });
   const [statsRef, statsInView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.1 });
   const [actionsRef, actionsInView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.1 });
   const [activityRef, activityInView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.1 });
   const [personalRef, personalInView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.1 });
+
+  // Auto refresh token on page load
+  useRefreshTokenOnLoad();
 
   useEffect(() => {
     const timer = setInterval(() => {

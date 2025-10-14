@@ -26,8 +26,7 @@ interface AuthState {
   login: (credential: LoginCredential) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: UserObject | null) => void;
-  refreshTokenAsync: (refreshToken?: string) => Promise<boolean>;
-  testRefreshToken: () => Promise<boolean>;
+  refreshTokenAsync: () => Promise<boolean>;
 }
 
 // ========== Hàm tiện ích ==========
@@ -235,8 +234,11 @@ const authStore: AuthStoreCreator = (set, get) => ({
     clearAuthToken();
     set({ ...initialState, isLoading: false });
   },
+  setUser: (user) => {
+    set({ user, isAuthenticated: !!user });
+  },
 
-  refreshTokenAsync: async (refreshToken?: string) => {
+  refreshTokenAsync: async () => {
     try {
       console.log('🔄 refreshTokenAsync called');
       
@@ -244,6 +246,7 @@ const authStore: AuthStoreCreator = (set, get) => ({
       // Refresh token được lưu trong HttpOnly cookie tự động
       
       console.log('📡 Calling refresh token API...');
+      console.log('🍪 Document cookies:', document.cookie);
       
       // Tạo một axios instance riêng để tránh infinite loop
       const refreshApi = axios.create({
@@ -286,6 +289,20 @@ const authStore: AuthStoreCreator = (set, get) => ({
       if (error.response) {
         console.error('Response status:', error.response.status);
         console.error('Response data:', error.response.data);
+        
+        // Nếu 401, có nghĩa là refresh token hết hạn hoặc không hợp lệ
+        if (error.response.status === 401) {
+          console.log('🚨 Refresh token expired or invalid - need to login again');
+          console.log('🍪 Current cookies:', document.cookie);
+          
+          // Clear auth và redirect về login
+          clearAuthToken();
+          set({ ...initialState, isLoading: false });
+          
+          // Redirect về login page
+          window.location.href = '/login';
+          return false;
+        }
       } else if (error.request) {
         console.error('No response received:', error.request);
       } else {
@@ -294,16 +311,6 @@ const authStore: AuthStoreCreator = (set, get) => ({
       
       return false;
     }
-  },
-
-  setUser: (user) => {
-    set({ user, isAuthenticated: !!user });
-  },
-
-  // Debug function để test refresh token manually
-  testRefreshToken: async () => {
-    console.log('🧪 Testing refresh token manually...');
-    return await get().refreshTokenAsync();
   },
 });
 

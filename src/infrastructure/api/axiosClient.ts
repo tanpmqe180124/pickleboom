@@ -94,6 +94,7 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
         return api(originalRequest);
       } catch (err) {
+        console.log('❌ Token refresh failed, redirecting to login');
         clearAuthToken();
         useAuthStore.getState().setUser(null);
 

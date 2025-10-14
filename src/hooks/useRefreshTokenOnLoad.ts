@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAuthStore } from '@/infrastructure/storage/tokenStorage';
 import { isTokenValid } from '@/utils/jwt';
 
@@ -6,13 +6,22 @@ import { isTokenValid } from '@/utils/jwt';
  * Hook để tự động refresh token khi cần thiết
  * - Refresh khi vào trang nếu token sắp hết hạn
  * - Tự động refresh sau 4 phút để tránh token hết hạn
+ * - Tránh gọi refresh liên tục khi đã 401
  */
 export const useRefreshTokenOnLoad = () => {
   const refreshTokenAsync = useAuthStore((state) => state.refreshTokenAsync);
   const token = useAuthStore((state) => state.token);
+  const isRefreshing = useRef(false);
+  const lastRefreshTime = useRef(0);
 
   useEffect(() => {
     const refreshIfNeeded = async () => {
+      // Tránh gọi refresh liên tục
+      if (isRefreshing.current) {
+        console.log('⏳ Refresh already in progress, skipping...');
+        return;
+      }
+
       // Chỉ refresh nếu có token
       if (token) {
         try {
@@ -28,8 +37,26 @@ export const useRefreshTokenOnLoad = () => {
           
           // Nếu token hết hạn hoặc sắp hết hạn (trong vòng 1 phút), refresh ngay
           if (!isTokenValid(token) || timeUntilExpiry < 60 * 1000) {
+            // Tránh gọi refresh quá thường xuyên (ít nhất 30 giây)
+            const now = Date.now();
+            if (now - lastRefreshTime.current < 30000) {
+              console.log('⏳ Refresh too recent, skipping...');
+              return;
+            }
+
             console.log('🔄 Token expired or expires soon, refreshing...');
-            await refreshTokenAsync();
+            isRefreshing.current = true;
+            lastRefreshTime.current = now;
+            
+            const success = await refreshTokenAsync();
+            
+            if (!success) {
+              console.log('❌ Refresh failed, stopping auto refresh');
+              // Nếu refresh thất bại, không tiếp tục auto refresh
+              return;
+            }
+            
+            isRefreshing.current = false;
           } else {
             console.log('✅ Token still valid');
           }
@@ -37,7 +64,12 @@ export const useRefreshTokenOnLoad = () => {
           console.error('❌ Error checking token expiry:', error);
           // Nếu không parse được token, thử refresh
           console.log('🔄 Token invalid format, attempting refresh...');
-          await refreshTokenAsync();
+          
+          if (!isRefreshing.current) {
+            isRefreshing.current = true;
+            await refreshTokenAsync();
+            isRefreshing.current = false;
+          }
         }
       }
     };
