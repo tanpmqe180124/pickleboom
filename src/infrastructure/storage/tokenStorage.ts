@@ -120,7 +120,12 @@ export const clearAuthToken = () => {
   localStorage.removeItem('accessToken');
   localStorage.removeItem('userRole');
   delete api.defaults.headers.common['Authorization'];
-  // Xóa cookie refresh_token nếu có
+  // KHÔNG xóa cookie refresh_token - để backend handle
+  // document.cookie = 'refresh_token=; Max-Age=0; path=/;';
+};
+
+export const clearRefreshTokenCookie = () => {
+  // Chỉ xóa refresh token cookie khi logout thực sự
   document.cookie = 'refresh_token=; Max-Age=0; path=/;';
 };
 
@@ -232,6 +237,7 @@ const authStore: AuthStoreCreator = (set, get) => ({
     }
     
     clearAuthToken();
+    clearRefreshTokenCookie(); // Xóa refresh token cookie khi logout thực sự
     set({ ...initialState, isLoading: false });
   },
   setUser: (user) => {

@@ -1,7 +1,7 @@
 import isUnauthorizedError from '@/utils/httpStatus';
 import { isTokenValid } from '@/utils/jwt';
 import axios from 'axios';
-import { clearAuthToken, useAuthStore } from '../storage/tokenStorage';
+import { clearAuthToken, clearRefreshTokenCookie, useAuthStore } from '../storage/tokenStorage';
 import { showToast } from '@/utils/toastManager';
 
 // ===================== REFRESH TOKEN QUEUE SYSTEM =====================
