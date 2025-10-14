@@ -38,6 +38,23 @@ export interface PaymentResponse {
   };
 }
 
+export interface BookingStatusResponse {
+  message: string;
+  statusCode: number;
+  data: {
+    orderCode: string;
+    bookingStatus: number; // 0: Free, 1: Pending, 2: Paid, 3: Cancelled
+    customerName: string;
+    phoneNumber: string;
+    email: string;
+    totalAmount: number;
+    bookingDate: string;
+    courtName: string;
+    createdAt: string;
+    expiredAt: string;
+  };
+}
+
 export const paymentService = {
   // Tạo payment link - Match với backend BookingRequest
   async createPayment(bookingData: {
@@ -69,10 +86,10 @@ export const paymentService = {
     }
   },
 
-  // Kiểm tra trạng thái booking theo orderCode - Sẽ cần thêm endpoint này vào backend
-  async checkBookingStatus(orderCode: string): Promise<BookingStatus> {
+  // Kiểm tra trạng thái booking theo orderCode
+  async checkBookingStatus(orderCode: string): Promise<BookingStatusResponse> {
     try {
-      const response = await api.get<BookingStatus>(`/Booking/order/${orderCode}`);
+      const response = await api.get<BookingStatusResponse>(`/Common/booking/status/${orderCode}`);
       return response.data;
     } catch (error) {
       console.error('Error checking booking status:', error);
@@ -83,18 +100,19 @@ export const paymentService = {
   // Polling để kiểm tra trạng thái booking
   async pollBookingStatus(
     orderCode: string, 
-    onStatusChange: (status: BookingStatus) => void,
+    onStatusChange: (status: BookingStatusResponse) => void,
     maxAttempts: number = 30,
     intervalMs: number = 3000
-  ): Promise<BookingStatus> {
+  ): Promise<BookingStatusResponse> {
     let attempts = 0;
     
-    const poll = async (): Promise<BookingStatus> => {
+    const poll = async (): Promise<BookingStatusResponse> => {
       try {
         const status = await this.checkBookingStatus(orderCode);
         onStatusChange(status);
         
-        if (status.status === 'paid' || status.status === 'cancelled') {
+        // 2 = Paid, 3 = Cancelled
+        if (status.data.bookingStatus === 2 || status.data.bookingStatus === 3) {
           return status;
         }
         

@@ -96,7 +96,7 @@ export default function BookingDate() {
   // Get available times from selected court (only Free slots)
   const availableTimes = selectedCourt && selectedCourt.timeSlotIDs
     ? selectedCourt.timeSlotIDs
-        .filter(slot => slot && slot.startTime && slot.status === 0) // Backend returns 0 for Free
+        .filter(slot => slot && slot.startTime && slot.status === 0) // Backend returns 0 for Free (available)
         .map(slot => slot.startTime)
         .sort()
     : [];
@@ -341,18 +341,71 @@ export default function BookingDate() {
                           courts.map((court: Court) => (
                             <div
                               key={court.id}
-                              className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                              className={`rounded-lg border-2 cursor-pointer transition-all duration-200 overflow-hidden ${
                                 selectedCourt?.id === court.id
                                   ? 'border-green-500 bg-green-50 shadow-md'
                                   : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
                               }`}
                               onClick={() => handleSelectCourt(court)}
                             >
-                              <h3 className="font-semibold text-gray-900 mb-1">{court.name}</h3>
-                              <p className="text-gray-600 text-sm mb-2">{court.location || 'Địa chỉ chưa cập nhật'}</p>
-                              <p className="text-lg font-bold text-green-600">
-                                {court.pricePerHour ? `${court.pricePerHour.toLocaleString('vi-VN')} VNĐ/giờ` : 'Liên hệ để biết giá'}
-                              </p>
+                              {/* Court Image */}
+                              <div className="h-32 bg-gray-200 relative">
+                                {court.imageUrl ? (
+                                  <img 
+                                    src={court.imageUrl} 
+                                    alt={court.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="flex items-center justify-center h-full text-gray-400">
+                                    <Calendar size={32} />
+                                  </div>
+                                )}
+                                {/* Court Status Badge */}
+                                <div className="absolute top-2 right-2">
+                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                    court.courtStatus === 0 
+                                      ? 'bg-green-100 text-green-800' 
+                                      : 'bg-red-100 text-red-800'
+                                  }`}>
+                                    {court.courtStatus === 0 ? 'Có sẵn' : 'Không có sẵn'}
+                                  </span>
+                                </div>
+                              </div>
+                              
+                              {/* Court Info */}
+                              <div className="p-4">
+                                <h3 className="font-semibold text-gray-900 mb-1">{court.name}</h3>
+                                <p className="text-gray-600 text-sm mb-2">{court.location || 'Địa chỉ chưa cập nhật'}</p>
+                                <p className="text-lg font-bold text-green-600 mb-3">
+                                  {court.pricePerHour ? `${court.pricePerHour.toLocaleString('vi-VN')} VNĐ/giờ` : 'Liên hệ để biết giá'}
+                                </p>
+                                
+                                {/* Available Time Slots */}
+                                {court.timeSlotIDs && court.timeSlotIDs.length > 0 && (
+                                  <div className="mt-3">
+                                    <p className="text-xs text-gray-500 mb-2">Khung giờ có sẵn:</p>
+                                    <div className="flex flex-wrap gap-1">
+                                      {court.timeSlotIDs
+                                        .filter(slot => slot.status === 0)
+                                        .slice(0, 3)
+                                        .map((slot, index) => (
+                                          <span 
+                                            key={index}
+                                            className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
+                                          >
+                                            {slot.startTime} - {slot.endTime}
+                                          </span>
+                                        ))}
+                                      {court.timeSlotIDs.filter(slot => slot.status === 0).length > 3 && (
+                                        <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                                          +{court.timeSlotIDs.filter(slot => slot.status === 0).length - 3} khác
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           ))
                         )}
