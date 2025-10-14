@@ -1,5 +1,4 @@
 import isUnauthorizedError from '@/utils/httpStatus';
-import { isTokenValid } from '@/utils/jwt';
 import axios from 'axios';
 import { clearAuthToken, useAuthStore } from '../storage/tokenStorage';
 import { showToast } from '@/utils/toastManager';
@@ -11,7 +10,7 @@ export const api = axios.create({
     'cache-control': 'no-cache',
   },
   timeout: 120000, // 2 phút (120 giây)
-  withCredentials: true, // Thêm dòng này để gửi cookie
+  withCredentials: true, // Gửi cookie
 });
 
 // ===================== REQUEST INTERCEPTOR =====================
@@ -22,18 +21,8 @@ api.interceptors.request.use(
       return config;
     }
 
-    let token = localStorage.getItem('token');
-    const store = useAuthStore.getState();
-
-    if (token && !isTokenValid(token)) {
-      // const refreshed = await store.refreshTokenAsync();
-      // if (!refreshed) {
-      //   clearAuthToken();
-      //   return config;
-      // }
-      token = localStorage.getItem('token');
-    }
-
+    // Chỉ attach token nếu có
+    const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     } else {
@@ -74,34 +63,42 @@ api.interceptors.response.use(
       });
     }
 
+    // Xử lý 401 với logic đơn giản
     if (
       isUnauthorizedError(error.response?.status) &&
       !originalRequest._retry &&
-      !originalRequest.url?.includes('login')
+      !originalRequest.url?.includes('login') &&
+      !originalRequest.url?.includes('refresh-token')
     ) {
       originalRequest._retry = true;
 
       try {
-        const store = useAuthStore.getState();
-        const refreshToken = localStorage.getItem('refreshToken');
+        console.log('🔄 401 Unauthorized, attempting token refresh...');
+        
+        // Gọi refresh token API
+        const response = await api.get('Account/refresh-token');
+        const newToken = response.data.Data.accessToken;
+        
+        if (!newToken) {
+          throw new Error('No access token received');
+        }
 
-        if (!refreshToken) throw new Error('No refresh token found');
-
-        // const refreshed = await store.refreshTokenAsync(refreshToken);
-        // if (!refreshed) throw new Error('Token refresh failed');
-
-        originalRequest.headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
+        // Cập nhật token mới
+        localStorage.setItem('token', newToken);
+        api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+        
+        // Retry original request
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
       } catch (err) {
+        console.log('❌ Token refresh failed, redirecting to login');
+        
+        // Clear auth và redirect
         clearAuthToken();
         useAuthStore.getState().setUser(null);
-
-        // Hiển thị thông báo bằng toast
         showToast.error('Phiên đăng nhập đã hết', 'Vui lòng đăng nhập lại để tiếp tục.');
-
-        // Điều hướng về trang đăng nhập
         window.location.href = '/login';
-
+        
         return Promise.reject(err);
       }
     }
