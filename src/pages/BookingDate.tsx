@@ -214,8 +214,11 @@ export default function BookingDate() {
           {currentStep === 'partners' && (
             <div className="lg:col-span-3">
               <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Chọn đối tác</h1>
-                <p className="text-gray-600">Chọn đối tác bạn muốn đặt sân</p>
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-4">
+                  <span className="text-2xl">🤝</span>
+                </div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2 gradient-text">Chọn đối tác</h1>
+                <p className="text-gray-600 text-lg">Chọn đối tác bạn muốn đặt sân</p>
               </div>
               
               {loading && (
@@ -242,16 +245,26 @@ export default function BookingDate() {
                   {partners.map((partner: Partner) => (
                     <div
                       key={partner.id}
-                      className="p-6 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:shadow-lg border-gray-200 hover:border-blue-300 hover:bg-gray-50"
+                      className="bg-white rounded-xl shadow-sm border cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.02] border-gray-200 hover:border-blue-300 card-hover-effect fade-in"
                       onClick={() => handleSelectPartner(partner)}
                     >
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                          <Calendar className="h-6 w-6 text-white" />
+                      <div className="p-6">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-md">
+                            <span className="text-lg">🏢</span>
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-1 hover:text-blue-600 transition-colors duration-200">{partner.bussinessName}</h3>
+                            <p className="text-gray-600 text-sm">{partner.address}</p>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-1">{partner.bussinessName}</h3>
-                          <p className="text-gray-600 text-sm">{partner.address}</p>
+                        
+                        {/* Hover indicator */}
+                        <div className="mt-4 pt-3 border-t border-gray-100">
+                          <div className="flex items-center text-blue-600 text-sm font-medium">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                            <span>Nhấp để chọn</span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -265,32 +278,80 @@ export default function BookingDate() {
           {currentStep === 'date' && (
             <div className="lg:col-span-3">
               <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Chọn ngày đặt sân</h1>
-                <p className="text-gray-600">Sân của {selectedPartner?.bussinessName} - Chọn ngày bạn muốn đặt</p>
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-4">
+                  <Calendar className="h-8 w-8 text-white" />
+                </div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2 gradient-text">Chọn ngày đặt sân</h1>
+                <p className="text-gray-600 text-lg">Sân của {selectedPartner?.bussinessName} - Chọn ngày bạn muốn đặt</p>
               </div>
               
-              <div className="max-w-md mx-auto">
-                <div className="bg-white rounded-xl shadow-lg p-6">
-                  <div className="text-center mb-6">
-                    <Calendar className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">Chọn ngày đặt sân</h3>
-                    <p className="text-gray-600">Chọn ngày bạn muốn đặt sân tại {selectedPartner?.bussinessName}</p>
+              <div className="max-w-lg mx-auto">
+                <div className="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-all duration-300 card-hover-effect fade-in">
+                  <div className="flex items-center mb-8">
+                    <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mr-4">
+                      <Calendar className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-gray-900">Chọn ngày đặt sân</h3>
+                      <p className="text-gray-600 text-sm">Chọn ngày bạn muốn đặt sân tại {selectedPartner?.bussinessName}</p>
+                    </div>
                   </div>
                   
                   <div className="flex justify-center">
-                    <CalendarComponent
-                      onChange={(date) => handleSelectDate(date as Date)}
-                      value={selectedDate}
-                      minDate={new Date()}
-                      locale="vi-VN"
-                      tileClassName={({ date }) =>
-                        selectedDate && date.toDateString() === selectedDate.toDateString()
-                          ? 'bg-blue-600 text-white rounded-lg' : 'hover:bg-blue-50 rounded-lg'
-                      }
-                      formatMonthYear={(locale, date) => `${date.getMonth() + 1} - ${date.getFullYear()}`}
-                      className="rounded-xl shadow-sm border border-gray-200 p-4 bg-white"
-                    />
+                    <div className="calendar-wrapper">
+                      <CalendarComponent
+                        onChange={(date) => handleSelectDate(date as Date)}
+                        value={selectedDate}
+                        minDate={new Date()}
+                        locale="vi-VN"
+                        tileClassName={({ date, view }) => {
+                          const baseClasses = "transition-all duration-200 font-medium";
+                          const isToday = date.toDateString() === new Date().toDateString();
+                          const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
+                          const isPast = date < new Date() && !isToday;
+                          
+                          if (isSelected) {
+                            return `${baseClasses} bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg shadow-lg transform scale-105`;
+                          }
+                          if (isToday) {
+                            return `${baseClasses} bg-blue-100 text-blue-700 rounded-lg border-2 border-blue-300 hover:bg-blue-200 hover:scale-105`;
+                          }
+                          if (isPast) {
+                            return `${baseClasses} text-gray-300 cursor-not-allowed`;
+                          }
+                          return `${baseClasses} hover:bg-blue-50 hover:text-blue-700 rounded-lg hover:scale-105 hover:shadow-md`;
+                        }}
+                        formatMonthYear={(locale, date) => `${date.getMonth() + 1} - ${date.getFullYear()}`}
+                        className="rounded-xl shadow-sm border border-gray-200 p-6 bg-white hover:shadow-md transition-shadow duration-300"
+                        navigationLabel={({ date, label, locale, view }) => (
+                          <span className="text-lg font-semibold text-gray-800 hover:text-blue-600 transition-colors duration-200">
+                            {label}
+                          </span>
+                        )}
+                        prevLabel={<span className="text-blue-600 hover:text-blue-800 transition-colors duration-200">‹</span>}
+                        nextLabel={<span className="text-blue-600 hover:text-blue-800 transition-colors duration-200">›</span>}
+                        prev2Label={<span className="text-blue-600 hover:text-blue-800 transition-colors duration-200">‹‹</span>}
+                        next2Label={<span className="text-blue-600 hover:text-blue-800 transition-colors duration-200">››</span>}
+                      />
+                    </div>
                   </div>
+                  
+                  {/* Selected Date Display */}
+                  {selectedDate && (
+                    <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+                      <div className="flex items-center justify-center">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                        <span className="text-green-700 font-medium">
+                          Đã chọn: {selectedDate.toLocaleDateString('vi-VN', { 
+                            weekday: 'long', 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -303,7 +364,7 @@ export default function BookingDate() {
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-4">
                   <span className="text-2xl">🏟️</span>
                 </div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Chọn sân và khung giờ</h1>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2 gradient-text">Chọn sân và khung giờ</h1>
                 <p className="text-gray-600 text-lg">
                   {selectedDate ? `Ngày ${selectedDate.toLocaleDateString('vi-VN')} - Chọn sân và khung giờ phù hợp` : 'Vui lòng chọn ngày trước'}
                 </p>
@@ -352,10 +413,10 @@ export default function BookingDate() {
                             <div
                               key={court.id}
                                 className={`bg-white rounded-xl shadow-sm border cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
-                                selectedCourt?.id === court.id
-                                    ? 'border-green-500 shadow-lg ring-2 ring-green-200'
+                                  selectedCourt?.id === court.id
+                                    ? 'border-green-500 shadow-lg ring-2 ring-green-200 pulse-selected'
                                     : 'border-gray-200 hover:border-green-300'
-                              }`}
+                                } card-hover-effect fade-in`}
                               onClick={() => handleSelectCourt(court)}
                             >
                                 {/* Court Image */}
