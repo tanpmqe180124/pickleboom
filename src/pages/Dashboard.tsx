@@ -21,6 +21,7 @@ import { useEffect, useState } from 'react';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
 import { userService } from '@/services/userService';
 import AdminLink from '@/components/AdminLink';
+import { useRefreshTokenOnLoad } from '@/hooks/useRefreshTokenOnLoad';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -28,6 +29,9 @@ const Dashboard = () => {
   const resetBooking = useBookingStore((state) => state.resetBooking);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [userInfo, setUserInfo] = useState<any>(null);
+  
+  // Refresh token khi vào trang (chỉ khi cần)
+  useRefreshTokenOnLoad();
   
   // Animation refs
   const [headerRef, headerInView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.1 });
