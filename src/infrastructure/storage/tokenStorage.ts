@@ -1,7 +1,6 @@
 import { create, StateCreator } from 'zustand';
 import { persist, PersistOptions } from 'zustand/middleware';
 import { api } from '../api/axiosClient';
-import axios from 'axios';
 
 // ========== Kiểu dữ liệu ==========
 interface UserObject {
@@ -26,7 +25,6 @@ interface AuthState {
   login: (credential: LoginCredential) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: UserObject | null) => void;
-  refreshTokenAsync: () => Promise<boolean>;
 }
 
 // ========== Hàm tiện ích ==========
@@ -120,12 +118,7 @@ export const clearAuthToken = () => {
   localStorage.removeItem('accessToken');
   localStorage.removeItem('userRole');
   delete api.defaults.headers.common['Authorization'];
-  // KHÔNG xóa cookie refresh_token - để backend handle
-  // document.cookie = 'refresh_token=; Max-Age=0; path=/;';
-};
-
-export const clearRefreshTokenCookie = () => {
-  // Chỉ xóa refresh token cookie khi logout thực sự
+  // Xóa cookie refresh_token nếu có
   document.cookie = 'refresh_token=; Max-Age=0; path=/;';
 };
 
@@ -237,82 +230,10 @@ const authStore: AuthStoreCreator = (set, get) => ({
     }
     
     clearAuthToken();
-    clearRefreshTokenCookie(); // Xóa refresh token cookie khi logout thực sự
     set({ ...initialState, isLoading: false });
   },
   setUser: (user) => {
     set({ user, isAuthenticated: !!user });
-  },
-
-  refreshTokenAsync: async () => {
-    try {
-      console.log('🔄 refreshTokenAsync called');
-      
-      // Backend sử dụng cookie-based refresh token
-      // Refresh token được lưu trong HttpOnly cookie tự động
-      
-      console.log('📡 Calling refresh token API...');
-      console.log('🍪 Document cookies:', document.cookie);
-      
-      // Tạo một axios instance riêng để tránh infinite loop
-      const refreshApi = axios.create({
-        baseURL: 'https://bookingpickleball.onrender.com/api',
-        withCredentials: true,
-        timeout: 10000
-      });
-      
-      const response = await refreshApi.get('Account/refresh-token');
-      
-      console.log('📥 Refresh token response:', response.data);
-      
-      if (response.data && response.data.Data) {
-        const newAccessToken = response.data.Data.accessToken || response.data.Data.AccessToken;
-        
-        if (newAccessToken) {
-          console.log('✅ New access token received');
-          
-          // Cập nhật token mới
-          setAuthToken(newAccessToken);
-          
-          // Cập nhật state
-          set(prev => ({
-            ...prev,
-            token: newAccessToken,
-            isAuthenticated: true
-          }));
-          
-          console.log('✅ Token refreshed successfully');
-          return true;
-        }
-      }
-      
-      console.error('❌ Invalid refresh token response:', response.data);
-      return false;
-    } catch (error: any) {
-      console.error('❌ Refresh token failed:', error);
-      
-      // Log chi tiết lỗi
-      if (error.response) {
-        console.error('Response status:', error.response.status);
-        console.error('Response data:', error.response.data);
-        
-        // Nếu 401, có nghĩa là refresh token hết hạn hoặc không hợp lệ
-        if (error.response.status === 401) {
-          console.log('🚨 Refresh token expired or invalid - need to login again');
-          console.log('🍪 Current cookies:', document.cookie);
-          
-          // KHÔNG clear auth ở đây - để axios interceptor handle
-          console.log('🔄 Let axios interceptor handle the 401 error');
-          return false;
-        }
-      } else if (error.request) {
-        console.error('No response received:', error.request);
-      } else {
-        console.error('Error message:', error.message);
-      }
-      
-      return false;
-    }
   },
 });
 
