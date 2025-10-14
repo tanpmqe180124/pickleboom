@@ -37,8 +37,8 @@ const Dashboard = () => {
   const [activityRef, activityInView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.1 });
   const [personalRef, personalInView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.1 });
 
-  // Auto refresh token on page load - TEMPORARILY DISABLED để test
-  // useRefreshTokenOnLoad();
+  // Auto refresh token on page load - FIXED để handle errors properly
+  useRefreshTokenOnLoad();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -67,8 +67,17 @@ const Dashboard = () => {
           };
           console.log('Updating user with:', updatedUser);
           setUser(updatedUser);
-        } catch (error) {
+        } catch (error: any) {
           console.error('Error loading user info:', error);
+          
+          // Nếu lỗi 401, không làm gì - để axios interceptor handle
+          if (error?.response?.status === 401) {
+            console.log('🔄 401 error - letting axios interceptor handle refresh');
+            return;
+          }
+          
+          // Các lỗi khác có thể hiển thị thông báo nhưng không logout
+          console.log('❌ Non-401 error loading user info, but continuing...');
         }
       }
     };
