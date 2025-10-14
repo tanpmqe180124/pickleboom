@@ -21,6 +21,7 @@ import { useEffect, useState } from 'react';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
 import { userService } from '@/services/userService';
 import AdminLink from '@/components/AdminLink';
+import PartnerLink from '@/components/PartnerLink';
 import { useRefreshTokenOnLoad } from '@/hooks/useRefreshTokenOnLoad';
 
 const Dashboard = () => {
@@ -187,6 +188,7 @@ const Dashboard = () => {
             </div>
             <div className="flex items-center space-x-4">
               <AdminLink />
+              <PartnerLink />
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">
                   {user?.fullName || userInfo?.fullName || 'Người dùng'}
