@@ -25,20 +25,13 @@ api.interceptors.request.use(
     let token = localStorage.getItem('token');
     const store = useAuthStore.getState();
 
-    console.log('Request interceptor - Token:', token ? 'exists' : 'missing');
-    console.log('Request interceptor - Token valid:', token ? isTokenValid(token) : 'N/A');
-    
-    // LUÔN LUÔN refresh token trước mỗi request để đảm bảo có token mới nhất
-    if (token) {
-      console.log('🔄 Always refreshing token before request...');
-      const refreshed = await store.refreshTokenAsync();
-      if (!refreshed) {
-        console.log('❌ Token refresh failed, clearing auth...');
-        clearAuthToken();
-        return config;
-      }
+    if (token && !isTokenValid(token)) {
+      // const refreshed = await store.refreshTokenAsync();
+      // if (!refreshed) {
+      //   clearAuthToken();
+      //   return config;
+      // }
       token = localStorage.getItem('token');
-      console.log('✅ Token refreshed successfully, new token:', token ? 'exists' : 'missing');
     }
 
     if (token) {
@@ -90,10 +83,12 @@ api.interceptors.response.use(
 
       try {
         const store = useAuthStore.getState();
+        const refreshToken = localStorage.getItem('refreshToken');
 
-        console.log('401 Unauthorized, attempting token refresh...');
-        const refreshed = await store.refreshTokenAsync();
-        if (!refreshed) throw new Error('Token refresh failed');
+        if (!refreshToken) throw new Error('No refresh token found');
+
+        // const refreshed = await store.refreshTokenAsync(refreshToken);
+        // if (!refreshed) throw new Error('Token refresh failed');
 
         originalRequest.headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
         return api(originalRequest);

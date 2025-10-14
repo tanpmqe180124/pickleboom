@@ -21,8 +21,6 @@ import { useEffect, useState } from 'react';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
 import { userService } from '@/services/userService';
 import AdminLink from '@/components/AdminLink';
-import PartnerLink from '@/components/PartnerLink';
-import { useAutoRefreshToken } from '@/hooks/useAutoRefreshToken';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -30,9 +28,6 @@ const Dashboard = () => {
   const resetBooking = useBookingStore((state) => state.resetBooking);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [userInfo, setUserInfo] = useState<any>(null);
-  
-  // Auto refresh token khi vào trang
-  useAutoRefreshToken();
   
   // Animation refs
   const [headerRef, headerInView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.1 });
@@ -179,7 +174,6 @@ const Dashboard = () => {
             </div>
             <div className="flex items-center space-x-4">
               <AdminLink />
-              <PartnerLink />
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">
                   {user?.fullName || userInfo?.fullName || 'Người dùng'}
