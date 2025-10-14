@@ -113,12 +113,12 @@ const Header = () => {
                   {showUserMenu && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[9999]">
                       <Link
-                        to="/my-bookings"
+                        to="/dashboard"
                         className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
                         <Calendar className="w-4 h-4 mr-3" />
-                        Đặt sân của tôi
+                        Dashboard
                       </Link>
                       <Link
                         to="/profile"

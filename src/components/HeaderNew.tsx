@@ -97,12 +97,12 @@ const HeaderNew = () => {
                         Profile
                       </Link>
                       <Link
-                        to="/my-bookings"
+                        to="/dashboard"
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setShowUserMenu(false)}
                       >
                         <Calendar className="mr-2 h-4 w-4" />
-                        Lịch đặt của tôi
+                        Dashboard
                       </Link>
                       <button
                         onClick={handleLogout}
