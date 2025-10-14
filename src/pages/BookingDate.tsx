@@ -300,8 +300,11 @@ export default function BookingDate() {
           {currentStep === 'time' && (
             <div className="lg:col-span-3">
               <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-4">
+                  <span className="text-2xl">🏟️</span>
+                </div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Chọn sân và khung giờ</h1>
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-lg">
                   {selectedDate ? `Ngày ${selectedDate.toLocaleDateString('vi-VN')} - Chọn sân và khung giờ phù hợp` : 'Vui lòng chọn ngày trước'}
                 </p>
               </div>
@@ -310,12 +313,14 @@ export default function BookingDate() {
                 <div className="space-y-6">
                   {/* Court Selection */}
                   <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-                    <div className="text-center mb-6">
-                      <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-xl">🏟️</span>
+                    <div className="flex items-center mb-6">
+                      <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mr-3">
+                        <span className="text-lg">🎾</span>
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Chọn sân</h3>
-                      <p className="text-sm text-gray-600">Chọn sân bạn muốn đặt</p>
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-900">Chọn sân</h3>
+                        <p className="text-gray-600 text-sm">Chọn sân bạn muốn đặt</p>
+                      </div>
                     </div>
 
                     {loading && (
@@ -334,80 +339,113 @@ export default function BookingDate() {
                     {!loading && !error && (
                       <div className="space-y-3">
                         {courts.length === 0 ? (
-                          <div className="text-center py-8 text-gray-500">
-                            <p>Không có sân nào khả dụng</p>
+                          <div className="text-center py-12">
+                            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                              <span className="text-2xl">🏟️</span>
+                            </div>
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">Không có sân nào khả dụng</h3>
+                            <p className="text-gray-500">Vui lòng chọn ngày khác hoặc liên hệ với đối tác</p>
                           </div>
                         ) : (
-                          courts.map((court: Court) => (
+                          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                            {courts.map((court: Court) => (
                             <div
                               key={court.id}
-                              className={`rounded-lg border-2 cursor-pointer transition-all duration-200 overflow-hidden ${
+                                className={`bg-white rounded-xl shadow-sm border cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
                                 selectedCourt?.id === court.id
-                                  ? 'border-green-500 bg-green-50 shadow-md'
-                                  : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
+                                    ? 'border-green-500 shadow-lg ring-2 ring-green-200'
+                                    : 'border-gray-200 hover:border-green-300'
                               }`}
                               onClick={() => handleSelectCourt(court)}
                             >
-                              {/* Court Image */}
-                              <div className="h-32 bg-gray-200 relative">
-                                {court.imageUrl ? (
-                                  <img 
-                                    src={court.imageUrl} 
-                                    alt={court.name}
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  <div className="flex items-center justify-center h-full text-gray-400">
-                                    <Calendar size={32} />
+                                {/* Court Image */}
+                                <div className="relative h-40 overflow-hidden rounded-t-xl">
+                                  {court.imageUrl ? (
+                                    <img 
+                                      src={court.imageUrl} 
+                                      alt={court.name}
+                                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                                    />
+                                  ) : (
+                                    <div className="flex items-center justify-center h-full bg-gradient-to-br from-blue-50 to-green-50">
+                                      <Calendar size={40} className="text-gray-400" />
+                                    </div>
+                                  )}
+                                  
+                                  {/* Gradient Overlay */}
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                                  
+                                  {/* Court Status Badge */}
+                                  <div className="absolute top-3 right-3">
+                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${
+                                      court.courtStatus === 0 
+                                        ? 'bg-green-500 text-white' 
+                                        : 'bg-red-500 text-white'
+                                    }`}>
+                                      {court.courtStatus === 0 ? 'Có sẵn' : 'Không có sẵn'}
+                                    </span>
                                   </div>
-                                )}
-                                {/* Court Status Badge */}
-                                <div className="absolute top-2 right-2">
-                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                    court.courtStatus === 0 
-                                      ? 'bg-green-100 text-green-800' 
-                                      : 'bg-red-100 text-red-800'
-                                  }`}>
-                                    {court.courtStatus === 0 ? 'Có sẵn' : 'Không có sẵn'}
-                                  </span>
+                                  
+                                  {/* Court Name Overlay */}
+                                  <div className="absolute bottom-3 left-3">
+                                    <h3 className="text-white font-bold text-lg drop-shadow-lg">{court.name}</h3>
+                                  </div>
+                                </div>
+                                
+                                {/* Court Info */}
+                                <div className="p-5">
+                                  {/* Location */}
+                                  <div className="flex items-center mb-3">
+                                    <div className="w-2 h-2 bg-gray-300 rounded-full mr-2"></div>
+                                    <p className="text-gray-600 text-sm">{court.location || 'Địa chỉ chưa cập nhật'}</p>
+                                  </div>
+                                  
+                                  {/* Price */}
+                                  <div className="mb-4">
+                                    <p className="text-2xl font-bold text-green-600">
+                                      {court.pricePerHour ? `${court.pricePerHour.toLocaleString('vi-VN')} VNĐ` : 'Liên hệ'}
+                                    </p>
+                                    <p className="text-sm text-gray-500">/giờ</p>
+                                  </div>
+                                  
+                                  {/* Available Time Slots */}
+                                  {court.timeSlotIDs && court.timeSlotIDs.length > 0 && (
+                                    <div>
+                                      <p className="text-sm font-medium text-gray-700 mb-2">Khung giờ có sẵn:</p>
+                                      <div className="flex flex-wrap gap-2">
+                                        {court.timeSlotIDs
+                                          .filter(slot => slot.status === 0)
+                                          .slice(0, 4)
+                                          .map((slot, index) => (
+                                            <span 
+                                              key={index}
+                                              className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-lg border border-blue-200"
+                                            >
+                                              {slot.startTime?.substring(0, 5)} - {slot.endTime?.substring(0, 5)}
+                                            </span>
+                                          ))}
+                                        {court.timeSlotIDs.filter(slot => slot.status === 0).length > 4 && (
+                                          <span className="px-3 py-1 bg-gray-50 text-gray-600 text-xs font-medium rounded-lg border border-gray-200">
+                                            +{court.timeSlotIDs.filter(slot => slot.status === 0).length - 4}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Selection Indicator */}
+                                  {selectedCourt?.id === court.id && (
+                                    <div className="mt-4 pt-3 border-t border-green-200">
+                                      <div className="flex items-center text-green-600">
+                                        <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                                        <span className="text-sm font-medium">Đã chọn</span>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
-                              
-                              {/* Court Info */}
-                              <div className="p-4">
-                                <h3 className="font-semibold text-gray-900 mb-1">{court.name}</h3>
-                                <p className="text-gray-600 text-sm mb-2">{court.location || 'Địa chỉ chưa cập nhật'}</p>
-                                <p className="text-lg font-bold text-green-600 mb-3">
-                                  {court.pricePerHour ? `${court.pricePerHour.toLocaleString('vi-VN')} VNĐ/giờ` : 'Liên hệ để biết giá'}
-                                </p>
-                                
-                                {/* Available Time Slots */}
-                                {court.timeSlotIDs && court.timeSlotIDs.length > 0 && (
-                                  <div className="mt-3">
-                                    <p className="text-xs text-gray-500 mb-2">Khung giờ có sẵn:</p>
-                                    <div className="flex flex-wrap gap-1">
-                                      {court.timeSlotIDs
-                                        .filter(slot => slot.status === 0)
-                                        .slice(0, 3)
-                                        .map((slot, index) => (
-                                          <span 
-                                            key={index}
-                                            className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
-                                          >
-                                            {slot.startTime} - {slot.endTime}
-                                          </span>
-                                        ))}
-                                      {court.timeSlotIDs.filter(slot => slot.status === 0).length > 3 && (
-                                        <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
-                                          +{court.timeSlotIDs.filter(slot => slot.status === 0).length - 3} khác
-                                        </span>
-                                      )}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
+                            ))}
                             </div>
-                          ))
                         )}
                       </div>
                     )}
@@ -416,12 +454,14 @@ export default function BookingDate() {
                   {/* Time Selection */}
                   {selectedCourt && (
                     <div className="bg-white rounded-xl shadow-lg p-6">
-                      <div className="text-center mb-6">
-                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <span className="text-xl">⏰</span>
+                      <div className="flex items-center mb-6">
+                        <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mr-3">
+                          <span className="text-lg">⏰</span>
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Chọn khung giờ</h3>
-                        <p className="text-sm text-gray-600">Sân: {selectedCourt.name}</p>
+                        <div>
+                          <h3 className="text-xl font-semibold text-gray-900">Chọn khung giờ</h3>
+                          <p className="text-gray-600 text-sm">Sân: {selectedCourt.name}</p>
+                        </div>
                       </div>
 
                       <div className="space-y-6">
