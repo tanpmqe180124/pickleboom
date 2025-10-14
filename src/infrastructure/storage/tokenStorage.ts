@@ -26,6 +26,7 @@ interface AuthState {
   logout: () => Promise<void>;
   setUser: (user: UserObject | null) => void;
   refreshTokenAsync: (refreshToken?: string) => Promise<boolean>;
+  testRefreshToken: () => Promise<boolean>;
 }
 
 // ========== Hàm tiện ích ==========
@@ -236,18 +237,23 @@ const authStore: AuthStoreCreator = (set, get) => ({
 
   refreshTokenAsync: async (refreshToken?: string) => {
     try {
-      console.log('Attempting to refresh token...');
+      console.log('🔄 refreshTokenAsync called');
       
       // Backend sử dụng cookie-based refresh token, không cần truyền token
       // Refresh token được lưu trong HttpOnly cookie tự động
       
+      console.log('📡 Calling refresh token API...');
       // Gọi API refresh token (backend sẽ đọc refresh token từ cookie)
       const response = await api.get('Account/refresh-token');
+      
+      console.log('📥 Refresh token response:', response.data);
       
       if (response.data && response.data.Data) {
         const newAccessToken = response.data.Data.accessToken || response.data.Data.AccessToken;
         
         if (newAccessToken) {
+          console.log('✅ New access token received:', newAccessToken.substring(0, 20) + '...');
+          
           // Cập nhật token mới
           setAuthToken(newAccessToken);
           
@@ -258,21 +264,27 @@ const authStore: AuthStoreCreator = (set, get) => ({
             isAuthenticated: true
           }));
           
-          console.log('Token refreshed successfully');
+          console.log('✅ Token refreshed successfully');
           return true;
         }
       }
       
-      console.error('Invalid refresh token response:', response.data);
+      console.error('❌ Invalid refresh token response:', response.data);
       return false;
     } catch (error) {
-      console.error('Refresh token failed:', error);
+      console.error('❌ Refresh token failed:', error);
       return false;
     }
   },
 
   setUser: (user) => {
     set({ user, isAuthenticated: !!user });
+  },
+
+  // Debug function để test refresh token manually
+  testRefreshToken: async () => {
+    console.log('🧪 Testing refresh token manually...');
+    return await get().refreshTokenAsync();
   },
 });
 

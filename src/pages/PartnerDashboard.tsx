@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { showToast } from '@/utils/toastManager';
+import { useAutoRefreshToken } from '@/hooks/useAutoRefreshToken';
 import { 
   MapPin, 
   Clock, 
@@ -29,6 +30,9 @@ type PartnerTab = 'blogs' | 'courts' | 'timeslots' | 'bookings';
 const PartnerDashboard: React.FC = () => {
   const { userRole, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<PartnerTab>('courts');
+
+  // Auto refresh token khi vào trang
+  useAutoRefreshToken();
 
   const isPartner = userRole === 'Partner' || userRole?.toLowerCase() === 'partner';
   

@@ -25,15 +25,20 @@ api.interceptors.request.use(
     let token = localStorage.getItem('token');
     const store = useAuthStore.getState();
 
-    if (token && !isTokenValid(token)) {
-      console.log('Token expired, attempting refresh...');
+    console.log('Request interceptor - Token:', token ? 'exists' : 'missing');
+    console.log('Request interceptor - Token valid:', token ? isTokenValid(token) : 'N/A');
+    
+    // LUÔN LUÔN refresh token trước mỗi request để đảm bảo có token mới nhất
+    if (token) {
+      console.log('🔄 Always refreshing token before request...');
       const refreshed = await store.refreshTokenAsync();
       if (!refreshed) {
-        console.log('Token refresh failed, clearing auth...');
+        console.log('❌ Token refresh failed, clearing auth...');
         clearAuthToken();
         return config;
       }
       token = localStorage.getItem('token');
+      console.log('✅ Token refreshed successfully, new token:', token ? 'exists' : 'missing');
     }
 
     if (token) {
