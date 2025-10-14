@@ -295,12 +295,8 @@ const authStore: AuthStoreCreator = (set, get) => ({
           console.log('🚨 Refresh token expired or invalid - need to login again');
           console.log('🍪 Current cookies:', document.cookie);
           
-          // Clear auth và redirect về login
-          clearAuthToken();
-          set({ ...initialState, isLoading: false });
-          
-          // Redirect về login page
-          window.location.href = '/login';
+          // KHÔNG clear auth ở đây - để axios interceptor handle
+          console.log('🔄 Let axios interceptor handle the 401 error');
           return false;
         }
       } else if (error.request) {

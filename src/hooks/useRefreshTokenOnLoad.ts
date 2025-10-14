@@ -16,6 +16,10 @@ export const useRefreshTokenOnLoad = () => {
 
   useEffect(() => {
     const refreshIfNeeded = async () => {
+      console.log('🔍 useRefreshTokenOnLoad - Starting refresh check...');
+      console.log('🔍 Current token:', token ? 'EXISTS' : 'NULL');
+      console.log('🔍 Document cookies:', document.cookie);
+      
       // Tránh gọi refresh liên tục
       if (isRefreshing.current) {
         console.log('⏳ Refresh already in progress, skipping...');
