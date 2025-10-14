@@ -1,6 +1,7 @@
 import { create, StateCreator } from 'zustand';
 import { persist, PersistOptions } from 'zustand/middleware';
 import { api } from '../api/axiosClient';
+import axios from 'axios';
 
 // ========== Kiểu dữ liệu ==========
 interface UserObject {
@@ -26,6 +27,7 @@ interface AuthState {
   logout: () => Promise<void>;
   setUser: (user: UserObject | null) => void;
   refreshTokenAsync: (refreshToken?: string) => Promise<boolean>;
+  testRefreshToken: () => Promise<boolean>;
 }
 
 // ========== Hàm tiện ích ==========
@@ -242,7 +244,15 @@ const authStore: AuthStoreCreator = (set, get) => ({
       // Refresh token được lưu trong HttpOnly cookie tự động
       
       console.log('📡 Calling refresh token API...');
-      const response = await api.get('Account/refresh-token');
+      
+      // Tạo một axios instance riêng để tránh infinite loop
+      const refreshApi = axios.create({
+        baseURL: 'https://bookingpickleball.onrender.com/api',
+        withCredentials: true,
+        timeout: 10000
+      });
+      
+      const response = await refreshApi.get('Account/refresh-token');
       
       console.log('📥 Refresh token response:', response.data);
       
@@ -269,14 +279,31 @@ const authStore: AuthStoreCreator = (set, get) => ({
       
       console.error('❌ Invalid refresh token response:', response.data);
       return false;
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Refresh token failed:', error);
+      
+      // Log chi tiết lỗi
+      if (error.response) {
+        console.error('Response status:', error.response.status);
+        console.error('Response data:', error.response.data);
+      } else if (error.request) {
+        console.error('No response received:', error.request);
+      } else {
+        console.error('Error message:', error.message);
+      }
+      
       return false;
     }
   },
 
   setUser: (user) => {
     set({ user, isAuthenticated: !!user });
+  },
+
+  // Debug function để test refresh token manually
+  testRefreshToken: async () => {
+    console.log('🧪 Testing refresh token manually...');
+    return await get().refreshTokenAsync();
   },
 });
 
