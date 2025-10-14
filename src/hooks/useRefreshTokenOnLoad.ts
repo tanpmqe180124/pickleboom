@@ -52,7 +52,8 @@ export const useRefreshTokenOnLoad = () => {
             
             if (!success) {
               console.log('❌ Refresh failed, stopping auto refresh');
-              // Nếu refresh thất bại, không tiếp tục auto refresh
+              // Nếu refresh thất bại, KHÔNG clear auth - để axios interceptor handle
+              console.log('🔄 Let axios interceptor handle the 401 error');
               return;
             }
             

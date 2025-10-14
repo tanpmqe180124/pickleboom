@@ -37,7 +37,7 @@ const Dashboard = () => {
   const [activityRef, activityInView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.1 });
   const [personalRef, personalInView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.1 });
 
-  // Auto refresh token on page load
+  // Auto refresh token on page load - FIXED để không clear auth khi 401
   useRefreshTokenOnLoad();
 
   useEffect(() => {
