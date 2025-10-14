@@ -4,6 +4,25 @@ import axios from 'axios';
 import { clearAuthToken, useAuthStore } from '../storage/tokenStorage';
 import { showToast } from '@/utils/toastManager';
 
+// ===================== REFRESH TOKEN QUEUE SYSTEM =====================
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value?: any) => void;
+  reject: (reason?: any) => void;
+}> = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (error) {
+      reject(error);
+    } else {
+      resolve(token);
+    }
+  });
+  
+  failedQueue = [];
+};
+
 export const api = axios.create({
   baseURL: 'https://bookingpickleball.onrender.com/api',
   headers: {
@@ -23,20 +42,8 @@ api.interceptors.request.use(
     }
 
     let token = localStorage.getItem('token');
-    const store = useAuthStore.getState();
-
-    if (token && !isTokenValid(token)) {
-      console.log('🔄 Token expired, attempting refresh...');
-      const refreshed = await store.refreshTokenAsync();
-      if (!refreshed) {
-        console.log('❌ Token refresh failed, clearing auth...');
-        clearAuthToken();
-        return config;
-      }
-      token = localStorage.getItem('token');
-      console.log('✅ Token refreshed successfully');
-    }
-
+    
+    // Chỉ attach token nếu có, để response interceptor handle refresh
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     } else {
@@ -77,34 +84,63 @@ api.interceptors.response.use(
       });
     }
 
+    // Xử lý 401 với queue system
     if (
       isUnauthorizedError(error.response?.status) &&
       !originalRequest._retry &&
-      !originalRequest.url?.includes('login')
+      !originalRequest.url?.includes('login') &&
+      !originalRequest.url?.includes('refresh-token')
     ) {
+      // Nếu đang refresh, thêm request vào queue
+      if (isRefreshing) {
+        console.log('🔄 Already refreshing, adding request to queue...');
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return api(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
 
       try {
         const store = useAuthStore.getState();
-
         console.log('🔄 401 Unauthorized, attempting token refresh...');
+        
         const refreshed = await store.refreshTokenAsync();
         if (!refreshed) throw new Error('Token refresh failed');
 
-        originalRequest.headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
+        const newToken = localStorage.getItem('token');
+        if (!newToken) throw new Error('No token received');
+
+        // Cập nhật default header
+        api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+        
+        // Process queue với token mới
+        processQueue(null, newToken);
+        
+        // Retry original request
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
       } catch (err) {
         console.log('❌ Token refresh failed, redirecting to login');
+        
+        // Process queue với error
+        processQueue(err, null);
+        
+        // Clear auth và redirect
         clearAuthToken();
         useAuthStore.getState().setUser(null);
-
-        // Hiển thị thông báo bằng toast
         showToast.error('Phiên đăng nhập đã hết', 'Vui lòng đăng nhập lại để tiếp tục.');
-
-        // Điều hướng về trang đăng nhập
         window.location.href = '/login';
-
+        
         return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
       }
     }
 
