@@ -21,6 +21,7 @@ import { useEffect, useState } from 'react';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
 import { userService } from '@/services/userService';
 import AdminLink from '@/components/AdminLink';
+import PartnerLink from '@/components/PartnerLink';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -54,12 +55,12 @@ const Dashboard = () => {
           console.log('User data loaded:', userData);
           setUserInfo(userData);
           
-          // Update user in store with full info
+          // Update user in store with full info (preserve original role from JWT)
           const updatedUser = {
             ...user,
-            fullName: userData.FullName || userData.fullName,
-            avatar: userData.Avatar || userData.avatar,
-            role: userData.Status === 1 ? 'user' : 'admin'
+            fullName: userData.FullName,
+            avatar: userData.Avatar,
+            // Keep original role from JWT token, don't override it
           };
           console.log('Updating user with:', updatedUser);
           setUser(updatedUser);
@@ -174,6 +175,7 @@ const Dashboard = () => {
             </div>
             <div className="flex items-center space-x-4">
               <AdminLink />
+              <PartnerLink />
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">
                   {user?.fullName || userInfo?.fullName || 'Người dùng'}
