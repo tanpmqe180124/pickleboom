@@ -195,7 +195,22 @@ export default function CheckOut() {
 
   const handlePaymentSuccess = (orderCode?: string) => {
     console.log('Payment successful!', orderCode);
-    navigate(`/payment/success?orderCode=${orderCode || ''}`);
+    
+    // Prepare booking data to pass to PaymentSuccess
+    const bookingData = {
+      orderCode: orderCode || '',
+      partnerName: selectedPartner?.bussinessName || 'CN Quy Nhơn',
+      courtName: selectedCourt?.name || 'Sân 3',
+      timeSlots: formatTimeSlots(),
+      date: formatDate(selectedDate),
+      numHours: selectedTimeSlotIds?.length || 0,
+      pricePerHour: selectedCourt?.PricePerHour || selectedCourt?.pricePerHour || 0,
+      totalAmount: (selectedCourt?.PricePerHour || selectedCourt?.pricePerHour || 0) * (selectedTimeSlotIds?.length || 0)
+    };
+    
+    navigate('/payment/success', { 
+      state: { bookingData } 
+    });
   };
 
   const handlePaymentCancel = () => {

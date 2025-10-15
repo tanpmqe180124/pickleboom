@@ -1,55 +1,19 @@
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import { useBookingStore } from '@/stores/useBookingStore';
 
 export default function PaymentSuccess() {
-  const selectedDate = useBookingStore((state) => state.selectedDate);
-  const selectedTimeSlots = useBookingStore((state) => state.selectedTimeSlots);
-  const selectedCourt = useBookingStore((state) => state.selectedCourt);
-  const selectedPartner = useBookingStore((state) => state.selectedPartner);
-  const availableTimeSlots = useBookingStore((state) => state.availableTimeSlots);
-  const selectedTimeSlotIds = useBookingStore((state) => state.selectedTimeSlotIds);
-
-  // Format date
-  let dateString = '';
-  if (selectedDate) {
-    try {
-      if (selectedDate instanceof Date) {
-        dateString = selectedDate.toLocaleDateString('vi-VN');
-      } else if (typeof selectedDate === 'string' || typeof selectedDate === 'number') {
-        const d = new Date(selectedDate);
-        if (!isNaN(d.getTime())) {
-          dateString = d.toLocaleDateString('vi-VN');
-        } else {
-          dateString = String(selectedDate);
-        }
-      }
-    } catch {
-      dateString = String(selectedDate);
-    }
-  }
-
-  // Calculate total
-  const timeSlots: string[] = Array.isArray(selectedTimeSlots) ? selectedTimeSlots : [];
-  const numHours = timeSlots.length;
-  const pricePerHour = selectedCourt?.PricePerHour || selectedCourt?.pricePerHour || 0;
-  const totalAmount = pricePerHour * numHours;
-
-  // Format time slots with start and end time
-  const formatTimeSlots = () => {
-    if (!availableTimeSlots || !selectedTimeSlotIds) return timeSlots.join(', ');
-    
-    const selectedSlots = availableTimeSlots.filter(slot => 
-      selectedTimeSlotIds.includes(slot.id)
-    );
-    
-    return selectedSlots.map(slot => 
-      `${slot.startTime.substring(0, 5)} - ${slot.endTime.substring(0, 5)}`
-    ).join(', ');
-  };
-
-  // Get partner name
-  const partnerName = selectedPartner?.bussinessName || 'CN Quy Nhơn';
+  const location = useLocation();
+  const bookingData = location.state?.bookingData;
+  
+  // Use data from checkout if available, otherwise fallback to store
+  const partnerName = bookingData?.partnerName || useBookingStore((state) => state.selectedPartner?.bussinessName) || 'CN Quy Nhơn';
+  const courtName = bookingData?.courtName || useBookingStore((state) => state.selectedCourt?.name) || 'Sân 3';
+  const timeSlots = bookingData?.timeSlots || '';
+  const dateString = bookingData?.date || '';
+  const numHours = bookingData?.numHours || 0;
+  const totalAmount = bookingData?.totalAmount || 0;
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -74,7 +38,7 @@ export default function PaymentSuccess() {
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Sân - giờ:</span>
-            <span className="font-medium">{selectedCourt?.name || 'Sân 3'} - {formatTimeSlots()}</span>
+            <span className="font-medium">{courtName} - {timeSlots}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Ngày:</span>
