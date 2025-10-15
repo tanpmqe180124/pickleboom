@@ -338,21 +338,14 @@ const BookingManagement: React.FC = () => {
                               Xác nhận
                             </button>
                             <button
-                              onClick={() => handleStatusUpdate(booking.id, 2)}
+                              onClick={() => handleStatusUpdate(booking.id, 3)}
                               className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
                             >
                               Hủy
                             </button>
                           </>
                         )}
-                        {booking.bookingStatus === 1 && (
-                          <button
-                            onClick={() => handleStatusUpdate(booking.id, 3)}
-                            className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                          >
-                            Hoàn thành
-                          </button>
-                        )}
+                        {/* Không hiển thị button cho status 1 (Chờ thanh toán) vì PayOS sẽ tự động check */}
                       </div>
                     </div>
                   </div>
