@@ -93,12 +93,11 @@ export default function BookingDate() {
     }
   }, [selectedPartner, selectedDate]);
 
-  // Get available times from selected court (only Free slots)
-  const availableTimes = selectedCourt && selectedCourt.timeSlotIDs
+  // Get available time slots from selected court (only Free slots)
+  const availableTimeSlots = selectedCourt && selectedCourt.timeSlotIDs
     ? selectedCourt.timeSlotIDs
-        .filter(slot => slot && slot.startTime && slot.status === 0) // Backend returns 0 for Free (available)
-        .map(slot => slot.startTime)
-        .sort()
+        .filter(slot => slot && slot.startTime && slot.endTime && slot.status === 0) // Backend returns 0 for Free (available)
+        .sort((a, b) => a.startTime.localeCompare(b.startTime))
     : [];
 
   // Initialize animations based on current step
@@ -362,7 +361,7 @@ export default function BookingDate() {
             <div className="lg:col-span-3">
               <div className="text-center mb-8">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-4">
-                  <span className="text-2xl">🏟️</span>
+                  <Calendar size={32} className="text-white" />
                 </div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2 gradient-text">Chọn sân và khung giờ</h1>
                 <p className="text-gray-600 text-lg">
@@ -376,7 +375,7 @@ export default function BookingDate() {
                   <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
                     <div className="flex items-center mb-6">
                       <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mr-3">
-                        <span className="text-lg">🎾</span>
+                        <Calendar size={20} className="text-white" />
                       </div>
                       <div>
                         <h3 className="text-xl font-semibold text-gray-900">Chọn sân</h3>
@@ -402,7 +401,7 @@ export default function BookingDate() {
                         {courts.length === 0 ? (
                           <div className="text-center py-12">
                             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                              <span className="text-2xl">🏟️</span>
+                              <Calendar size={32} className="text-gray-400" />
                             </div>
                             <h3 className="text-lg font-medium text-gray-900 mb-2">Không có sân nào khả dụng</h3>
                             <p className="text-gray-500">Vui lòng chọn ngày khác hoặc liên hệ với đối tác</p>
@@ -517,7 +516,7 @@ export default function BookingDate() {
                     <div className="bg-white rounded-xl shadow-lg p-6">
                       <div className="flex items-center mb-6">
                         <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mr-3">
-                          <span className="text-lg">⏰</span>
+                          <Clock size={20} className="text-white" />
                         </div>
                         <div>
                           <h3 className="text-xl font-semibold text-gray-900">Chọn khung giờ</h3>
@@ -527,32 +526,31 @@ export default function BookingDate() {
 
                       <div className="space-y-6">
                         {/* Morning Time Slots */}
-                        {availableTimes.filter(time => {
-                          const hour = parseInt(time.split(':')[0]);
+                        {availableTimeSlots.filter(slot => {
+                          const hour = parseInt(slot.startTime.split(':')[0]);
                           return hour >= 4 && hour < 12;
                         }).length > 0 && (
                           <div>
-                            <h4 className="text-md font-semibold text-gray-800 mb-3 flex items-center">
-                              <span className="text-lg mr-2">🌅</span>
+                            <h4 className="text-md font-semibold text-gray-800 mb-3">
                               Sáng (4:00 - 12:00)
                             </h4>
-                            <div className="grid grid-cols-4 gap-2">
-                              {availableTimes
-                                .filter(time => {
-                                  const hour = parseInt(time.split(':')[0]);
+                            <div className="grid grid-cols-2 gap-3">
+                              {availableTimeSlots
+                                .filter(slot => {
+                                  const hour = parseInt(slot.startTime.split(':')[0]);
                                   return hour >= 4 && hour < 12;
                                 })
                                 .map((slot, index) => (
                                   <button
-                                    key={`morning-${slot}-${index}`}
-                                    className={`px-3 py-2 text-sm font-medium rounded-lg border transition-all duration-200 ${
-                                      selectedTimes.includes(slot)
+                                    key={`morning-${slot.startTime}-${index}`}
+                                    className={`px-4 py-3 text-sm font-medium rounded-lg border transition-all duration-200 ${
+                                      selectedTimes.includes(slot.startTime)
                                         ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-transparent shadow-lg'
                                         : 'bg-white text-yellow-700 border-yellow-300 hover:bg-yellow-50 hover:border-yellow-400'
                                     }`}
-                                    onClick={() => handleToggleTime(slot)}
+                                    onClick={() => handleToggleTime(slot.startTime)}
                                   >
-                                    {slot}
+                                    {slot.startTime.substring(0, 5)} - {slot.endTime.substring(0, 5)}
                                   </button>
                                 ))}
                             </div>
@@ -560,32 +558,31 @@ export default function BookingDate() {
                         )}
 
                         {/* Afternoon Time Slots */}
-                        {availableTimes.filter(time => {
-                          const hour = parseInt(time.split(':')[0]);
+                        {availableTimeSlots.filter(slot => {
+                          const hour = parseInt(slot.startTime.split(':')[0]);
                           return hour >= 12 && hour < 18;
                         }).length > 0 && (
                           <div>
-                            <h4 className="text-md font-semibold text-gray-800 mb-3 flex items-center">
-                              <span className="text-lg mr-2">☀️</span>
+                            <h4 className="text-md font-semibold text-gray-800 mb-3">
                               Chiều (12:00 - 18:00)
                             </h4>
-                            <div className="grid grid-cols-4 gap-2">
-                              {availableTimes
-                                .filter(time => {
-                                  const hour = parseInt(time.split(':')[0]);
+                            <div className="grid grid-cols-2 gap-3">
+                              {availableTimeSlots
+                                .filter(slot => {
+                                  const hour = parseInt(slot.startTime.split(':')[0]);
                                   return hour >= 12 && hour < 18;
                                 })
                                 .map((slot, index) => (
                                   <button
-                                    key={`afternoon-${slot}-${index}`}
-                                    className={`px-3 py-2 text-sm font-medium rounded-lg border transition-all duration-200 ${
-                                      selectedTimes.includes(slot)
+                                    key={`afternoon-${slot.startTime}-${index}`}
+                                    className={`px-4 py-3 text-sm font-medium rounded-lg border transition-all duration-200 ${
+                                      selectedTimes.includes(slot.startTime)
                                         ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white border-transparent shadow-lg'
                                         : 'bg-white text-orange-700 border-orange-300 hover:bg-orange-50 hover:border-orange-400'
                                     }`}
-                                    onClick={() => handleToggleTime(slot)}
+                                    onClick={() => handleToggleTime(slot.startTime)}
                                   >
-                                    {slot}
+                                    {slot.startTime.substring(0, 5)} - {slot.endTime.substring(0, 5)}
                                   </button>
                                 ))}
                             </div>
@@ -593,32 +590,31 @@ export default function BookingDate() {
                         )}
 
                         {/* Evening Time Slots */}
-                        {availableTimes.filter(time => {
-                          const hour = parseInt(time.split(':')[0]);
+                        {availableTimeSlots.filter(slot => {
+                          const hour = parseInt(slot.startTime.split(':')[0]);
                           return hour >= 18 || hour < 4;
                         }).length > 0 && (
                           <div>
-                            <h4 className="text-md font-semibold text-gray-800 mb-3 flex items-center">
-                              <span className="text-lg mr-2">🌙</span>
+                            <h4 className="text-md font-semibold text-gray-800 mb-3">
                               Tối (18:00 - 4:00)
                             </h4>
-                            <div className="grid grid-cols-4 gap-2">
-                              {availableTimes
-                                .filter(time => {
-                                  const hour = parseInt(time.split(':')[0]);
+                            <div className="grid grid-cols-2 gap-3">
+                              {availableTimeSlots
+                                .filter(slot => {
+                                  const hour = parseInt(slot.startTime.split(':')[0]);
                                   return hour >= 18 || hour < 4;
                                 })
                                 .map((slot, index) => (
                                   <button
-                                    key={`evening-${slot}-${index}`}
-                                    className={`px-3 py-2 text-sm font-medium rounded-lg border transition-all duration-200 ${
-                                      selectedTimes.includes(slot)
+                                    key={`evening-${slot.startTime}-${index}`}
+                                    className={`px-4 py-3 text-sm font-medium rounded-lg border transition-all duration-200 ${
+                                      selectedTimes.includes(slot.startTime)
                                         ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-transparent shadow-lg'
                                         : 'bg-white text-purple-700 border-purple-300 hover:bg-purple-50 hover:border-purple-400'
                                     }`}
-                                    onClick={() => handleToggleTime(slot)}
+                                    onClick={() => handleToggleTime(slot.startTime)}
                                   >
-                                    {slot}
+                                    {slot.startTime.substring(0, 5)} - {slot.endTime.substring(0, 5)}
                                   </button>
                                 ))}
                             </div>
@@ -626,7 +622,7 @@ export default function BookingDate() {
                         )}
 
                         {/* No time slots available */}
-                        {availableTimes.length === 0 && (
+                        {availableTimeSlots.length === 0 && (
                           <div className="text-center py-8 text-gray-500">
                             <p>Không có khung giờ nào khả dụng</p>
                           </div>
