@@ -1,7 +1,6 @@
 import { NavigationMenuLink } from '@/components/ui/navigation-menu';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
-import PricingSection from '@/components/PricingSection';
 import { Banner } from '@/components/BannerHealth';
 import { BlogCard } from '@/components/Blog';
 import FeaturesPage from '@/pages/FeaturesPage';
@@ -99,7 +98,6 @@ const Home = () => {
     <div className="min-h-screen w-full">
       <Header />
       <HeroSection />
-      <PricingSection />
       
       {/* Features Section */}
       <motion.div 
