@@ -16,17 +16,19 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface Booking {
   id: string;
-  userId: string;
-  userName: string;
-  courtId: string;
-  courtName: string;
+  customer: string;
+  phone: string;
+  court: string;
   bookingDate: string;
-  startTime: string;
-  endTime: string;
-  totalPrice: number;
-  status: number; // 0: Pending, 1: Confirmed, 2: Cancelled, 3: Completed
+  paymentStatus: number;
+  bookingStatus: number; // 0: Pending, 1: Confirmed, 2: Cancelled, 3: Completed
+  totalAmount: number;
   createdAt: string;
-  notes?: string;
+  bookingTimeSlots: {
+    id: string;
+    startTime: string;
+    endTime: string;
+  }[];
 }
 
 const BookingManagement: React.FC = () => {
@@ -142,7 +144,7 @@ const BookingManagement: React.FC = () => {
 
   // ========== FILTERED BOOKINGS ==========
   const filteredBookings = bookings.filter(booking => {
-    return statusFilter === null || booking.status === statusFilter;
+    return statusFilter === null || booking.bookingStatus === statusFilter;
   });
 
   return (
@@ -207,18 +209,18 @@ const BookingManagement: React.FC = () => {
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
                       <h3 className="text-lg font-semibold text-gray-900">
-                        {booking.courtName}
+                        {booking.court}
                       </h3>
-                      <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(booking.status)}`}>
-                        {getStatusIcon(booking.status)}
-                        <span className="ml-1">{getStatusText(booking.status)}</span>
+                      <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(booking.bookingStatus)}`}>
+                        {getStatusIcon(booking.bookingStatus)}
+                        <span className="ml-1">{getStatusText(booking.bookingStatus)}</span>
                       </span>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-3">
                       <div className="flex items-center space-x-2 text-sm text-gray-600">
                         <User size={16} />
-                        <span>{booking.userName}</span>
+                        <span>{booking.customer}</span>
                       </div>
                       
                       <div className="flex items-center space-x-2 text-sm text-gray-600">
@@ -228,24 +230,22 @@ const BookingManagement: React.FC = () => {
                       
                       <div className="flex items-center space-x-2 text-sm text-gray-600">
                         <Clock size={16} />
-                        <span>{formatTime(booking.startTime)} - {formatTime(booking.endTime)}</span>
+                        <span>
+                          {booking.bookingTimeSlots.map(slot => 
+                            `${formatTime(slot.startTime)} - ${formatTime(slot.endTime)}`
+                          ).join(', ')}
+                        </span>
                       </div>
                       
                       <div className="flex items-center space-x-2 text-sm text-gray-600">
                         <DollarSign size={16} />
-                        <span className="font-medium">{formatPrice(booking.totalPrice)}</span>
+                        <span className="font-medium">{formatPrice(booking.totalAmount)}</span>
                       </div>
                     </div>
-                    
-                    {booking.notes && (
-                      <p className="text-sm text-gray-700 bg-gray-50 p-2 rounded">
-                        <strong>Ghi chú:</strong> {booking.notes}
-                      </p>
-                    )}
                   </div>
                   
                   <div className="flex space-x-2 ml-4">
-                    {booking.status === 0 && (
+                    {booking.bookingStatus === 0 && (
                       <>
                         <button
                           onClick={() => handleStatusUpdate(booking.id, 1)}
@@ -261,7 +261,7 @@ const BookingManagement: React.FC = () => {
                         </button>
                       </>
                     )}
-                    {booking.status === 1 && (
+                    {booking.bookingStatus === 1 && (
                       <button
                         onClick={() => handleStatusUpdate(booking.id, 3)}
                         className="px-3 py-1 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors"

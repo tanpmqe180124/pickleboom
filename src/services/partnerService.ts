@@ -61,17 +61,19 @@ export interface PartnerBlogRequest {
 
 export interface PartnerBooking {
   id: string;
-  userId: string;
-  userName: string;
-  courtId: string;
-  courtName: string;
+  customer: string;
+  phone: string;
+  court: string;
   bookingDate: string;
-  startTime: string;
-  endTime: string;
-  totalPrice: number;
-  status: number; // 0: Pending, 1: Confirmed, 2: Cancelled, 3: Completed
+  paymentStatus: number;
+  bookingStatus: number; // 0: Pending, 1: Confirmed, 2: Cancelled, 3: Completed
+  totalAmount: number;
   createdAt: string;
-  notes?: string;
+  bookingTimeSlots: {
+    id: string;
+    startTime: string;
+    endTime: string;
+  }[];
 }
 
 export interface PartnerCourtParams {
