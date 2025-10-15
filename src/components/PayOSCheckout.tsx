@@ -25,8 +25,6 @@ export default function PayOSCheckout({
   const [showStatus, setShowStatus] = useState(false);
   const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [bookingStatus, setBookingStatus] = useState<BookingStatusResponse | null>(null);
-  const [isCheckingStatus, setIsCheckingStatus] = useState(false);
-  const [showManualCheck, setShowManualCheck] = useState(false);
 
   useEffect(() => {
     if (!checkoutUrl) {
@@ -37,13 +35,6 @@ export default function PayOSCheckout({
 
     // Simple iframe approach to avoid PayOS script issues
     setIsLoading(false);
-    
-    // Hiển thị nút check manual sau 30 giây
-    const timer = setTimeout(() => {
-      setShowManualCheck(true);
-    }, 30000);
-    
-    return () => clearTimeout(timer);
   }, [checkoutUrl]);
 
   const handlePaymentSuccess = (orderCode?: string) => {
@@ -62,56 +53,6 @@ export default function PayOSCheckout({
     onCancel?.();
   };
 
-  // Kiểm tra trạng thái booking
-  const checkBookingStatus = async () => {
-    if (!orderCode) return;
-    
-    setIsCheckingStatus(true);
-    setError(null);
-    
-    try {
-      const status = await paymentService.checkBookingStatus(orderCode);
-      setBookingStatus(status);
-      
-        if (status.data.bookingStatus === 2) { // 2 = Paid
-          handlePaymentSuccess(orderCode);
-        } else if (status.data.bookingStatus === 3) { // 3 = Cancelled
-          handlePaymentFailed();
-        } else {
-          alert('Thanh toán chưa hoàn tất. Vui lòng thử lại sau.');
-        }
-    } catch (error) {
-      console.error('Error checking booking status:', error);
-      setError('Không thể kiểm tra trạng thái thanh toán. Vui lòng thử lại.');
-    } finally {
-      setIsCheckingStatus(false);
-    }
-  };
-
-  // Bắt đầu polling
-  const startPolling = () => {
-    if (!orderCode) return;
-    
-    setShowStatus(true);
-    setError(null);
-    
-    paymentService.pollBookingStatus(
-      orderCode,
-      (status) => {
-        setBookingStatus(status);
-        if (status.data.bookingStatus === 2) { // 2 = Paid
-          handlePaymentSuccess(orderCode);
-        } else if (status.data.bookingStatus === 3) { // 3 = Cancelled
-          handlePaymentFailed();
-        }
-      },
-      20, // 20 lần * 3 giây = 60 giây
-      3000 // 3 giây
-    ).catch((error) => {
-      console.error('Polling error:', error);
-      setError('Hết thời gian chờ thanh toán. Vui lòng kiểm tra thủ công.');
-    });
-  };
 
   if (error) {
     return (
@@ -187,51 +128,7 @@ export default function PayOSCheckout({
                   </a>
                 </p>
                 
-                {showStatusCheck && orderCode && (
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-500">
-                      Sau khi thanh toán, bạn có thể kiểm tra trạng thái
-                    </p>
-                    <div className="flex gap-2 justify-center">
-                      <button
-                        onClick={startPolling}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                      >
-                        Tự động kiểm tra trạng thái
-                      </button>
-                      <button
-                        onClick={checkBookingStatus}
-                        disabled={isCheckingStatus}
-                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm disabled:opacity-50"
-                      >
-                        {isCheckingStatus ? 'Đang kiểm tra...' : 'Kiểm tra thủ công'}
-                      </button>
-                    </div>
-                  </div>
-                )}
                 
-                {showManualCheck && (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                    <p className="text-sm text-yellow-800">
-                      Bạn đã thanh toán chưa? Hãy kiểm tra trạng thái bên trên.
-                    </p>
-                  </div>
-                )}
-                
-                <div className="flex gap-2 justify-center">
-                  <button
-                    onClick={() => onSuccess?.()}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-                  >
-                    Đã thanh toán thành công
-                  </button>
-                  <button
-                    onClick={() => onCancel?.()}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
-                  >
-                    Hủy thanh toán
-                  </button>
-                </div>
               </div>
             </>
           )}
