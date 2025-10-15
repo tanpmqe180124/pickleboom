@@ -422,67 +422,10 @@ export const partnerService = {
   // Update booking status
   updateBookingStatus: async (id: string, status: number): Promise<string> => {
     try {
-      console.log('Updating booking status:', { id, status });
       const response = await api.put(`/Partner/booking/${id}/status`, { status });
-      console.log('Update status response:', response.data);
       return response.data.message || 'Booking status updated successfully';
     } catch (error) {
       console.error('Error updating booking status:', error);
-      throw error;
-    }
-  },
-
-  // Get booking details
-  getBookingById: async (id: string): Promise<PartnerBooking> => {
-    try {
-      console.log('Fetching booking details:', id);
-      const response = await api.get(`/Partner/booking/detail/${id}`);
-      console.log('Booking details response:', response.data);
-      return response.data.data || response.data;
-    } catch (error) {
-      console.error('Error fetching booking details:', error);
-      throw error;
-    }
-  },
-
-  // Cancel booking
-  cancelBooking: async (id: string): Promise<string> => {
-    try {
-      console.log('Cancelling booking:', id);
-      const response = await api.put(`/Partner/booking/${id}/cancel`);
-      console.log('Cancel booking response:', response.data);
-      return response.data.message || 'Booking cancelled successfully';
-    } catch (error) {
-      console.error('Error cancelling booking:', error);
-      throw error;
-    }
-  },
-
-  // Get booking statistics
-  getBookingStatistics: async (partnerId: string): Promise<any> => {
-    try {
-      console.log('Fetching booking statistics:', partnerId);
-      const response = await api.get(`/Partner/booking/${partnerId}/statistics`);
-      console.log('Booking statistics response:', response.data);
-      return response.data.data || response.data;
-    } catch (error) {
-      console.error('Error fetching booking statistics:', error);
-      throw error;
-    }
-  },
-
-  // Export bookings
-  exportBookings: async (partnerId: string, params?: any): Promise<Blob> => {
-    try {
-      console.log('Exporting bookings:', { partnerId, params });
-      const response = await api.get(`/Partner/booking/${partnerId}/export`, {
-        params,
-        responseType: 'blob'
-      });
-      console.log('Export bookings response:', response.data);
-      return response.data;
-    } catch (error) {
-      console.error('Error exporting bookings:', error);
       throw error;
     }
   },
