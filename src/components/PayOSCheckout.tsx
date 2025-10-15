@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { paymentService, BookingStatus } from '@/services/paymentService';
+import { paymentService, BookingStatusResponse } from '@/services/paymentService';
 
 interface PayOSCheckoutProps {
   checkoutUrl: string;
@@ -24,7 +24,7 @@ export default function PayOSCheckout({
   const [error, setError] = useState<string | null>(null);
   const [showStatus, setShowStatus] = useState(false);
   const [paymentCompleted, setPaymentCompleted] = useState(false);
-  const [bookingStatus, setBookingStatus] = useState<BookingStatus | null>(null);
+  const [bookingStatus, setBookingStatus] = useState<BookingStatusResponse | null>(null);
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
   const [showManualCheck, setShowManualCheck] = useState(false);
 
@@ -73,13 +73,13 @@ export default function PayOSCheckout({
       const status = await paymentService.checkBookingStatus(orderCode);
       setBookingStatus(status);
       
-      if (status.status === 'paid') {
-        handlePaymentSuccess(orderCode);
-      } else if (status.status === 'cancelled') {
-        handlePaymentFailed();
-      } else {
-        alert('Thanh toán chưa hoàn tất. Vui lòng thử lại sau.');
-      }
+        if (status.data.bookingStatus === 2) { // 2 = Paid
+          handlePaymentSuccess(orderCode);
+        } else if (status.data.bookingStatus === 3) { // 3 = Cancelled
+          handlePaymentFailed();
+        } else {
+          alert('Thanh toán chưa hoàn tất. Vui lòng thử lại sau.');
+        }
     } catch (error) {
       console.error('Error checking booking status:', error);
       setError('Không thể kiểm tra trạng thái thanh toán. Vui lòng thử lại.');
@@ -99,9 +99,9 @@ export default function PayOSCheckout({
       orderCode,
       (status) => {
         setBookingStatus(status);
-        if (status.status === 'paid') {
+        if (status.data.bookingStatus === 2) { // 2 = Paid
           handlePaymentSuccess(orderCode);
-        } else if (status.status === 'cancelled') {
+        } else if (status.data.bookingStatus === 3) { // 3 = Cancelled
           handlePaymentFailed();
         }
       },
@@ -155,7 +155,7 @@ export default function PayOSCheckout({
                 {bookingStatus && (
                   <div className="text-sm text-gray-600 mb-4">
                     <p>Mã đơn hàng: <span className="font-mono">{orderCode}</span></p>
-                    <p>Trạng thái: <span className="font-semibold">{bookingStatus.status}</span></p>
+                    <p>Trạng thái: <span className="font-semibold">{bookingStatus.data.bookingStatus === 2 ? 'Đã thanh toán' : 'Chờ thanh toán'}</span></p>
                   </div>
                 )}
                 
