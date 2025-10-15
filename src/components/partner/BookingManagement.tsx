@@ -8,7 +8,9 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
-  RefreshCw
+  RefreshCw,
+  Phone,
+  CalendarDays
 } from 'lucide-react';
 import { partnerService } from '@/services/partnerService';
 import { showToast } from '@/utils/toastManager';
@@ -217,10 +219,16 @@ const BookingManagement: React.FC = () => {
                       </span>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-3">
                       <div className="flex items-center space-x-2 text-sm text-gray-600">
                         <User size={16} />
-                        <span>{booking.customer}</span>
+                        <div>
+                          <div className="font-medium">{booking.customer}</div>
+                          <div className="flex items-center space-x-1 text-xs text-gray-500">
+                            <Phone size={12} />
+                            <span>{booking.phone}</span>
+                          </div>
+                        </div>
                       </div>
                       
                       <div className="flex items-center space-x-2 text-sm text-gray-600">
@@ -240,6 +248,14 @@ const BookingManagement: React.FC = () => {
                       <div className="flex items-center space-x-2 text-sm text-gray-600">
                         <DollarSign size={16} />
                         <span className="font-medium">{formatPrice(booking.totalAmount)}</span>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2 text-sm text-gray-600">
+                        <CalendarDays size={16} />
+                        <div>
+                          <div className="text-xs text-gray-500">Tạo lúc:</div>
+                          <div className="text-xs">{new Date(booking.createdAt).toLocaleString('vi-VN')}</div>
+                        </div>
                       </div>
                     </div>
                   </div>
