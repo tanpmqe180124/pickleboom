@@ -38,6 +38,7 @@ const BookingManagement: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [statusFilter, setStatusFilter] = useState<number | null>(null);
+  const [customerSearch, setCustomerSearch] = useState<string>('');
 
   // ========== FETCH BOOKINGS ==========
   const fetchBookings = async () => {
@@ -45,11 +46,12 @@ const BookingManagement: React.FC = () => {
     
     setLoading(true);
     try {
-      // Add pagination parameters
+      // Add pagination and search parameters - match with backend BookingParams
       const params = {
         Page: 1,
         PageSize: 10,
-        BookingStatus: statusFilter
+        Customer: customerSearch.trim() || undefined, // Backend expects string or null
+        BookingStatus: statusFilter || undefined // Backend expects BookingStatus? or null
       };
       
       const bookingsData = await partnerService.getBookings(userID, params);
@@ -73,7 +75,7 @@ const BookingManagement: React.FC = () => {
   // ========== EFFECTS ==========
   useEffect(() => {
     fetchBookings();
-  }, [userID, statusFilter]);
+  }, [userID, statusFilter, customerSearch]);
 
   // ========== HANDLERS ==========
   const handleStatusUpdate = async (bookingId: string, newStatus: number) => {
@@ -170,6 +172,18 @@ const BookingManagement: React.FC = () => {
         <div className="flex flex-wrap gap-4 items-end">
           <div className="min-w-48">
             <label className="block text-sm font-medium text-gray-700 mb-1">
+              Tìm kiếm khách hàng
+            </label>
+            <input
+              type="text"
+              placeholder="Nhập tên khách hàng..."
+              value={customerSearch}
+              onChange={(e) => setCustomerSearch(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <div className="min-w-48">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Trạng thái
             </label>
             <select
@@ -183,6 +197,17 @@ const BookingManagement: React.FC = () => {
               <option value="2">Đã hủy</option>
               <option value="3">Hoàn thành</option>
             </select>
+          </div>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => {
+                setCustomerSearch('');
+                setStatusFilter(null);
+              }}
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Xóa bộ lọc
+            </button>
           </div>
         </div>
       </div>
@@ -198,13 +223,35 @@ const BookingManagement: React.FC = () => {
             <Calendar className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">Không có đặt sân nào</h3>
             <p className="mt-1 text-sm text-gray-500">
-              {statusFilter !== null 
+              {(statusFilter !== null || customerSearch.trim()) 
                 ? 'Không tìm thấy đặt sân phù hợp với bộ lọc.' 
                 : 'Chưa có đặt sân nào.'}
             </p>
+            {(statusFilter !== null || customerSearch.trim()) && (
+              <button
+                onClick={() => {
+                  setCustomerSearch('');
+                  setStatusFilter(null);
+                }}
+                className="mt-3 px-4 py-2 text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors"
+              >
+                Xóa bộ lọc
+              </button>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
+            {/* Search Results Info */}
+            {(statusFilter !== null || customerSearch.trim()) && (
+              <div className="px-6 py-3 bg-blue-50 border-b border-blue-200">
+                <p className="text-sm text-blue-700">
+                  Hiển thị {filteredBookings.length} kết quả
+                  {customerSearch.trim() && ` cho "${customerSearch}"`}
+                  {statusFilter !== null && ` với trạng thái "${getStatusText(statusFilter)}"`}
+                </p>
+              </div>
+            )}
+            
             {filteredBookings.map((booking) => (
               <div key={booking.id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 overflow-hidden">
                 {/* Header */}
