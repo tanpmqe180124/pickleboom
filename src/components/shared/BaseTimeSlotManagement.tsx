@@ -68,32 +68,28 @@ const TimeSlotCard: React.FC<TimeSlotCardProps> = ({ timeSlot, onEdit, onDelete,
     }
   };
 
-  const getPeriodIcon = (period: string) => {
+  const getPeriodBackground = (period: string) => {
     switch (period) {
-      case 'morning': return '🌅';
-      case 'afternoon': return '☀️';
-      case 'evening': return '🌙';
-      default: return '🕐';
+      case 'morning': return 'bg-gradient-to-r from-yellow-50 to-amber-50 border-yellow-200';
+      case 'afternoon': return 'bg-gradient-to-r from-orange-50 to-red-50 border-orange-200';
+      case 'evening': return 'bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200';
+      default: return 'bg-gray-50 border-gray-200';
     }
   };
 
   const formatTime = (time: string) => {
     const [hours, minutes] = time.split(':');
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour % 12 || 12;
-    return `${displayHour}:${minutes} ${ampm}`;
+    return `${hours}:${minutes}`;
   };
 
   return (
-    <div className={`p-4 rounded-lg border-2 transition-all duration-200 hover:shadow-md ${
+    <div className={`p-4 rounded-lg border-2 transition-all duration-200 hover:shadow-md ${getPeriodBackground(period)} ${
       timeSlot.isAvailable 
-        ? 'bg-green-50 border-green-200 hover:border-green-300' 
-        : 'bg-red-50 border-red-200 hover:border-red-300'
+        ? 'hover:border-opacity-60' 
+        : 'opacity-75'
     }`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="text-2xl">{getPeriodIcon(period)}</div>
           <div>
             <div className="flex items-center space-x-2">
               <span className="font-semibold text-gray-900">
@@ -305,8 +301,8 @@ const BaseTimeSlotManagement: React.FC<BaseTimeSlotManagementProps> = ({
           {/* Morning Slots */}
           {timePeriods.morning.length > 0 && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                🌅 Buổi sáng ({timePeriods.morning.length} khung giờ)
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Buổi sáng ({timePeriods.morning.length} khung giờ)
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {timePeriods.morning.map((timeSlot) => (
@@ -326,8 +322,8 @@ const BaseTimeSlotManagement: React.FC<BaseTimeSlotManagementProps> = ({
           {/* Afternoon Slots */}
           {timePeriods.afternoon.length > 0 && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                ☀️ Buổi chiều ({timePeriods.afternoon.length} khung giờ)
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Buổi chiều ({timePeriods.afternoon.length} khung giờ)
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {timePeriods.afternoon.map((timeSlot) => (
@@ -347,8 +343,8 @@ const BaseTimeSlotManagement: React.FC<BaseTimeSlotManagementProps> = ({
           {/* Evening Slots */}
           {timePeriods.evening.length > 0 && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                🌙 Buổi tối ({timePeriods.evening.length} khung giờ)
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Buổi tối ({timePeriods.evening.length} khung giờ)
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {timePeriods.evening.map((timeSlot) => (
