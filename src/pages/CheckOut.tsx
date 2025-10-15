@@ -196,21 +196,18 @@ export default function CheckOut() {
   const handlePaymentSuccess = (orderCode?: string) => {
     console.log('Payment successful!', orderCode);
     
-    // Prepare booking data to pass to PaymentSuccess
-    const bookingData = {
-      orderCode: orderCode || '',
-      partnerName: selectedPartner?.bussinessName || 'CN Quy Nhơn',
-      courtName: selectedCourt?.name || 'Sân 3',
-      timeSlots: formatTimeSlots(),
-      date: formatDate(selectedDate),
-      numHours: selectedTimeSlotIds?.length || 0,
-      pricePerHour: selectedCourt?.PricePerHour || selectedCourt?.pricePerHour || 0,
-      totalAmount: (selectedCourt?.PricePerHour || selectedCourt?.pricePerHour || 0) * (selectedTimeSlotIds?.length || 0)
-    };
+    // Prepare booking data to pass to PaymentSuccess via URL params
+    const params = new URLSearchParams();
+    params.set('orderCode', orderCode || '');
+    params.set('partnerName', selectedPartner?.bussinessName || 'CN Quy Nhơn');
+    params.set('courtName', selectedCourt?.name || 'Sân 3');
+    params.set('timeSlots', formatTimeSlots());
+    params.set('date', formatDate(selectedDate));
+    params.set('numHours', String(selectedTimeSlotIds?.length || 0));
+    params.set('pricePerHour', String(selectedCourt?.PricePerHour || selectedCourt?.pricePerHour || 0));
+    params.set('totalAmount', String((selectedCourt?.PricePerHour || selectedCourt?.pricePerHour || 0) * (selectedTimeSlotIds?.length || 0)));
     
-    navigate('/payment/success', { 
-      state: { bookingData } 
-    });
+    navigate(`/payment/success?${params.toString()}`);
   };
 
   const handlePaymentCancel = () => {

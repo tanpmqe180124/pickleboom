@@ -1,19 +1,31 @@
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useBookingStore } from '@/stores/useBookingStore';
 
 export default function PaymentSuccess() {
-  const location = useLocation();
-  const bookingData = location.state?.bookingData;
+  const [searchParams] = useSearchParams();
   
-  // Use data from checkout if available, otherwise fallback to store
-  const partnerName = bookingData?.partnerName || useBookingStore((state) => state.selectedPartner?.bussinessName) || 'CN Quy Nhơn';
-  const courtName = bookingData?.courtName || useBookingStore((state) => state.selectedCourt?.name) || 'Sân 3';
-  const timeSlots = bookingData?.timeSlots || '';
-  const dateString = bookingData?.date || '';
-  const numHours = bookingData?.numHours || 0;
-  const totalAmount = bookingData?.totalAmount || 0;
+  // Get data from URL params
+  const orderCode = searchParams.get('orderCode') || '';
+  const partnerName = searchParams.get('partnerName') || useBookingStore((state) => state.selectedPartner?.bussinessName) || 'CN Quy Nhơn';
+  const courtName = searchParams.get('courtName') || useBookingStore((state) => state.selectedCourt?.name) || 'Sân 3';
+  const timeSlots = searchParams.get('timeSlots') || '';
+  const dateString = searchParams.get('date') || '';
+  const numHours = parseInt(searchParams.get('numHours') || '0');
+  const totalAmount = parseInt(searchParams.get('totalAmount') || '0');
+  
+  // Debug log
+  console.log('PaymentSuccess Debug:', {
+    orderCode,
+    partnerName,
+    courtName,
+    timeSlots,
+    dateString,
+    numHours,
+    totalAmount,
+    allParams: Object.fromEntries(searchParams.entries())
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
