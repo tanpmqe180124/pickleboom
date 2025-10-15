@@ -21,7 +21,6 @@ import { useEffect, useState } from 'react';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
 import { userService } from '@/services/userService';
 import AdminLink from '@/components/AdminLink';
-import Header from '@/components/Header';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -55,12 +54,12 @@ const Dashboard = () => {
           console.log('User data loaded:', userData);
           setUserInfo(userData);
           
-          // Update user in store with full info (preserve original role from JWT)
+          // Update user in store with full info
           const updatedUser = {
             ...user,
-            fullName: userData.FullName,
-            avatar: userData.Avatar,
-            // Keep original role from JWT token, don't override it
+            fullName: userData.FullName || userData.fullName,
+            avatar: userData.Avatar || userData.avatar,
+            role: userData.Status === 1 ? 'user' : 'admin'
           };
           console.log('Updating user with:', updatedUser);
           setUser(updatedUser);
@@ -150,10 +149,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Main Navigation Header */}
-      <Header />
-      
-      {/* Dashboard Header */}
+      {/* Header */}
       <div 
         ref={headerRef}
         className={`bg-white shadow-sm border-b transition-all duration-700 transform ${

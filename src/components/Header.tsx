@@ -12,14 +12,11 @@ import { Banner } from './BannerHealth';
 import { BlogCard } from './Blog';
 import { Button } from './ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { useAuthStore } from '@/infrastructure/storage/tokenStorage';
 import { useState } from 'react';
 import AdminLink from './AdminLink';
-import PartnerLink from './PartnerLink';
 
 const Header = () => {
   const { userID, accessToken, logout } = useAuth();
-  const { user } = useAuthStore();
   const isAuthenticated = !!accessToken;
   const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -133,9 +130,6 @@ const Header = () => {
                       </Link>
                       <div className="px-4 py-2">
                         <AdminLink />
-                      </div>
-                      <div className="px-4 py-2">
-                        <PartnerLink />
                       </div>
                       <hr className="my-2" />
                       <button
