@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { showToast } from '@/utils/toastManager';
+import CustomTimePicker from '@/components/ui/CustomTimePicker';
 import { 
   Clock, 
   Plus, 
@@ -380,31 +381,19 @@ const BaseTimeSlotManagement: React.FC<BaseTimeSlotManagementProps> = ({
             </div>
             
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Giờ bắt đầu *
-                </label>
-                <input
-                  type="time"
-                  value={formData.StartTime}
-                  onChange={(e) => setFormData({...formData, StartTime: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
+              <CustomTimePicker
+                value={formData.StartTime}
+                onChange={(time) => setFormData({...formData, StartTime: time})}
+                label="Giờ bắt đầu"
+                required
+              />
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Giờ kết thúc *
-                </label>
-                <input
-                  type="time"
-                  value={formData.EndTime}
-                  onChange={(e) => setFormData({...formData, EndTime: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
+              <CustomTimePicker
+                value={formData.EndTime}
+                onChange={(time) => setFormData({...formData, EndTime: time})}
+                label="Giờ kết thúc"
+                required
+              />
               
               <div className="flex justify-end space-x-3 pt-4">
                 <button
