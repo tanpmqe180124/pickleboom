@@ -402,8 +402,15 @@ export const partnerService = {
   // Get bookings for partner's courts
   getBookings: async (partnerId: string, params?: PartnerBookingParams): Promise<PartnerBooking[]> => {
     try {
+      console.log('Fetching bookings for partner:', partnerId);
       const response = await api.get(`/Partner/booking/${partnerId}`, { params });
-      return response.data.data || response.data || [];
+      console.log('Bookings API Response:', response.data);
+      
+      // Handle nested data structure: response.data.data.data
+      const bookingsData = response.data?.data?.data || response.data?.data || response.data || [];
+      console.log('Parsed bookings data:', bookingsData);
+      
+      return Array.isArray(bookingsData) ? bookingsData : [];
     } catch (error) {
       console.error('Error fetching partner bookings:', error);
       throw error;
