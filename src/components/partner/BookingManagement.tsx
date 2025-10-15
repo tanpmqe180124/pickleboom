@@ -204,87 +204,110 @@ const BookingManagement: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <div className="space-y-4">
             {filteredBookings.map((booking) => (
-              <div key={booking.id} className="p-6 hover:bg-gray-50">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {booking.court}
-                      </h3>
-                      <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(booking.bookingStatus)}`}>
-                        {getStatusIcon(booking.bookingStatus)}
-                        <span className="ml-1">{getStatusText(booking.bookingStatus)}</span>
-                      </span>
+              <div key={booking.id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 overflow-hidden">
+                {/* Header */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
+                        <MapPin size={20} className="text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">{booking.court}</h3>
+                        <p className="text-sm text-gray-600">Sân Pickleball</p>
+                      </div>
                     </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-3">
-                      <div className="flex items-center space-x-2 text-sm text-gray-600">
-                        <User size={16} />
+                    <span className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(booking.bookingStatus)}`}>
+                      {getStatusIcon(booking.bookingStatus)}
+                      <span className="ml-2">{getStatusText(booking.bookingStatus)}</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Customer Info */}
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                          <User size={16} className="text-blue-600" />
+                        </div>
                         <div>
-                          <div className="font-medium">{booking.customer}</div>
-                          <div className="flex items-center space-x-1 text-xs text-gray-500">
-                            <Phone size={12} />
+                          <div className="font-medium text-gray-900">{booking.customer}</div>
+                          <div className="flex items-center space-x-1 text-sm text-gray-500">
+                            <Phone size={14} />
                             <span>{booking.phone}</span>
                           </div>
                         </div>
                       </div>
-                      
-                      <div className="flex items-center space-x-2 text-sm text-gray-600">
-                        <Calendar size={16} />
-                        <span>{formatDate(booking.bookingDate)}</span>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2 text-sm text-gray-600">
-                        <Clock size={16} />
-                        <span>
-                          {booking.bookingTimeSlots.map(slot => 
-                            `${formatTime(slot.startTime)} - ${formatTime(slot.endTime)}`
-                          ).join(', ')}
-                        </span>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2 text-sm text-gray-600">
-                        <DollarSign size={16} />
-                        <span className="font-medium">{formatPrice(booking.totalAmount)}</span>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2 text-sm text-gray-600">
-                        <CalendarDays size={16} />
+                    </div>
+
+                    {/* Booking Details */}
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                          <Calendar size={16} className="text-green-600" />
+                        </div>
                         <div>
-                          <div className="text-xs text-gray-500">Tạo lúc:</div>
-                          <div className="text-xs">{new Date(booking.createdAt).toLocaleString('vi-VN')}</div>
+                          <div className="font-medium text-gray-900">{formatDate(booking.bookingDate)}</div>
+                          <div className="flex items-center space-x-1 text-sm text-gray-500">
+                            <Clock size={14} />
+                            <span>
+                              {booking.bookingTimeSlots.map(slot => 
+                                `${formatTime(slot.startTime)} - ${formatTime(slot.endTime)}`
+                              ).join(', ')}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex space-x-2 ml-4">
-                    {booking.bookingStatus === 0 && (
-                      <>
-                        <button
-                          onClick={() => handleStatusUpdate(booking.id, 1)}
-                          className="px-3 py-1 text-green-600 border border-green-600 rounded-lg hover:bg-green-50 transition-colors"
-                        >
-                          Xác nhận
-                        </button>
-                        <button
-                          onClick={() => handleStatusUpdate(booking.id, 2)}
-                          className="px-3 py-1 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors"
-                        >
-                          Hủy
-                        </button>
-                      </>
-                    )}
-                    {booking.bookingStatus === 1 && (
-                      <button
-                        onClick={() => handleStatusUpdate(booking.id, 3)}
-                        className="px-3 py-1 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
-                      >
-                        Hoàn thành
-                      </button>
-                    )}
+
+                    {/* Amount & Actions */}
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                          <DollarSign size={16} className="text-yellow-600" />
+                        </div>
+                        <div>
+                          <div className="font-semibold text-lg text-gray-900">{formatPrice(booking.totalAmount)}</div>
+                          <div className="flex items-center space-x-1 text-sm text-gray-500">
+                            <CalendarDays size={14} />
+                            <span>{new Date(booking.createdAt).toLocaleString('vi-VN')}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex space-x-2">
+                        {booking.bookingStatus === 0 && (
+                          <>
+                            <button
+                              onClick={() => handleStatusUpdate(booking.id, 1)}
+                              className="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                            >
+                              Xác nhận
+                            </button>
+                            <button
+                              onClick={() => handleStatusUpdate(booking.id, 2)}
+                              className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                            >
+                              Hủy
+                            </button>
+                          </>
+                        )}
+                        {booking.bookingStatus === 1 && (
+                          <button
+                            onClick={() => handleStatusUpdate(booking.id, 3)}
+                            className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                          >
+                            Hoàn thành
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
