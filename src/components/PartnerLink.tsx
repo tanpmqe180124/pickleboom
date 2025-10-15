@@ -7,6 +7,9 @@ const PartnerLink: React.FC = () => {
   const { userRole } = useAuth();
   
   console.log('PartnerLink - userRole from useAuth:', userRole);
+  console.log('PartnerLink - userRole type:', typeof userRole);
+  console.log('PartnerLink - userRole === "Partner":', userRole === 'Partner');
+  console.log('PartnerLink - userRole?.toLowerCase() === "partner":', userRole?.toLowerCase() === 'partner');
   console.log('PartnerLink - localStorage userRole:', localStorage.getItem('userRole'));
 
   if (!userRole || (userRole !== 'Partner' && userRole.toLowerCase() !== 'partner')) {
