@@ -1,44 +1,102 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CheckCircle, Home, Calendar, Clock, MapPin, CreditCard } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { CheckCircle, Home, Calendar, Clock, MapPin, CreditCard, Loader2 } from 'lucide-react';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
 import { useBookingStore } from '@/stores/useBookingStore';
+import { paymentService, BookingStatusResponse } from '@/services/paymentService';
+import { showToast } from '@/utils/toastManager';
 import '../css/payment-success.css';
 
 export default function PaymentSuccess() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [containerRef, containerInView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.12 });
+  
+  // State for API data
+  const [bookingData, setBookingData] = useState<BookingStatusResponse['data'] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Get orderCode from URL params
+  const orderCode = searchParams.get('orderCode');
+  
+  // Fallback data from store (if API fails)
   const selectedDate = useBookingStore((state) => state.selectedDate);
   const selectedTimeSlots = useBookingStore((state) => state.selectedTimeSlots);
   const selectedCourt = useBookingStore((state) => state.selectedCourt);
-  const [containerRef, containerInView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.12 });
 
-  // Format date
-  let dateString = '';
-  if (selectedDate) {
-    try {
-      if (selectedDate instanceof Date) {
-        dateString = selectedDate.toLocaleDateString('vi-VN');
-      } else if (typeof selectedDate === 'string' || typeof selectedDate === 'number') {
-        const d = new Date(selectedDate);
-        if (!isNaN(d.getTime())) {
-          dateString = d.toLocaleDateString('vi-VN');
-        } else {
-          dateString = String(selectedDate);
-        }
+  // Fetch booking data from API
+  useEffect(() => {
+    const fetchBookingData = async () => {
+      if (!orderCode) {
+        setError('Không tìm thấy mã đơn hàng');
+        setLoading(false);
+        return;
       }
+
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await paymentService.checkBookingStatus(orderCode);
+        console.log('Booking data from API:', response.data);
+        
+        if (response.statusCode === 200) {
+          setBookingData(response.data);
+        } else {
+          throw new Error(response.message || 'Không thể tải thông tin đặt sân');
+        }
+      } catch (err: any) {
+        console.error('Error fetching booking data:', err);
+        setError(err.message || 'Không thể tải thông tin đặt sân');
+        showToast.error('Lỗi tải dữ liệu', 'Không thể tải thông tin đặt sân từ server');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookingData();
+  }, [orderCode]);
+
+  // Calculate data - use API data if available, fallback to store data
+  const displayData = bookingData ? {
+    orderCode: bookingData.orderCode,
+    courtName: bookingData.courtName,
+    bookingDate: bookingData.bookingDate,
+    customerName: bookingData.customerName,
+    phoneNumber: bookingData.phoneNumber,
+    email: bookingData.email,
+    totalAmount: bookingData.totalAmount,
+    status: bookingData.bookingStatus,
+    createdAt: bookingData.createdAt
+  } : {
+    orderCode: orderCode || `PB${Date.now().toString().slice(-8)}`,
+    courtName: selectedCourt?.name || 'Sân Pickleball',
+    bookingDate: selectedDate ? new Date(selectedDate).toLocaleDateString('vi-VN') : '',
+    customerName: 'Khách hàng',
+    phoneNumber: '',
+    email: '',
+    totalAmount: (selectedCourt?.pricePerHour || 0) * (selectedTimeSlots?.length || 1),
+    status: 2, // Paid
+    createdAt: new Date().toISOString()
+  };
+
+  // Format date for display
+  const formatDate = (dateStr: string) => {
+    try {
+      return new Date(dateStr).toLocaleDateString('vi-VN');
     } catch {
-      dateString = String(selectedDate);
+      return dateStr;
     }
-  }
+  };
 
-  // Calculate total
-  const timeSlots: string[] = Array.isArray(selectedTimeSlots) ? selectedTimeSlots : [];
-  const numHours = timeSlots.length;
-  const pricePerHour = selectedCourt?.PricePerHour || selectedCourt?.pricePerHour || 0;
-  const totalAmount = pricePerHour * numHours;
-
-  // Generate booking ID
-  const bookingId = `PB${Date.now().toString().slice(-8)}`;
+  // Format price
+  const formatPrice = (amount: number) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(amount);
+  };
 
   useEffect(() => {
     // Auto redirect to home after 10 seconds
@@ -57,9 +115,39 @@ export default function PaymentSuccess() {
     navigate('/playertype');
   };
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen py-8">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+          <p className="text-gray-600">Đang tải thông tin đặt sân...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen py-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Lỗi tải dữ liệu</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={() => navigate('/')}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Về trang chủ
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div 
-      ref={containerRef} 
+      ref={containerRef}
       className={`payment-success-container flex flex-col items-center justify-center min-h-screen py-8 transition-all duration-700 ${containerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
     >
       <div className="w-full max-w-4xl mx-auto px-4">
@@ -79,7 +167,7 @@ export default function PaymentSuccess() {
           {/* Booking ID */}
           <div className="booking-id-card">
             <p className="text-sm text-blue-600 font-medium">Mã đặt sân</p>
-            <p className="booking-id-number">{bookingId}</p>
+            <p className="booking-id-number">{displayData.orderCode}</p>
           </div>
         </div>
 
@@ -94,27 +182,29 @@ export default function PaymentSuccess() {
             <div className="space-y-3">
               <div className="detail-row">
                 <span className="detail-label">Chi nhánh:</span>
-                <span className="detail-value">CN Quy Nhơn</span>
+                <span className="detail-value">{displayData.courtName}</span>
               </div>
               <div className="detail-row">
                 <span className="detail-label">Sân:</span>
-                <span className="detail-value">{selectedCourt?.name || 'Sân 3'}</span>
+                <span className="detail-value">{displayData.courtName}</span>
               </div>
               <div className="detail-row">
                 <span className="detail-label">Khu vực:</span>
-                <span className="detail-value">{selectedCourt?.location || '86 Nguyễn Quý Anh, Tân Phú'}</span>
+                <span className="detail-value">{selectedCourt?.location || 'N/A'}</span>
               </div>
               <div className="detail-row">
                 <span className="detail-label">Ngày:</span>
-                <span className="detail-value">{dateString}</span>
+                <span className="detail-value">{formatDate(displayData.bookingDate)}</span>
               </div>
               <div className="detail-row">
                 <span className="detail-label">Giờ chơi:</span>
-                <span className="detail-value">{timeSlots.join(', ')}</span>
+                <span className="detail-value">
+                  {bookingData ? 'Đã xác nhận' : (timeSlots.join(', ') || 'Đang xử lý')}
+                </span>
               </div>
               <div className="detail-row">
                 <span className="detail-label">Số giờ:</span>
-                <span className="detail-value">{numHours} giờ</span>
+                <span className="detail-value">{bookingData ? '1' : numHours} giờ</span>
               </div>
             </div>
           </div>
@@ -128,11 +218,11 @@ export default function PaymentSuccess() {
             <div className="space-y-3">
               <div className="detail-row">
                 <span className="detail-label">Giá 1 giờ:</span>
-                <span className="detail-value">{pricePerHour.toLocaleString('vi-VN')} ₫</span>
+                <span className="detail-value">{formatPrice(displayData.totalAmount)}</span>
               </div>
               <div className="detail-row">
                 <span className="detail-label">Số giờ:</span>
-                <span className="detail-value">{numHours}</span>
+                <span className="detail-value">{bookingData ? '1' : numHours}</span>
               </div>
               <div className="detail-row">
                 <span className="detail-label">Phí dịch vụ:</span>
@@ -144,7 +234,7 @@ export default function PaymentSuccess() {
               </div>
               <div className="total-row">
                 <span className="total-label">Tổng cộng:</span>
-                <span className="total-value">{totalAmount.toLocaleString('vi-VN')} ₫</span>
+                <span className="total-value">{formatPrice(displayData.totalAmount)}</span>
               </div>
             </div>
           </div>

@@ -17,6 +17,8 @@ export default function CheckOut() {
   const selectedTimeSlots = useBookingStore((state) => state.selectedTimeSlots);
   const selectedTimeSlotIds = useBookingStore((state) => state.selectedTimeSlotIds);
   const selectedCourt = useBookingStore((state) => state.selectedCourt);
+  const selectedPartner = useBookingStore((state) => state.selectedPartner);
+  const availableTimeSlots = useBookingStore((state) => state.availableTimeSlots);
   const customerName = useBookingStore((state) => state.customerName);
   const { user, isAuthenticated } = useAuthStore();
   
@@ -89,13 +91,31 @@ export default function CheckOut() {
       dateString = String(selectedDate);
     }
   }
-  // Xử lý nhiều khung giờ
+  // Xử lý nhiều khung giờ với startTime và endTime
   const timeSlots: string[] = Array.isArray(selectedTimeSlots) ? selectedTimeSlots : [];
   const numHours = timeSlots.length;
-  // Lấy tên sân và khu vực từ state, các thông tin khác giữ hardcode
-  const courtName = selectedCourt?.name || 'Sân 3';
-  const courtLocation = selectedCourt?.location || '86 Nguyễn Quý Anh, Tân Phú';
+  
+  // Lấy thông tin từ state
+  const courtName = selectedCourt?.name || 'Sân Pickleball';
+  const courtLocation = selectedCourt?.location || 'N/A';
   const pricePerHour = selectedCourt?.pricePerHour || 0;
+  const partnerName = selectedPartner?.bussinessName || 'Pickle Boom';
+  
+  // Format time slots với startTime và endTime
+  const formatTimeSlots = () => {
+    if (!selectedTimeSlotIds.length || !availableTimeSlots.length) {
+      return timeSlots.join(', ');
+    }
+    
+    // Tìm time slots từ availableTimeSlots dựa trên selectedTimeSlotIds
+    const selectedSlots = availableTimeSlots.filter(slot => 
+      selectedTimeSlotIds.includes(slot.id)
+    );
+    
+    return selectedSlots.map(slot => 
+      `${slot.startTime.substring(0, 5)} - ${slot.endTime.substring(0, 5)}`
+    ).join(', ');
+  };
 
   // State and handler for payment
   const [isProcessing, setIsProcessing] = useState(false);
@@ -175,7 +195,7 @@ export default function CheckOut() {
 
   const handlePaymentSuccess = (orderCode?: string) => {
     console.log('Payment successful!', orderCode);
-    navigate('/payment/success');
+    navigate(`/payment/success?orderCode=${orderCode || ''}`);
   };
 
   const handlePaymentCancel = () => {
@@ -229,8 +249,8 @@ export default function CheckOut() {
                   <div className="space-y-3 text-sm">
                     <div className="flex items-center justify-between">
                       <span className="text-gray-600">Chi nhánh:</span>
-                      <span className="font-medium">CN Quy Nhơn</span>
-    </div>
+                      <span className="font-medium">{partnerName}</span>
+                    </div>
                     
                     <div className="flex items-start justify-between">
                       <span className="text-gray-600">
@@ -244,11 +264,11 @@ export default function CheckOut() {
                         Sân - giờ:
                       </span>
                       <span className="font-medium text-right">
-                        {courtName} – {timeSlots.join(', ')}
+                        {courtName} – {formatTimeSlots()}
                         <br />
                         <span className="text-xs text-gray-500">({dateString})</span>
                       </span>
-  </div>
+                    </div>
 
                     <div className="flex items-center justify-between">
                       <span className="text-gray-600">Giá 1 giờ:</span>
