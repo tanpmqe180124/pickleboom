@@ -1,16 +1,14 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CheckCircle, Home, Calendar, Clock, MapPin, CreditCard } from 'lucide-react';
-import { useInViewAnimation } from '@/hooks/useInViewAnimation';
+import React from 'react';
+import { CheckCircle } from 'lucide-react';
 import { useBookingStore } from '@/stores/useBookingStore';
-import '../css/payment-success.css';
 
 export default function PaymentSuccess() {
-  const navigate = useNavigate();
   const selectedDate = useBookingStore((state) => state.selectedDate);
   const selectedTimeSlots = useBookingStore((state) => state.selectedTimeSlots);
   const selectedCourt = useBookingStore((state) => state.selectedCourt);
-  const [containerRef, containerInView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.12 });
+  const selectedPartner = useBookingStore((state) => state.selectedPartner);
+  const availableTimeSlots = useBookingStore((state) => state.availableTimeSlots);
+  const selectedTimeSlotIds = useBookingStore((state) => state.selectedTimeSlotIds);
 
   // Format date
   let dateString = '';
@@ -37,163 +35,61 @@ export default function PaymentSuccess() {
   const pricePerHour = selectedCourt?.PricePerHour || selectedCourt?.pricePerHour || 0;
   const totalAmount = pricePerHour * numHours;
 
-  // Generate booking ID
-  const bookingId = `PB${Date.now().toString().slice(-8)}`;
-
-  useEffect(() => {
-    // Auto redirect to home after 10 seconds
-    const timer = setTimeout(() => {
-      navigate('/');
-    }, 10000);
-
-    return () => clearTimeout(timer);
-  }, [navigate]);
-
-  const handleBackToHome = () => {
-    navigate('/');
+  // Format time slots with start and end time
+  const formatTimeSlots = () => {
+    if (!availableTimeSlots || !selectedTimeSlotIds) return timeSlots.join(', ');
+    
+    const selectedSlots = availableTimeSlots.filter(slot => 
+      selectedTimeSlotIds.includes(slot.id)
+    );
+    
+    return selectedSlots.map(slot => 
+      `${slot.startTime.substring(0, 5)} - ${slot.endTime.substring(0, 5)}`
+    ).join(', ');
   };
 
-  const handleNewBooking = () => {
-    navigate('/playertype');
-  };
+  // Get partner name
+  const partnerName = selectedPartner?.bussinessName || 'CN Quy Nhơn';
 
   return (
-    <div 
-      ref={containerRef} 
-      className={`payment-success-container flex flex-col items-center justify-center min-h-screen py-8 transition-all duration-700 ${containerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
-    >
-      <div className="w-full max-w-4xl mx-auto px-4">
-        {/* Success Card */}
-        <div className="success-card">
-          {/* Success Icon */}
-          <div className="success-icon">
-            <CheckCircle className="w-12 h-12 text-white" />
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
+        {/* Success Icon & Message */}
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="w-8 h-8 text-white" />
           </div>
-
-          {/* Success Message */}
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Thanh toán thành công!</h1>
-          <p className="text-lg text-gray-600 mb-6">
-            Cảm ơn bạn đã đặt sân tại Pickle Boom. Chúng tôi sẽ gửi email xác nhận đến bạn.
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">Thanh toán thành công!</h1>
+          <p className="text-gray-600 mb-4">
+            Cảm ơn bạn đã đặt sân tại Pickle Boom.
           </p>
-
-          {/* Booking ID */}
-          <div className="booking-id-card">
-            <p className="text-sm text-blue-600 font-medium">Mã đặt sân</p>
-            <p className="booking-id-number">{bookingId}</p>
-          </div>
         </div>
+
 
         {/* Booking Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Left - Booking Summary */}
-          <div className="details-card">
-            <h3 className="details-header">
-              <Calendar className="w-5 h-5 text-blue-600" />
-              Thông tin đặt sân
-            </h3>
-            <div className="space-y-3">
-              <div className="detail-row">
-                <span className="detail-label">Chi nhánh:</span>
-                <span className="detail-value">CN Quy Nhơn</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Sân:</span>
-                <span className="detail-value">{selectedCourt?.name || 'Sân 3'}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Khu vực:</span>
-                <span className="detail-value">{selectedCourt?.location || '86 Nguyễn Quý Anh, Tân Phú'}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Ngày:</span>
-                <span className="detail-value">{dateString}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Giờ chơi:</span>
-                <span className="detail-value">{timeSlots.join(', ')}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Số giờ:</span>
-                <span className="detail-value">{numHours} giờ</span>
-              </div>
-            </div>
+        <div className="space-y-3 mb-6">
+          <div className="flex justify-between">
+            <span className="text-gray-600">Chi nhánh:</span>
+            <span className="font-medium">{partnerName}</span>
           </div>
-
-          {/* Right - Payment Summary */}
-          <div className="details-card">
-            <h3 className="details-header">
-              <CreditCard className="w-5 h-5 text-green-600" />
-              Thông tin thanh toán
-            </h3>
-            <div className="space-y-3">
-              <div className="detail-row">
-                <span className="detail-label">Giá 1 giờ:</span>
-                <span className="detail-value">{pricePerHour.toLocaleString('vi-VN')} ₫</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Số giờ:</span>
-                <span className="detail-value">{numHours}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Phí dịch vụ:</span>
-                <span className="detail-value">0 ₫</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Khuyến mãi:</span>
-                <span className="detail-value text-green-600">-0 ₫</span>
-              </div>
-              <div className="total-row">
-                <span className="total-label">Tổng cộng:</span>
-                <span className="total-value">{totalAmount.toLocaleString('vi-VN')} ₫</span>
-              </div>
-            </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Sân - giờ:</span>
+            <span className="font-medium">{selectedCourt?.name || 'Sân 3'} - {formatTimeSlots()}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Ngày:</span>
+            <span className="font-medium">{dateString}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Số giờ:</span>
+            <span className="font-medium">{numHours} giờ</span>
+          </div>
+          <div className="flex justify-between border-t pt-3">
+            <span className="text-gray-600 font-medium">Tổng cộng:</span>
+            <span className="font-bold text-lg">{totalAmount.toLocaleString('vi-VN')} ₫</span>
           </div>
         </div>
 
-        {/* Important Notes */}
-        <div className="notes-card">
-          <h3 className="notes-header">
-            <Clock className="w-5 h-5" />
-            Lưu ý quan trọng
-          </h3>
-          <ul className="notes-list">
-            <li className="notes-item">
-              <span className="notes-bullet">•</span>
-              <span>Vui lòng đến sân đúng giờ đã đặt. Nếu muốn hủy, vui lòng liên hệ trước 2 giờ.</span>
-            </li>
-            <li className="notes-item">
-              <span className="notes-bullet">•</span>
-              <span>Mang theo CMND/CCCD để xác nhận thông tin khi đến sân.</span>
-            </li>
-            <li className="notes-item">
-              <span className="notes-bullet">•</span>
-              <span>Email xác nhận sẽ được gửi đến bạn trong vòng 5 phút.</span>
-            </li>
-          </ul>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="action-buttons">
-          <button
-            onClick={handleBackToHome}
-            className="action-button action-button-primary"
-          >
-            <Home className="w-5 h-5" />
-            Về trang chủ
-          </button>
-          <button
-            onClick={handleNewBooking}
-            className="action-button action-button-secondary"
-          >
-            <Calendar className="w-5 h-5" />
-            Đặt sân mới
-          </button>
-        </div>
-
-        {/* Auto redirect notice */}
-        <p className="auto-redirect">
-          Tự động chuyển về trang chủ sau <span className="auto-redirect-countdown">10 giây</span>
-        </p>
       </div>
     </div>
   );
