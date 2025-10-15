@@ -41,7 +41,14 @@ const BookingManagement: React.FC = () => {
     
     setLoading(true);
     try {
-      const bookingsData = await partnerService.getBookings(userID);
+      // Add pagination parameters
+      const params = {
+        Page: 1,
+        PageSize: 10,
+        BookingStatus: statusFilter
+      };
+      
+      const bookingsData = await partnerService.getBookings(userID, params);
       console.log('Bookings API Response:', bookingsData);
       
       if (Array.isArray(bookingsData)) {
@@ -62,7 +69,7 @@ const BookingManagement: React.FC = () => {
   // ========== EFFECTS ==========
   useEffect(() => {
     fetchBookings();
-  }, [userID]);
+  }, [userID, statusFilter]);
 
   // ========== HANDLERS ==========
   const handleStatusUpdate = async (bookingId: string, newStatus: number) => {
