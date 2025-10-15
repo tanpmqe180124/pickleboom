@@ -23,7 +23,7 @@ interface Booking {
   court: string;
   bookingDate: string;
   paymentStatus: number;
-  bookingStatus: number; // 0: Pending, 1: Confirmed, 2: Cancelled, 3: Completed
+  bookingStatus: number; // 0: Free, 1: Pending, 2: Paid, 3: Cancelled
   totalAmount: number;
   createdAt: string;
   bookingTimeSlots: {
@@ -95,20 +95,20 @@ const BookingManagement: React.FC = () => {
   // ========== UTILITY FUNCTIONS ==========
   const getStatusText = (status: number) => {
     switch (status) {
-      case 0: return 'Chờ xác nhận';
-      case 1: return 'Đã xác nhận';
-      case 2: return 'Đã hủy';
-      case 3: return 'Hoàn thành';
+      case 0: return 'Sân trống';
+      case 1: return 'Chờ thanh toán';
+      case 2: return 'Đã thanh toán';
+      case 3: return 'Đã hủy';
       default: return 'Không xác định';
     }
   };
 
   const getStatusColor = (status: number) => {
     switch (status) {
-      case 0: return 'bg-yellow-100 text-yellow-800';
-      case 1: return 'bg-green-100 text-green-800';
-      case 2: return 'bg-red-100 text-red-800';
-      case 3: return 'bg-blue-100 text-blue-800';
+      case 0: return 'bg-gray-100 text-gray-800';
+      case 1: return 'bg-yellow-100 text-yellow-800';
+      case 2: return 'bg-green-100 text-green-800';
+      case 3: return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -116,9 +116,9 @@ const BookingManagement: React.FC = () => {
   const getStatusIcon = (status: number) => {
     switch (status) {
       case 0: return <AlertCircle size={16} />;
-      case 1: return <CheckCircle size={16} />;
-      case 2: return <XCircle size={16} />;
-      case 3: return <CheckCircle size={16} />;
+      case 1: return <AlertCircle size={16} />;
+      case 2: return <CheckCircle size={16} />;
+      case 3: return <XCircle size={16} />;
       default: return <AlertCircle size={16} />;
     }
   };
@@ -192,10 +192,10 @@ const BookingManagement: React.FC = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Tất cả</option>
-              <option value="0">Chờ xác nhận</option>
-              <option value="1">Đã xác nhận</option>
-              <option value="2">Đã hủy</option>
-              <option value="3">Hoàn thành</option>
+              <option value="0">Sân trống</option>
+              <option value="1">Chờ thanh toán</option>
+              <option value="2">Đã thanh toán</option>
+              <option value="3">Đã hủy</option>
             </select>
           </div>
           <div className="flex space-x-2">
