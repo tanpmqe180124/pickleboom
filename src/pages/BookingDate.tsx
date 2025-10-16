@@ -407,8 +407,8 @@ export default function BookingDate() {
                             className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white hover:border-gray-400 transition-colors duration-200 min-w-[160px]"
                           >
                             <option value="none">Mặc định</option>
-                            <option value="asc">Giá: Thấp → Cao</option>
-                            <option value="desc">Giá: Cao → Thấp</option>
+                            <option value="asc">Giá: Thấp - Cao</option>
+                            <option value="desc">Giá: Cao - Thấp</option>
                           </select>
                         </div>
                       )}
