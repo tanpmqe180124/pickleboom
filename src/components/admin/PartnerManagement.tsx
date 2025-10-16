@@ -39,7 +39,10 @@ const PartnerManagement: React.FC = () => {
     FullName: '',
     BussinessName: '',
     Address: '',
-    PhoneNumber: ''
+    PhoneNumber: '',
+    PayOSClientId: '',
+    PayOSApiKey: '',
+    PayOSCheckSumKey: ''
   });
 
   // ========== FETCH PARTNERS ==========
@@ -141,7 +144,7 @@ const PartnerManagement: React.FC = () => {
     e.preventDefault();
     
     // Validate required fields
-    if (!formData.Email || !formData.FullName || !formData.BussinessName || !formData.Address || !formData.PhoneNumber) {
+    if (!formData.Email || !formData.FullName || !formData.BussinessName || !formData.Address || !formData.PhoneNumber || !formData.PayOSClientId || !formData.PayOSApiKey || !formData.PayOSCheckSumKey) {
       showToast.error('Lỗi xác thực', 'Vui lòng điền đầy đủ thông tin bắt buộc.');
       return;
     }
@@ -184,7 +187,10 @@ const PartnerManagement: React.FC = () => {
       FullName: '',
       BussinessName: '',
       Address: '',
-      PhoneNumber: ''
+      PhoneNumber: '',
+      PayOSClientId: '',
+      PayOSApiKey: '',
+      PayOSCheckSumKey: ''
     });
   };
 
@@ -532,6 +538,60 @@ const PartnerManagement: React.FC = () => {
                   rows={3}
                   required
                 />
+              </div>
+
+              {/* Payment Keys Section */}
+              <div className="space-y-4">
+                <div className="border-t border-gray-200 pt-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Thông tin Payment Keys</h3>
+                </div>
+                
+                <div className="grid grid-cols-1 gap-6">
+                  {/* PayOS Client ID */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      PayOS Client ID <span className="text-red-500 ml-1">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.PayOSClientId}
+                      onChange={(e) => setFormData({ ...formData, PayOSClientId: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                      placeholder="Nhập PayOS Client ID"
+                      required
+                    />
+                  </div>
+
+                  {/* PayOS API Key */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      PayOS API Key <span className="text-red-500 ml-1">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.PayOSApiKey}
+                      onChange={(e) => setFormData({ ...formData, PayOSApiKey: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                      placeholder="Nhập PayOS API Key"
+                      required
+                    />
+                  </div>
+
+                  {/* PayOS CheckSum Key */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      PayOS CheckSum Key <span className="text-red-500 ml-1">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.PayOSCheckSumKey}
+                      onChange={(e) => setFormData({ ...formData, PayOSCheckSumKey: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                      placeholder="Nhập PayOS CheckSum Key"
+                      required
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Modal Footer */}

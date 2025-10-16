@@ -20,12 +20,14 @@ export interface Court {
 }
 
 export interface BookingRequest {
-  userID: string;
   courtID: string;
   bookingDate: string; // YYYY-MM-DD format
+  partnerId: string; // Thêm PartnerId
   customerName: string;
+  phoneNumber: string; // Thêm phoneNumber
+  email: string; // Thêm email
   amount: number;
-  timeSlots: string[]; // Array of time slot IDs
+  BookingTimeSlot: string[]; // Đổi từ timeSlots thành BookingTimeSlot để khớp backend
 }
 
 export interface BookingResponse {

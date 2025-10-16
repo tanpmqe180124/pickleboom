@@ -65,12 +65,14 @@ export const paymentService = {
     email: string;
     amount: number;
     timeSlots: string[]; // Array of Guid strings
+    partnerId: string; // Thêm PartnerId
   }): Promise<PaymentResponse> {
     try {
       // Map timeSlots to BookingTimeSlot để match với backend
       const payload = {
         courtID: bookingData.courtID,
         bookingDate: bookingData.bookingDate,
+        partnerId: bookingData.partnerId, // Thêm PartnerId
         customerName: bookingData.customerName,
         phoneNumber: bookingData.phoneNumber,
         email: bookingData.email,

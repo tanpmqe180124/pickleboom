@@ -34,6 +34,9 @@ export interface RegisterPartnerRequest {
   BussinessName: string;
   Address: string;
   PhoneNumber: string;
+  PayOSClientId: string;
+  PayOSApiKey: string;
+  PayOSCheckSumKey: string;
 }
 
 export interface AdminCourt {

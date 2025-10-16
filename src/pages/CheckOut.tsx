@@ -117,6 +117,11 @@ export default function CheckOut() {
     ).join(', ');
   };
 
+  const formatDate = (date: Date | null) => {
+    if (!date) return '';
+    return date.toLocaleDateString('vi-VN');
+  };
+
   // State and handler for payment
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -134,6 +139,11 @@ export default function CheckOut() {
     // Validate required data
     if (!selectedDate || !selectedCourt || selectedTimeSlotIds.length === 0) {
       setError('Thiếu thông tin đặt sân. Vui lòng kiểm tra lại.');
+      return;
+    }
+
+    if (!selectedPartner?.id) {
+      setError('Vui lòng chọn partner để đặt sân.');
       return;
     }
 
@@ -166,6 +176,7 @@ export default function CheckOut() {
       const paymentRequest = {
         courtID: selectedCourt.id,
         bookingDate: selectedDate.toISOString().split('T')[0], // YYYY-MM-DD format
+        partnerId: selectedPartner?.id || '', // Thêm PartnerId
         customerName: customerName.trim(),
         phoneNumber: phoneNumber.trim(),
         email: email.trim(),
@@ -204,8 +215,8 @@ export default function CheckOut() {
     params.set('timeSlots', formatTimeSlots());
     params.set('date', formatDate(selectedDate));
     params.set('numHours', String(selectedTimeSlotIds?.length || 0));
-    params.set('pricePerHour', String(selectedCourt?.PricePerHour || selectedCourt?.pricePerHour || 0));
-    params.set('totalAmount', String((selectedCourt?.PricePerHour || selectedCourt?.pricePerHour || 0) * (selectedTimeSlotIds?.length || 0)));
+    params.set('pricePerHour', String(selectedCourt?.pricePerHour || 0));
+    params.set('totalAmount', String((selectedCourt?.pricePerHour || 0) * (selectedTimeSlotIds?.length || 0)));
     
     navigate(`/payment/success?${params.toString()}`);
   };
