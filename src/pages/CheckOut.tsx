@@ -176,7 +176,7 @@ export default function CheckOut() {
       const paymentRequest = {
         courtID: selectedCourt.id,
         bookingDate: selectedDate.toISOString().split('T')[0], // YYYY-MM-DD format
-        partnerId: selectedPartner?.id || '', // Thêm PartnerId
+        partnerId: selectedPartner.id, // Thêm PartnerId từ selectedPartner
         customerName: customerName.trim(),
         phoneNumber: phoneNumber.trim(),
         email: email.trim(),
