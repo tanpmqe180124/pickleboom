@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, Calendar, Clock } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { ChevronLeft, Calendar, Clock, ArrowUpDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import CalendarComponent from 'react-calendar';
 import '../css/booking-date.css';
@@ -17,6 +17,7 @@ interface Partner {
 // Use Court interface from bookingService which matches backend structure
 
 type Step = 'partners' | 'date' | 'time';
+type SortOrder = 'asc' | 'desc' | 'none';
 
 export default function BookingDate() {
   const navigate = useNavigate();
@@ -36,6 +37,7 @@ export default function BookingDate() {
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('none');
 
   // Animation states for each card
   const [showCard1, setShowCard1] = useState(false);
@@ -92,6 +94,17 @@ export default function BookingDate() {
       loadCourts();
     }
   }, [selectedPartner, selectedDate]);
+
+  // Sort courts by price
+  const sortedCourts = useMemo(() => {
+    if (sortOrder === 'none') return courts;
+    
+    return [...courts].sort((a, b) => {
+      const priceA = a.pricePerHour || 0;
+      const priceB = b.pricePerHour || 0;
+      return sortOrder === 'asc' ? priceA - priceB : priceB - priceA;
+    });
+  }, [courts, sortOrder]);
 
   // Get available time slots from selected court (only Free slots)
   const availableTimeSlots = selectedCourt && selectedCourt.timeSlotIDs
@@ -373,14 +386,32 @@ export default function BookingDate() {
                 <div className="space-y-6">
                   {/* Court Selection */}
                   <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-                    <div className="flex items-center mb-6">
-                      <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mr-3">
-                        <Calendar size={20} className="text-white" />
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 space-y-4 sm:space-y-0">
+                      <div className="flex items-center">
+                        <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mr-3">
+                          <Calendar size={20} className="text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-semibold text-gray-900">Chọn sân</h3>
+                          <p className="text-gray-600 text-sm">Chọn sân bạn muốn đặt</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-xl font-semibold text-gray-900">Chọn sân</h3>
-                        <p className="text-gray-600 text-sm">Chọn sân bạn muốn đặt</p>
-                      </div>
+                      
+                      {/* Sort Dropdown */}
+                      {courts.length > 0 && (
+                        <div className="flex items-center space-x-2">
+                          <ArrowUpDown size={16} className="text-gray-500 flex-shrink-0" />
+                          <select
+                            value={sortOrder}
+                            onChange={(e) => setSortOrder(e.target.value as SortOrder)}
+                            className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white hover:border-gray-400 transition-colors duration-200 min-w-[160px]"
+                          >
+                            <option value="none">Mặc định</option>
+                            <option value="asc">Giá: Thấp → Cao</option>
+                            <option value="desc">Giá: Cao → Thấp</option>
+                          </select>
+                        </div>
+                      )}
                     </div>
 
                     {loading && (
@@ -408,7 +439,7 @@ export default function BookingDate() {
                           </div>
                         ) : (
                           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                            {courts.map((court: Court) => (
+                            {sortedCourts.map((court: Court) => (
                             <div
                               key={court.id}
                                 className={`bg-white rounded-xl shadow-sm border cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
