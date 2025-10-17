@@ -320,7 +320,21 @@ export const partnerService = {
   // Get blogs for partner
   getBlogs: async (params?: any): Promise<PartnerBlog[]> => {
     try {
-      const response = await api.get('/Common/blog', { params });
+      // Fix: Add default pagination params
+      const defaultParams = {
+        Page: 1,
+        PageSize: 10,
+        ...params
+      };
+      
+      const response = await api.get('/Common/blog', { params: defaultParams });
+      
+      // Fix: Handle paginated response correctly
+      const responseData = response.data?.data;
+      if (responseData && responseData.data) {
+        return responseData.data; // Return the actual blog array
+      }
+      
       return response.data.data || response.data || [];
     } catch (error) {
       console.error('Error fetching partner blogs:', error);
