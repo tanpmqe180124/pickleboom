@@ -405,7 +405,7 @@ export const partnerService = {
   getBookings: async (partnerId: string, params?: PartnerBookingParams): Promise<PartnerBooking[]> => {
     try {
       console.log('Fetching bookings for partner:', partnerId);
-      const response = await api.get(`/Partner/booking/${partnerId}`, { params });
+      const response = await api.get(`/Partner/booking-by-partner/${partnerId}`, { params });
       console.log('Bookings API Response:', response.data);
       
       // Handle nested data structure: response.data.data.data
