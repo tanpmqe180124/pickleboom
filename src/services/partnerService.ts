@@ -320,7 +320,7 @@ export const partnerService = {
   // Get blogs for partner
   getBlogs: async (params?: any): Promise<PartnerBlog[]> => {
     try {
-      const response = await api.get('/Partner/blog', { params });
+      const response = await api.get('/Common/blog', { params });
       return response.data.data || response.data || [];
     } catch (error) {
       console.error('Error fetching partner blogs:', error);
@@ -331,7 +331,7 @@ export const partnerService = {
   // Get blog by ID
   getBlogById: async (id: string): Promise<PartnerBlog> => {
     try {
-      const response = await api.get(`/Partner/blog/${id}`);
+       const response = await api.get(`/Common/blog/${id}`);
       return response.data.data || response.data;
     } catch (error) {
       console.error('Error fetching blog by ID:', error);
