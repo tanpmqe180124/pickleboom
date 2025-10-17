@@ -345,11 +345,17 @@ export const partnerService = {
       const formData = new FormData();
       formData.append('Title', data.Title);
       formData.append('Content', data.Content);
-      formData.append('ParnerID', data.UserID || ''); // Fix: ParnerID instead of UserID
-      formData.append('BlogStatus', '1'); // Fix: Add BlogStatus (1 = Published)
+      
+      // Fix: Get partner ID from localStorage instead of data.UserID
+      const partnerId = localStorage.getItem('userID');
+      if (!partnerId) {
+        throw new Error('Partner ID not found');
+      }
+      formData.append('ParnerID', partnerId);
+      formData.append('BlogStatus', '1');
       
       if (data.Image) {
-        formData.append('ThumbnailUrl', data.Image); // Fix: ThumbnailUrl instead of Image
+        formData.append('ThumbnailUrl', data.Image);
       }
 
       const response = await api.post('/Partner/blog', formData, {
@@ -371,11 +377,17 @@ export const partnerService = {
       const formData = new FormData();
       formData.append('Title', data.Title);
       formData.append('Content', data.Content);
-      formData.append('ParnerID', data.UserID || ''); // Fix: ParnerID instead of UserID
-      formData.append('BlogStatus', '1'); // Fix: Add BlogStatus (1 = Published)
+      
+      // Fix: Get partner ID from localStorage instead of data.UserID
+      const partnerId = localStorage.getItem('userID');
+      if (!partnerId) {
+        throw new Error('Partner ID not found');
+      }
+      formData.append('ParnerID', partnerId);
+      formData.append('BlogStatus', '1');
       
       if (data.Image) {
-        formData.append('ThumbnailUrl', data.Image); // Fix: ThumbnailUrl instead of Image
+        formData.append('ThumbnailUrl', data.Image);
       }
 
       const response = await api.put(`/Partner/blog/${id}`, formData, {
