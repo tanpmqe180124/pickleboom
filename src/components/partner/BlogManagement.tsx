@@ -16,7 +16,7 @@ const BlogManagement: React.FC = () => {
       permissions={{
         canCreate: true,
         canEdit: true,
-        canDelete: true,
+        canDelete: false, // Partner không thể xóa blog
         canViewAll: false, // Partner chỉ xem blog của mình
       }}
     />
