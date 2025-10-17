@@ -420,7 +420,8 @@ export const partnerService = {
   // Delete blog
   deleteBlog: async (id: string): Promise<string> => {
     try {
-      const response = await api.delete(`/Partner/blog/${id}`);
+      // Fix: Use Admin endpoint with PATCH method
+      const response = await api.patch(`/Admin/blog/${id}`);
       return response.data.message || 'Blog deleted successfully';
     } catch (error) {
       console.error('Error deleting blog:', error);
