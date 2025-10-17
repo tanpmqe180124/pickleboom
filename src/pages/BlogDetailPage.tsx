@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { blogService, PublicBlog } from '@/services/blogService';
 import { Calendar, User, ArrowLeft, Share2, Clock } from 'lucide-react';
 import dayjs from 'dayjs';
@@ -211,8 +210,6 @@ const BlogDetailPage: React.FC = () => {
           )}
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 };

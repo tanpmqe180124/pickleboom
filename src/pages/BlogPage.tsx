@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import BlogCard from '@/components/BlogCard';
 import { blogService, PublicBlog } from '@/services/blogService';
 import { Search, Calendar, User, Filter } from 'lucide-react';
@@ -180,8 +179,6 @@ const BlogPage: React.FC = () => {
           </div>
         )}
       </div>
-
-      <Footer />
     </div>
   );
 };
