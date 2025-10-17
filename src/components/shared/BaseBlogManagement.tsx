@@ -22,6 +22,7 @@ export interface BaseBlog {
   title: string;
   content: string;
   imageUrl?: string;
+  thumbnailUrl?: string; // Add thumbnailUrl field from API
   createdAt: string;
   updatedAt: string;
   userId?: string;
@@ -287,6 +288,24 @@ const BaseBlogManagement: React.FC<BaseBlogManagementProps> = ({
             {filteredBlogs.map((blog) => (
               <div key={blog.id} className="p-6 hover:bg-gray-50">
                 <div className="flex items-start justify-between">
+                  {/* Blog Thumbnail */}
+                  <div className="w-32 h-24 bg-gray-200 rounded-lg overflow-hidden mr-4 flex-shrink-0">
+                    {(blog.imageUrl || blog.thumbnailUrl) ? (
+                      <img
+                        src={blog.imageUrl || blog.thumbnailUrl}
+                        alt={blog.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
+                    <div className={`w-full h-full flex items-center justify-center ${(blog.imageUrl || blog.thumbnailUrl) ? 'hidden' : ''}`}>
+                      <FileText className="h-8 w-8 text-gray-400" />
+                    </div>
+                  </div>
+                  
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
                       <h3 className="text-lg font-semibold text-gray-900">
