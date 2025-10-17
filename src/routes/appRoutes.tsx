@@ -14,6 +14,8 @@ import VerifyEmailPage from '../pages/VerifyEmailPage';
 import ProfilePage from '../pages/ProfilePage';
 import AdminDashboard from '../pages/AdminDashboard';
 import MyBookings from '../pages/MyBookings';
+import BlogPage from '../pages/BlogPage';
+import BlogDetailPage from '../pages/BlogDetailPage';
 import PrivateRoute from './PrivateRoute';
 import AdminRoute from './AdminRoute';
 import PartnerRoute from './PartnerRoute';
@@ -33,6 +35,8 @@ const AppRoutes = () => {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />
+      <Route path="/blog" element={<BlogPage />} />
+      <Route path="/blog/:id" element={<BlogDetailPage />} />
       <Route element={<PrivateRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<ProfilePage />} />
