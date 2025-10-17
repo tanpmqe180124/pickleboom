@@ -345,10 +345,11 @@ export const partnerService = {
       const formData = new FormData();
       formData.append('Title', data.Title);
       formData.append('Content', data.Content);
-      formData.append('UserID', data.UserID || '');
+      formData.append('ParnerID', data.UserID || ''); // Fix: ParnerID instead of UserID
+      formData.append('BlogStatus', '1'); // Fix: Add BlogStatus (1 = Published)
       
       if (data.Image) {
-        formData.append('Image', data.Image);
+        formData.append('ThumbnailUrl', data.Image); // Fix: ThumbnailUrl instead of Image
       }
 
       const response = await api.post('/Partner/blog', formData, {
@@ -370,10 +371,11 @@ export const partnerService = {
       const formData = new FormData();
       formData.append('Title', data.Title);
       formData.append('Content', data.Content);
-      formData.append('UserID', data.UserID || '');
+      formData.append('ParnerID', data.UserID || ''); // Fix: ParnerID instead of UserID
+      formData.append('BlogStatus', '1'); // Fix: Add BlogStatus (1 = Published)
       
       if (data.Image) {
-        formData.append('Image', data.Image);
+        formData.append('ThumbnailUrl', data.Image); // Fix: ThumbnailUrl instead of Image
       }
 
       const response = await api.put(`/Partner/blog/${id}`, formData, {
