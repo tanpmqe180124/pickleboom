@@ -1,111 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import { adminService, AdminBlog, AdminBlogRequest } from '@/services/adminService';
+import { blogService, PublicBlog } from '@/services/blogService';
+import { adminService } from '@/services/adminService';
 import { showToast } from '@/utils/toastManager';
 import { 
   FileText, 
-  Plus, 
-  Edit, 
   Trash2, 
   RefreshCw,
   Search,
   Filter,
   Eye,
   EyeOff,
-  Save,
-  X,
   Calendar,
   User
 } from 'lucide-react';
 
 const BlogManagement: React.FC = () => {
-  const [blogs, setBlogs] = useState<AdminBlog[]>([]);
+  const [blogs, setBlogs] = useState<PublicBlog[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<number | null>(null);
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [editingBlog, setEditingBlog] = useState<AdminBlog | null>(null);
-  const [formData, setFormData] = useState<AdminBlogRequest>({
-    Title: '',
-    Content: '',
-    UserID: '',
-    BlogStatus: 0
-  });
 
   // ========== FETCH BLOGS ==========
   const fetchBlogs = async () => {
     setLoading(true);
     try {
-      // Mock data for now - replace with actual API call when available
-      const mockBlogs: AdminBlog[] = [
-        {
-          ID: '1',
-          Title: 'Hướng dẫn chơi Pickleball cho người mới bắt đầu',
-          Content: 'Pickleball là môn thể thao kết hợp giữa tennis, bóng bàn và cầu lông...',
-          UserID: 'user1',
-          ThumbnailUrl: '/img/blog1.png',
-          BlogStatus: 1,
-          CreatedAt: '2024-01-15T10:30:00Z'
-        },
-        {
-          ID: '2',
-          Title: 'Lợi ích sức khỏe của việc chơi Pickleball',
-          Content: 'Chơi Pickleball mang lại nhiều lợi ích cho sức khỏe...',
-          UserID: 'user1',
-          ThumbnailUrl: '/img/blog2.jpg',
-          BlogStatus: 0,
-          CreatedAt: '2024-01-14T14:20:00Z'
-        },
-        {
-          ID: '3',
-          Title: 'Kỹ thuật giao bóng trong Pickleball',
-          Content: 'Giao bóng là kỹ thuật cơ bản và quan trọng nhất...',
-          UserID: 'user2',
-          ThumbnailUrl: '/img/blog3.jpg',
-          BlogStatus: 2,
-          CreatedAt: '2024-01-13T09:15:00Z'
-        }
-      ];
-      setBlogs(mockBlogs);
+      const blogsData = await blogService.getBlogs({
+        Page: 1,
+        PageSize: 50, // Lấy nhiều blog để admin có thể xem
+        Status: statusFilter || undefined
+      });
+      setBlogs(blogsData);
     } catch (error) {
       console.error('Error fetching blogs:', error);
       showToast.error('Lỗi tải dữ liệu', 'Không thể tải danh sách blog.');
+      setBlogs([]);
     } finally {
       setLoading(false);
     }
-  };
-
-  // ========== HANDLE FORM SUBMIT ==========
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      if (editingBlog) {
-        await adminService.updateBlog(editingBlog.ID, formData);
-        showToast.success('Cập nhật thành công', 'Bài viết đã được cập nhật.');
-      } else {
-        await adminService.createBlog(formData);
-        showToast.success('Tạo thành công', 'Bài viết mới đã được tạo.');
-      }
-      
-      setShowModal(false);
-      setEditingBlog(null);
-      resetForm();
-      fetchBlogs();
-    } catch (error) {
-      console.error('Error saving blog:', error);
-      showToast.error('Lỗi lưu dữ liệu', 'Không thể lưu thông tin bài viết.');
-    }
-  };
-
-  // ========== HANDLE EDIT ==========
-  const handleEdit = (blog: AdminBlog) => {
-    setEditingBlog(blog);
-    setFormData({
-      Title: blog.Title,
-      Content: blog.Content,
-      UserID: blog.UserID,
-      BlogStatus: blog.BlogStatus
-    });
-    setShowModal(true);
   };
 
   // ========== HANDLE DELETE ==========
@@ -120,23 +51,6 @@ const BlogManagement: React.FC = () => {
         showToast.error('Lỗi xóa dữ liệu', 'Không thể xóa bài viết.');
       }
     }
-  };
-
-  // ========== RESET FORM ==========
-  const resetForm = () => {
-    setFormData({
-      Title: '',
-      Content: '',
-      UserID: '',
-      BlogStatus: 0
-    });
-  };
-
-  // ========== HANDLE MODAL CLOSE ==========
-  const handleModalClose = () => {
-    setShowModal(false);
-    setEditingBlog(null);
-    resetForm();
   };
 
   // ========== RENDER STATUS BADGE ==========
@@ -172,7 +86,7 @@ const BlogManagement: React.FC = () => {
   // ========== EFFECTS ==========
   useEffect(() => {
     fetchBlogs();
-  }, []);
+  }, [statusFilter]);
 
   return (
     <div className="space-y-6">
@@ -195,13 +109,6 @@ const BlogManagement: React.FC = () => {
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             <span className="font-medium">Làm mới</span>
-          </button>
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg hover:from-orange-700 hover:to-red-700 transition-all duration-200 shadow-sm hover:shadow-md"
-          >
-            <Plus className="h-4 w-4" />
-            <span className="font-medium">Thêm bài viết mới</span>
           </button>
         </div>
       </div>
@@ -263,13 +170,13 @@ const BlogManagement: React.FC = () => {
           </div>
         ) : (
           blogs.map((blog) => (
-            <div key={blog.ID} className="bg-white rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow">
+            <div key={blog.id} className="bg-white rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow">
               {/* Blog Thumbnail */}
               <div className="h-48 bg-gray-200 relative">
-                {blog.ThumbnailUrl ? (
+                {blog.thumbnailUrl ? (
                   <img
-                    src={blog.ThumbnailUrl}
-                    alt={blog.Title}
+                    src={blog.thumbnailUrl}
+                    alt={blog.title}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -278,168 +185,45 @@ const BlogManagement: React.FC = () => {
                   </div>
                 )}
                 <div className="absolute top-4 right-4">
-                  {renderStatusBadge(blog.BlogStatus)}
+                  {renderStatusBadge(blog.status)}
                 </div>
               </div>
 
               {/* Blog Content */}
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                  {blog.Title}
+                  {blog.title}
                 </h3>
                 <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                  {blog.Content}
+                  {blog.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
                 </p>
                 
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center text-sm text-gray-500">
                     <User className="h-4 w-4 mr-2" />
-                    ID: {blog.UserID}
+                    ID: {blog.id}
                   </div>
                   <div className="flex items-center text-sm text-gray-500">
                     <Calendar className="h-4 w-4 mr-2" />
-                    {formatDate(blog.CreatedAt)}
+                    {formatDate(blog.createdAt)}
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleEdit(blog)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Chỉnh sửa"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(blog.ID)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Xóa"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
+                <div className="flex items-center justify-end">
+                  <button
+                    onClick={() => handleDelete(blog.id)}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Xóa bài viết"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
             </div>
           ))
         )}
       </div>
-
-      {/* ========== MODAL ========== */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">
-                {editingBlog ? 'Chỉnh sửa bài viết' : 'Thêm bài viết mới'}
-              </h3>
-              <button
-                onClick={handleModalClose}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tiêu đề *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.Title}
-                  onChange={(e) => setFormData({ ...formData, Title: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="Nhập tiêu đề bài viết..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nội dung *
-                </label>
-                <textarea
-                  required
-                  value={formData.Content}
-                  onChange={(e) => setFormData({ ...formData, Content: e.target.value })}
-                  rows={8}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="Nhập nội dung bài viết..."
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ID Tác giả *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.UserID}
-                    onChange={(e) => setFormData({ ...formData, UserID: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="Nhập ID tác giả..."
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Trạng thái *
-                  </label>
-                  <select
-                    value={formData.BlogStatus}
-                    onChange={(e) => setFormData({ ...formData, BlogStatus: parseInt(e.target.value) })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  >
-                    <option value={0}>Bản nháp</option>
-                    <option value={1}>Đã xuất bản</option>
-                    <option value={2}>Đã ẩn</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Hình ảnh thumbnail
-                </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setFormData({ ...formData, ThumbnailUrl: file });
-                    }
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                />
-              </div>
-
-              <div className="flex items-center justify-end space-x-3 pt-4 border-t">
-                <button
-                  type="button"
-                  onClick={handleModalClose}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  className="flex items-center space-x-2 px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
-                >
-                  <Save className="h-4 w-4" />
-                  <span>{editingBlog ? 'Cập nhật' : 'Tạo mới'}</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
