@@ -339,9 +339,6 @@ const PartnerManagement: React.FC = () => {
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Trạng thái
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Ghi chú
-                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
@@ -385,13 +382,6 @@ const PartnerManagement: React.FC = () => {
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap">
                         {renderStatusBadge(partner.Status || 0)}
-                      </td>
-                      <td className="px-6 py-5 whitespace-nowrap text-sm font-medium">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-xs text-gray-500 italic">
-                            Chỉ xem thông tin
-                          </span>
-                        </div>
                       </td>
                     </tr>
                   ))}
