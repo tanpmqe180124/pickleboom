@@ -4,7 +4,6 @@ import { Button } from './ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuthStore } from '@/infrastructure/storage/tokenStorage';
 import { useState } from 'react';
-import AdminLink from './AdminLink';
 
 const Header = () => {
   const { userID, accessToken, logout } = useAuth();
@@ -114,9 +113,6 @@ const Header = () => {
                         <Calendar className="mr-2 h-4 w-4" />
                         Dashboard
                       </Link>
-                      <div className="px-4 py-2">
-                        <AdminLink />
-                      </div>
                       <button
                         onClick={handleLogout}
                         className="flex w-full items-center px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
