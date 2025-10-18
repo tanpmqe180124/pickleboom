@@ -43,11 +43,18 @@ const Header = () => {
         <div className="flex w-full flex-wrap">
           <div className="grid w-full grid-cols-12">
             <div className="col-span-3 flex items-center justify-center">
-              <img
-                src="/img/brandlogo_white_clean.png"
-                className="h-[63px] w-[112px] object-contain"
-                alt="Pickle Boom Logo"
-              />
+              <Link 
+                to="/" 
+                className="transition-all duration-200 hover:scale-105 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary-hl focus:ring-offset-2 rounded-lg p-2 -m-2"
+                title="Về trang chủ PickleBoom"
+                aria-label="Về trang chủ PickleBoom"
+              >
+                <img
+                  src="/img/brandlogo_white_clean.png"
+                  className="h-[63px] w-[112px] object-contain cursor-pointer"
+                  alt="Pickle Boom Logo - Nhấn để về trang chủ"
+                />
+              </Link>
             </div>
             <div className="col-span-6 flex items-center justify-center">
               <nav className="flex space-x-8">
