@@ -357,7 +357,7 @@ export const adminService = {
 
   async deleteBlog(blogId: string): Promise<string> {
     try {
-      const response = await api.patch<ApiResponse<string>>(`/Blog/${blogId}`);
+      const response = await api.patch<ApiResponse<string>>(`/Admin/blog/${blogId}`);
       return response.data.Message;
     } catch (error) {
       console.error('Error deleting blog:', error);

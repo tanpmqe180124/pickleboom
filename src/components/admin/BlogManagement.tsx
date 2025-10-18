@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { blogService, PublicBlog } from '@/services/blogService';
 import { adminService } from '@/services/adminService';
 import { showToast } from '@/utils/toastManager';
+import ConfirmationModal from '@/components/ui/ConfirmationModal';
 import { 
   FileText, 
   Trash2, 
@@ -19,6 +20,8 @@ const BlogManagement: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<number | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [blogToDelete, setBlogToDelete] = useState<PublicBlog | null>(null);
 
   // ========== FETCH BLOGS ==========
   const fetchBlogs = async () => {
@@ -40,17 +43,29 @@ const BlogManagement: React.FC = () => {
   };
 
   // ========== HANDLE DELETE ==========
-  const handleDelete = async (blogId: string) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
-      try {
-        await adminService.deleteBlog(blogId);
-        showToast.success('Xóa thành công', 'Bài viết đã được xóa.');
-        fetchBlogs();
-      } catch (error) {
-        console.error('Error deleting blog:', error);
-        showToast.error('Lỗi xóa dữ liệu', 'Không thể xóa bài viết.');
-      }
+  const handleDeleteClick = (blog: PublicBlog) => {
+    setBlogToDelete(blog);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!blogToDelete) return;
+    
+    try {
+      await adminService.deleteBlog(blogToDelete.id);
+      showToast.success('Xóa thành công', 'Bài viết đã được xóa.');
+      setShowDeleteModal(false);
+      setBlogToDelete(null);
+      fetchBlogs();
+    } catch (error) {
+      console.error('Error deleting blog:', error);
+      showToast.error('Lỗi xóa dữ liệu', 'Không thể xóa bài viết.');
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+    setBlogToDelete(null);
   };
 
   // ========== RENDER STATUS BADGE ==========
@@ -212,7 +227,7 @@ const BlogManagement: React.FC = () => {
                 {/* Actions */}
                 <div className="flex items-center justify-end">
                   <button
-                    onClick={() => handleDelete(blog.id)}
+                    onClick={() => handleDeleteClick(blog)}
                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     title="Xóa bài viết"
                   >
@@ -224,6 +239,18 @@ const BlogManagement: React.FC = () => {
           ))
         )}
       </div>
+
+      {/* ========== CONFIRMATION MODAL ========== */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title="Xóa bài viết"
+        message={`Bạn có chắc chắn muốn xóa bài viết "${blogToDelete?.title}"? Hành động này không thể hoàn tác.`}
+        confirmText="Xóa"
+        cancelText="Hủy"
+        type="danger"
+      />
     </div>
   );
 };
