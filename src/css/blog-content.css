@@ -1,0 +1,262 @@
+/* Blog Content Styling */
+.blog-content {
+  font-size: 18px;
+  line-height: 1.8;
+  color: #374151;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', system-ui, -apple-system, sans-serif;
+}
+
+.blog-content p {
+  margin-bottom: 1.5rem;
+  text-align: justify;
+  word-spacing: 0.1em;
+}
+
+.blog-content h1,
+.blog-content h2,
+.blog-content h3,
+.blog-content h4,
+.blog-content h5,
+.blog-content h6 {
+  font-weight: 700;
+  color: #1f2937;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.blog-content h1 {
+  font-size: 2.25rem;
+  border-bottom: 3px solid #f97316;
+  padding-bottom: 0.5rem;
+}
+
+.blog-content h2 {
+  font-size: 1.875rem;
+  border-bottom: 2px solid #f97316;
+  padding-bottom: 0.25rem;
+}
+
+.blog-content h3 {
+  font-size: 1.5rem;
+  color: #f97316;
+}
+
+.blog-content h4 {
+  font-size: 1.25rem;
+  color: #f97316;
+}
+
+.blog-content h5,
+.blog-content h6 {
+  font-size: 1.125rem;
+  color: #6b7280;
+}
+
+.blog-content ul,
+.blog-content ol {
+  margin-bottom: 1.5rem;
+  padding-left: 2rem;
+}
+
+.blog-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.blog-content ul li {
+  list-style-type: disc;
+}
+
+.blog-content ol li {
+  list-style-type: decimal;
+}
+
+.blog-content blockquote {
+  border-left: 4px solid #f97316;
+  background-color: #fef3c7;
+  padding: 1rem 1.5rem;
+  margin: 2rem 0;
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+  color: #92400e;
+}
+
+.blog-content blockquote p {
+  margin-bottom: 0;
+}
+
+.blog-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  margin: 2rem 0;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.blog-content a {
+  color: #f97316;
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.blog-content a:hover {
+  border-bottom-color: #f97316;
+  color: #ea580c;
+}
+
+.blog-content strong,
+.blog-content b {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.blog-content em,
+.blog-content i {
+  font-style: italic;
+  color: #6b7280;
+}
+
+.blog-content code {
+  background-color: #f3f4f6;
+  color: #dc2626;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9em;
+}
+
+.blog-content pre {
+  background-color: #1f2937;
+  color: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 12px;
+  overflow-x: auto;
+  margin: 2rem 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.blog-content pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+.blog-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.blog-content th,
+.blog-content td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.blog-content th {
+  background-color: #f97316;
+  color: white;
+  font-weight: 600;
+}
+
+.blog-content tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.blog-content tr:hover {
+  background-color: #fef3c7;
+}
+
+.blog-content hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #f97316, transparent);
+  margin: 3rem 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .blog-content {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+  
+  .blog-content h1 {
+    font-size: 1.875rem;
+  }
+  
+  .blog-content h2 {
+    font-size: 1.5rem;
+  }
+  
+  .blog-content h3 {
+    font-size: 1.25rem;
+  }
+  
+  .blog-content img {
+    margin: 1.5rem 0;
+  }
+  
+  .blog-content blockquote {
+    padding: 0.75rem 1rem;
+    margin: 1.5rem 0;
+  }
+  
+  .blog-content pre {
+    padding: 1rem;
+    margin: 1.5rem 0;
+  }
+  
+  .blog-content table {
+    font-size: 14px;
+  }
+  
+  .blog-content th,
+  .blog-content td {
+    padding: 0.75rem;
+  }
+}
+
+/* Utility classes */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Print styles */
+@media print {
+  .blog-content {
+    font-size: 12pt;
+    line-height: 1.6;
+    color: #000;
+  }
+  
+  .blog-content a {
+    color: #000;
+    text-decoration: underline;
+  }
+  
+  .blog-content img {
+    max-width: 100%;
+    page-break-inside: avoid;
+  }
+}

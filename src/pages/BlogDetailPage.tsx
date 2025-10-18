@@ -6,6 +6,7 @@ import { blogService, PublicBlog } from '@/services/blogService';
 import { Calendar, User, ArrowLeft, Share2, Clock, Eye, Heart, BookOpen } from 'lucide-react';
 import dayjs from 'dayjs';
 import { showToast } from '@/utils/toastManager';
+import '@/css/blog-content.css';
 
 const BlogDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -224,8 +225,56 @@ const BlogDetailPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <div className="prose prose-lg max-w-none text-gray-800 leading-relaxed">
-              <div dangerouslySetInnerHTML={{ __html: blog.content }} />
+            {/* Content Introduction */}
+            <div className="mb-8 p-6 bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl border-l-4 border-orange-500">
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                    <BookOpen size={16} className="text-white" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Nội dung bài viết</h3>
+                  <p className="text-gray-600 text-sm">
+                    Thời gian đọc: {readingTime} phút • Cập nhật: {dayjs(blog.updatedAt).format('DD/MM/YYYY')}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Content */}
+            <div className="max-w-none">
+              <div 
+                className="blog-content text-gray-800 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: blog.content }}
+                style={{
+                  fontSize: '18px',
+                  lineHeight: '1.8',
+                  fontFamily: 'system-ui, -apple-system, sans-serif'
+                }}
+              />
+            </div>
+
+            {/* Content Footer */}
+            <div className="mt-12 pt-8 border-t border-gray-200">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={handleShare}
+                    className="flex items-center space-x-2 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+                  >
+                    <Share2 size={16} />
+                    <span>Chia sẻ bài viết</span>
+                  </button>
+                  <button className="flex items-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
+                    <Heart size={16} />
+                    <span>Thích bài viết</span>
+                  </button>
+                </div>
+                <div className="text-sm text-gray-500">
+                  Đăng bởi {blog.partnerName || 'PickleBoom Team'} • {dayjs(blog.createdAt).format('DD/MM/YYYY')}
+                </div>
+              </div>
             </div>
           </motion.div>
 
@@ -238,32 +287,50 @@ const BlogDetailPage: React.FC = () => {
             >
               <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
                 <div className="flex items-center space-x-3 mb-8">
-                  <BookOpen size={24} className="text-orange-500" />
-                  <h2 className="text-2xl font-bold text-gray-900">Bài viết liên quan</h2>
+                  <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                    <BookOpen size={20} className="text-orange-500" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">Bài viết liên quan</h2>
+                    <p className="text-gray-600 text-sm">Khám phá thêm những bài viết thú vị khác</p>
+                  </div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {relatedBlogs.map((relatedBlog, index) => (
                     <motion.div
                       key={relatedBlog.id}
-                      className="bg-gray-50 rounded-xl p-6 hover:bg-orange-50 transition-colors cursor-pointer"
+                      className="group bg-gray-50 rounded-xl p-6 hover:bg-orange-50 transition-all duration-300 cursor-pointer border border-transparent hover:border-orange-200 hover:shadow-lg"
                       onClick={() => navigate(`/blog/${relatedBlog.id}`)}
                       whileHover={{ scale: 1.02 }}
                       transition={{ duration: 0.2 }}
                     >
-                      {relatedBlog.thumbnailUrl && (
+                      {relatedBlog.thumbnailUrl ? (
                         <img
                           src={relatedBlog.thumbnailUrl}
                           alt={relatedBlog.title}
-                          className="w-full h-32 object-cover rounded-lg mb-4"
+                          className="w-full h-32 object-cover rounded-lg mb-4 group-hover:scale-105 transition-transform duration-300"
                         />
+                      ) : (
+                        <div className="w-full h-32 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg mb-4 flex items-center justify-center">
+                          <div className="text-center">
+                            <div className="text-3xl mb-2">🏓</div>
+                            <p className="text-xs text-orange-600 font-medium">Pickleball</p>
+                          </div>
+                        </div>
                       )}
-                      <h3 className="font-bold text-gray-900 mb-2 line-clamp-2">
+                      <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-orange-600 transition-colors">
                         {relatedBlog.title}
                       </h3>
-                      <p className="text-sm text-gray-600 line-clamp-2">
+                      <p className="text-sm text-gray-600 line-clamp-2 mb-3">
                         {relatedBlog.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
                       </p>
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span>{dayjs(relatedBlog.createdAt).format('DD/MM/YYYY')}</span>
+                        <span className="text-orange-500 font-medium group-hover:text-orange-600">
+                          Đọc tiếp →
+                        </span>
+                      </div>
                     </motion.div>
                   ))}
                 </div>
