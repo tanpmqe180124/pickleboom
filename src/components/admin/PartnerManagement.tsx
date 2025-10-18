@@ -75,7 +75,7 @@ const PartnerManagement: React.FC = () => {
         BussinessName: partner.bussinessName,
         Avatar: partner.avatar || '',
         IsApproved: partner.isApproved,
-        Status: partner.isApproved ? 0 : 1, // Convert boolean to number
+        Status: partner.isApproved ? 1 : 0, // Convert boolean to number: 1 = Approved/Active, 0 = Not Approved/Inactive
         Role: partner.role
       }));
       
@@ -91,31 +91,9 @@ const PartnerManagement: React.FC = () => {
     }
   };
 
-  // ========== UPDATE PARTNER STATUS ==========
-  const updatePartnerStatus = async (partnerId: string, newStatus: number) => {
-    try {
-      console.log('Updating partner ID:', partnerId, 'New status:', newStatus);
-      const partnerData = { Status: newStatus };
-      await adminService.updatePartnerStatus(partnerId, partnerData);
-      
-      // Update local state - map Status back to IsApproved
-      setPartners(prevPartners => 
-        prevPartners.map(partner => 
-          partner.ID === partnerId ? { 
-            ...partner, 
-            Status: newStatus,
-            IsApproved: newStatus === 0 // Convert number back to boolean
-          } : partner
-        )
-      );
-      
-      const statusText = newStatus === 0 ? 'kích hoạt' : 'vô hiệu hóa';
-      showToast.success('Cập nhật thành công', `Đã ${statusText} Partner.`);
-    } catch (error) {
-      console.error('Error updating partner status:', error);
-      showToast.error('Lỗi cập nhật', 'Không thể cập nhật trạng thái Partner.');
-    }
-  };
+  // ========== ADMIN CANNOT UPDATE PARTNER STATUS ==========
+  // Note: Admin chỉ có quyền xem thông tin Partner, không có quyền thay đổi trạng thái
+  // Để thay đổi trạng thái Partner, cần có quyền cao hơn hoặc endpoint riêng
 
   // ========== HANDLE SEARCH ==========
   const handleSearch = () => {
@@ -202,7 +180,7 @@ const PartnerManagement: React.FC = () => {
 
   // ========== RENDER STATUS BADGE ==========
   const renderStatusBadge = (status: number | undefined) => {
-    if (status === 0) {
+    if (status === 1) {
       return (
         <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border border-green-200">
           <UserCheck className="h-3 w-3 mr-1.5" />
@@ -310,8 +288,8 @@ const PartnerManagement: React.FC = () => {
               className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm bg-white shadow-sm transition-all duration-200"
             >
               <option value="">Tất cả trạng thái</option>
-              <option value={0}>Hoạt động</option>
-              <option value={1}>Vô hiệu hóa</option>
+              <option value={1}>Hoạt động</option>
+              <option value={0}>Vô hiệu hóa</option>
             </select>
           </div>
 
@@ -362,7 +340,7 @@ const PartnerManagement: React.FC = () => {
                       Trạng thái
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Thao tác
+                      Ghi chú
                     </th>
                   </tr>
                 </thead>
@@ -406,20 +384,13 @@ const PartnerManagement: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap">
-                        {renderStatusBadge(partner.Status || 1)}
+                        {renderStatusBadge(partner.Status || 0)}
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() => updatePartnerStatus(partner.ID, (partner.Status || 1) === 0 ? 1 : 0)}
-                            className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 shadow-sm hover:shadow-md ${
-                              (partner.Status || 1) === 0
-                                ? 'text-red-700 bg-red-50 hover:bg-red-100 border border-red-200'
-                                : 'text-green-700 bg-green-50 hover:bg-green-100 border border-green-200'
-                            }`}
-                          >
-                            {(partner.Status || 1) === 0 ? 'Vô hiệu hóa' : 'Kích hoạt'}
-                          </button>
+                          <span className="text-xs text-gray-500 italic">
+                            Chỉ xem thông tin
+                          </span>
                         </div>
                       </td>
                     </tr>
