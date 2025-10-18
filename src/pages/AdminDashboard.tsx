@@ -3,30 +3,18 @@ import { useAuth } from '@/contexts/AuthContext';
 import { showToast } from '@/utils/toastManager';
 import { 
   Users, 
-  MapPin, 
-  Clock, 
   FileText, 
-  Calendar,
   Settings,
   LogOut,
-  Plus,
-  Search,
-  Filter,
-  Edit,
-  Trash2,
-  Eye,
   EyeOff,
   ArrowLeft
 } from 'lucide-react';
 
 // ========== COMPONENT IMPORTS ==========
 import PartnerManagement from '@/components/admin/PartnerManagement';
-import CourtManagement from '@/components/admin/CourtManagement';
-import TimeSlotManagement from '@/components/admin/TimeSlotManagement';
 import BlogManagement from '@/components/admin/BlogManagement';
-import BookingManagement from '@/components/admin/BookingManagement';
 
-type AdminTab = 'partners' | 'courts' | 'timeslots' | 'blogs' | 'bookings';
+type AdminTab = 'partners' | 'blogs';
 
 const AdminDashboard: React.FC = () => {
   const { userRole, logout } = useAuth();
@@ -77,36 +65,12 @@ const AdminDashboard: React.FC = () => {
       hoverColor: 'hover:bg-purple-100'
     },
     {
-      id: 'courts' as AdminTab,
-      name: 'Quản lý sân Pickleball',
-      icon: MapPin,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
-      hoverColor: 'hover:bg-green-100'
-    },
-    {
-      id: 'timeslots' as AdminTab,
-      name: 'Quản lý khung giờ',
-      icon: Clock,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
-      hoverColor: 'hover:bg-purple-100'
-    },
-    {
       id: 'blogs' as AdminTab,
       name: 'Quản lý blog',
       icon: FileText,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50',
       hoverColor: 'hover:bg-orange-100'
-    },
-    {
-      id: 'bookings' as AdminTab,
-      name: 'Quản lý đặt sân',
-      icon: Calendar,
-      color: 'text-red-600',
-      bgColor: 'bg-red-50',
-      hoverColor: 'hover:bg-red-100'
     }
   ];
 
@@ -206,10 +170,7 @@ const AdminDashboard: React.FC = () => {
               {/* ========== TAB CONTENT ========== */}
               <div className="p-6">
                 {activeTab === 'partners' && <PartnerManagement />}
-                {activeTab === 'courts' && <CourtManagement />}
-                {activeTab === 'timeslots' && <TimeSlotManagement />}
                 {activeTab === 'blogs' && <BlogManagement />}
-                {activeTab === 'bookings' && <BookingManagement />}
               </div>
             </div>
           </div>
