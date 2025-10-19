@@ -61,7 +61,7 @@ const TestimonialsSection = () => {
             Khách hàng nói gì về chúng tôi?
           </h2>
           <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto font-light leading-relaxed tracking-wide">
-            Hơn 1000+ người chơi đã tin tưởng và hài lòng với dịch vụ của PickleBoom
+            Hơn 100+ người chơi đã tin tưởng và hài lòng với dịch vụ của PickleBoom
           </p>
         </motion.div>
 

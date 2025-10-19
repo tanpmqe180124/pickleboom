@@ -142,7 +142,7 @@ const HeroSection = () => {
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.8, delay: 1.6, type: "spring", stiffness: 200 }}
                 >
-                  50+
+                  10+
                 </motion.div>
                 <div className="text-gray-200 text-base sm:text-xl font-medium tracking-wide">Sân đối tác</div>
               </motion.div>
@@ -159,7 +159,7 @@ const HeroSection = () => {
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.8, delay: 1.8, type: "spring", stiffness: 200 }}
                 >
-                  1000+
+                  100+
                 </motion.div>
                 <div className="text-gray-200 text-base sm:text-xl font-medium tracking-wide">Người chơi</div>
               </motion.div>
@@ -176,7 +176,7 @@ const HeroSection = () => {
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.8, delay: 2.0, type: "spring", stiffness: 200 }}
                 >
-                  5000+
+                  1000+
                 </motion.div>
                 <div className="text-gray-200 text-base sm:text-xl font-medium tracking-wide">Lượt đặt sân</div>
               </motion.div>

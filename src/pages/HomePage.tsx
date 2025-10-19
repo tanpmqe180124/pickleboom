@@ -188,7 +188,7 @@ const Home = () => {
                 </div>
                 <div className="flex items-center text-gray-200 text-lg">
                   <Users size={24} className="mr-4 text-[#EAB308]" />
-                  <span className="font-medium">Tiếp cận 1000+ người chơi</span>
+                  <span className="font-medium">Tiếp cận 100+ người chơi</span>
                 </div>
               </div>
               <Button 
@@ -224,7 +224,7 @@ const Home = () => {
                 </div>
                 <div className="flex items-center text-gray-200 text-lg">
                   <Building2 size={24} className="mr-4 text-[#FCBA6B]" />
-                  <span className="font-medium">50+ sân chất lượng</span>
+                  <span className="font-medium">10+ sân chất lượng</span>
                 </div>
                 <div className="flex items-center text-gray-200 text-lg">
                   <Users size={24} className="mr-4 text-[#FCBA6B]" />
