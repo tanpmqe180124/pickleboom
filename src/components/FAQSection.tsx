@@ -1,53 +1,64 @@
 import { motion } from 'framer-motion';
-import { ChevronDown, ChevronUp, Phone, Mail, MapPin, Clock } from 'lucide-react';
+import { ChevronDown, ChevronUp, Phone, Mail, MapPin, Clock, HelpCircle, CreditCard, Users, Shield, MessageCircle } from 'lucide-react';
 import { useState } from 'react';
 
 const faqs = [
   {
     id: 1,
     question: 'Làm thế nào để đặt sân pickleball?',
-    answer: 'Bạn chỉ cần truy cập trang web, chọn sân yêu thích, chọn thời gian và thanh toán. Quá trình đặt sân chỉ mất vài phút!'
+    answer: 'Bạn chỉ cần truy cập trang web, chọn sân yêu thích, chọn thời gian và thanh toán. Quá trình đặt sân chỉ mất vài phút!',
+    icon: <HelpCircle className="w-5 h-5 text-[#FCBA6B]" />
   },
   {
     id: 2,
     question: 'Có thể hủy đặt sân không?',
-    answer: 'Có, bạn có thể hủy đặt sân trước 2 giờ. Phí hủy sẽ được hoàn lại 100% nếu hủy trước 24 giờ.'
+    answer: 'Có, bạn có thể hủy đặt sân trước 2 giờ. Phí hủy sẽ được hoàn lại 100% nếu hủy trước 24 giờ.',
+    icon: <CreditCard className="w-5 h-5 text-[#FCBA6B]" />
   },
   {
     id: 3,
     question: 'Thanh toán có an toàn không?',
-    answer: 'Chúng tôi sử dụng hệ thống thanh toán PayOS và các phương thức bảo mật khác. Thông tin thẻ của bạn được mã hóa và bảo vệ tuyệt đối.'
+    answer: 'Chúng tôi sử dụng hệ thống thanh toán PayOS và các phương thức bảo mật khác. Thông tin thẻ của bạn được mã hóa và bảo vệ tuyệt đối.',
+    icon: <Shield className="w-5 h-5 text-[#FCBA6B]" />
   },
   {
     id: 4,
     question: 'Có hỗ trợ người mới chơi không?',
-    answer: 'Có! Chúng tôi có đội ngũ hướng dẫn chuyên nghiệp và cộng đồng người chơi thân thiện sẵn sàng giúp đỡ người mới.'
+    answer: 'Có! Chúng tôi có đội ngũ hướng dẫn chuyên nghiệp và cộng đồng người chơi thân thiện sẵn sàng giúp đỡ người mới.',
+    icon: <Users className="w-5 h-5 text-[#FCBA6B]" />
   },
   {
     id: 5,
     question: 'Làm sao để trở thành đối tác sân?',
-    answer: 'Bạn có thể đăng ký làm đối tác qua trang web hoặc gọi hotline. Chúng tôi sẽ hỗ trợ setup và hướng dẫn sử dụng hệ thống quản lý.'
+    answer: 'Bạn có thể đăng ký làm đối tác qua trang web hoặc gọi hotline. Chúng tôi sẽ hỗ trợ setup và hướng dẫn sử dụng hệ thống quản lý.',
+    icon: <MessageCircle className="w-5 h-5 text-[#FCBA6B]" />
   }
 ];
 
 const FAQItem = ({ faq, isOpen, onToggle }: { faq: any, isOpen: boolean, onToggle: () => void }) => {
   return (
     <motion.div 
-      className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-300"
+      className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-lg hover:border-[#FCBA6B]/30 transition-all duration-300 group"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       viewport={{ once: true }}
+      whileHover={{ y: -2 }}
     >
       <button
-        className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors duration-200"
+        className="w-full px-6 py-5 text-left flex items-center justify-between hover:bg-gradient-to-r hover:from-[#FCBA6B]/5 hover:to-transparent transition-all duration-200"
         onClick={onToggle}
       >
-        <h3 className="text-lg font-semibold text-gray-800 pr-4">{faq.question}</h3>
+        <div className="flex items-center gap-4">
+          <div className="p-2 rounded-full bg-[#FCBA6B]/10 group-hover:bg-[#FCBA6B]/20 transition-colors duration-200">
+            {faq.icon}
+          </div>
+          <h3 className="text-lg font-semibold text-gray-800 group-hover:text-[#2F3C54] transition-colors duration-200">{faq.question}</h3>
+        </div>
         {isOpen ? (
-          <ChevronUp className="w-5 h-5 text-[#FCBA6B] flex-shrink-0" />
+          <ChevronUp className="w-5 h-5 text-[#FCBA6B] flex-shrink-0 transition-transform duration-200" />
         ) : (
-          <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0" />
+          <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0 transition-transform duration-200" />
         )}
       </button>
       <motion.div
@@ -56,7 +67,7 @@ const FAQItem = ({ faq, isOpen, onToggle }: { faq: any, isOpen: boolean, onToggl
         transition={{ duration: 0.3, ease: 'easeInOut' }}
         className="overflow-hidden"
       >
-        <div className="px-6 pb-4 text-gray-600 leading-relaxed">
+        <div className="px-6 pb-5 text-gray-600 leading-relaxed bg-gradient-to-r from-gray-50 to-transparent">
           {faq.answer}
         </div>
       </motion.div>
@@ -112,7 +123,7 @@ const FAQSection = () => {
 
 const Footer = () => {
   return (
-    <footer className="bg-[#2F3C54] text-white py-16">
+    <footer className="bg-gradient-to-br from-[#2F3C54] to-[#1E2A3A] text-white py-16">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Logo và mô tả */}
@@ -129,10 +140,10 @@ const Footer = () => {
               Đặt sân dễ dàng, quản lý hiệu quả.
             </p>
             <div className="flex space-x-4">
-              <div className="w-10 h-10 bg-[#FCBA6B] rounded-full flex items-center justify-center hover:bg-[#EAB308] transition-colors duration-300 cursor-pointer">
+              <div className="w-12 h-12 bg-[#FCBA6B] rounded-full flex items-center justify-center hover:bg-[#EAB308] hover:scale-110 transition-all duration-300 cursor-pointer shadow-lg">
                 <Phone className="w-5 h-5 text-[#2F3C54]" />
               </div>
-              <div className="w-10 h-10 bg-[#FCBA6B] rounded-full flex items-center justify-center hover:bg-[#EAB308] transition-colors duration-300 cursor-pointer">
+              <div className="w-12 h-12 bg-[#FCBA6B] rounded-full flex items-center justify-center hover:bg-[#EAB308] hover:scale-110 transition-all duration-300 cursor-pointer shadow-lg">
                 <Mail className="w-5 h-5 text-[#2F3C54]" />
               </div>
             </div>

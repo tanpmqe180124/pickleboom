@@ -20,23 +20,23 @@ const Header = () => {
     <header className="h-[100px] border-b bg-primary text-primary-foreground sticky top-0 z-50 backdrop-blur-sm bg-primary/95">
       <div className="w-full py-3">
         {/* Enhanced Top utility bar */}
-        <div className="mr-2 flex items-center justify-center divide-x divide-muted-foreground/30">
+        <div className="mr-2 flex items-center justify-center divide-x divide-muted-foreground/20">
           <div className="flex space-x-1 px-4">
-            <span className="cursor-pointer text-sm hover:text-primary-hl transition-colors duration-200 flex items-center gap-1">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              Đặt sân online
+            <span className="cursor-pointer text-sm hover:text-primary-hl transition-colors duration-200 flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-sm"></div>
+              <span className="font-medium">Đặt sân online</span>
             </span>
           </div>
           <div className="flex space-x-1 px-4">
-            <span className="cursor-pointer text-sm hover:text-primary-hl transition-colors duration-200 flex items-center gap-1">
-              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-              Hotline: 098 962 78 87 (9h-23h)
+            <span className="cursor-pointer text-sm hover:text-primary-hl transition-colors duration-200 flex items-center gap-2">
+              <div className="w-2 h-2 bg-blue-400 rounded-full shadow-sm"></div>
+              <span className="font-medium">Hotline: 098 962 78 87 (9h-23h)</span>
             </span>
           </div>
           <div className="flex space-x-1 px-4">
-            <span className="cursor-pointer text-sm hover:text-primary-hl transition-colors duration-200 flex items-center gap-1">
-              <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-              Hoạt động 24/7
+            <span className="cursor-pointer text-sm hover:text-primary-hl transition-colors duration-200 flex items-center gap-2">
+              <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse shadow-sm"></div>
+              <span className="font-medium">Hoạt động 24/7</span>
             </span>
           </div>
         </div>

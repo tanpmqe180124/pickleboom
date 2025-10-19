@@ -20,8 +20,8 @@ export const Banner = () => {
               ref={ref}
               className={`relative flex flex-col justify-start rounded-2xl bg-primary-foreground p-4 shadow-lg max-w-lg mx-auto hover:shadow-xl hover:-translate-y-1 transition-all duration-700 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
             >
-              <div className="absolute -right-4 -top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white font-bold text-[#2F3C54] shadow-md border-2 border-[#2F3C54]">
-                {item.id}
+              <div className="absolute -right-4 -top-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#FCBA6B] text-[#2F3C54] shadow-lg border-2 border-white">
+                {item.icon}
               </div>
               <h3 className="mb-2 mt-6 text-xl font-bold">{item.title}</h3>
               <span className="leading-relaxed">{item.content}</span>
@@ -48,8 +48,8 @@ export const Banner = () => {
               ref={ref}
               className={`relative flex flex-col justify-start rounded-2xl bg-primary-foreground p-4 shadow-lg max-w-lg mx-auto hover:shadow-xl hover:-translate-y-1 transition-all duration-700 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
             >
-              <div className="absolute -left-4 -top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white font-bold text-[#2F3C54] shadow-md border-2 border-[#2F3C54]">
-                {item.id}
+              <div className="absolute -left-4 -top-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#FCBA6B] text-[#2F3C54] shadow-lg border-2 border-white">
+                {item.icon}
               </div>
               <h3 className="mb-2 mt-6 text-xl font-bold">{item.title}</h3>
               <span className="leading-relaxed">{item.content}</span>

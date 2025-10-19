@@ -6,6 +6,7 @@ import { BlogCard } from '@/components/Blog';
 import FeaturesPage from '@/pages/FeaturesPage';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import { FAQSection, Footer } from '@/components/FAQSection';
+import BlogSection from '@/components/BlogSection';
 import { Button } from '@/components/ui/button';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
 import { Users, Building2, Calendar, DollarSign, Search, Shield, Clock, Heart } from 'lucide-react';
@@ -312,6 +313,9 @@ const Home = () => {
           </motion.div>
         </div>
       </motion.div>
+      
+      {/* Blog Section */}
+      <BlogSection />
       
       {/* FAQ Section */}
       <FAQSection />
