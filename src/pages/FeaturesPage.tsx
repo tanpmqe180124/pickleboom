@@ -24,12 +24,9 @@ const FeaturesPage = () => {
                                     {item.icon}
                                 </div>
                             </div>
-                            <h4 className="text-base sm:text-lg font-semibold text-gray-800 group-hover:text-primary-hl transition-colors duration-300 mb-2">
+                            <h4 className="text-base sm:text-lg font-semibold text-gray-800 group-hover:text-primary-hl transition-colors duration-300">
                                 {item.title}
                             </h4>
-                            <p className="font-light text-gray-600 group-hover:text-gray-700 transition-colors duration-300 text-sm sm:text-base">
-                                {item.content}
-                            </p>
                         </div>
                         
                         {/* Decorative line - Hidden on mobile */}
