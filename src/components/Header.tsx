@@ -17,23 +17,26 @@ const Header = () => {
   };
 
   return (
-    <header className="h-[100px] border-b bg-primary text-primary-foreground">
+    <header className="h-[100px] border-b bg-primary text-primary-foreground sticky top-0 z-50 backdrop-blur-sm bg-primary/95">
       <div className="w-full py-3">
-        {/* Top utility bar */}
-        <div className="mr-2 flex items-center justify-center divide-x divide-muted-foreground">
+        {/* Enhanced Top utility bar */}
+        <div className="mr-2 flex items-center justify-center divide-x divide-muted-foreground/30">
           <div className="flex space-x-1 px-4">
-            <span className="cursor-pointer text-sm hover:text-primary-hl">
+            <span className="cursor-pointer text-sm hover:text-primary-hl transition-colors duration-200 flex items-center gap-1">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
               Đặt sân online
             </span>
           </div>
           <div className="flex space-x-1 px-4">
-            <span className="cursor-pointer text-sm hover:text-primary-hl">
-              Thời gian tiếp nhận cuộc gọi Hotline: 0389145575 (9h-23h)
+            <span className="cursor-pointer text-sm hover:text-primary-hl transition-colors duration-200 flex items-center gap-1">
+              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+              Hotline: 0389145575 (9h-23h)
             </span>
           </div>
           <div className="flex space-x-1 px-4">
-            <span className="cursor-pointer text-sm hover:text-primary-hl">
-              Mở cửa Hoạt động 24/7
+            <span className="cursor-pointer text-sm hover:text-primary-hl transition-colors duration-200 flex items-center gap-1">
+              <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+              Hoạt động 24/7
             </span>
           </div>
         </div>
@@ -59,21 +62,24 @@ const Header = () => {
               <nav className="flex space-x-8">
                 <Link
                   to="/playertype"
-                  className="text-lg font-medium hover:text-primary-hl transition-colors"
+                  className="text-lg font-medium hover:text-primary-hl transition-all duration-300 relative group"
                 >
-                  SÂN PICKLEBALL
+                  <span className="relative z-10">SÂN PICKLEBALL</span>
+                  <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-hl transition-all duration-300 group-hover:w-full"></div>
                 </Link>
                 <Link
                   to="/home"
-                  className="text-lg font-medium hover:text-primary-hl transition-colors"
+                  className="text-lg font-medium hover:text-primary-hl transition-all duration-300 relative group"
                 >
-                  TRANG CHỦ
+                  <span className="relative z-10">TRANG CHỦ</span>
+                  <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-hl transition-all duration-300 group-hover:w-full"></div>
                 </Link>
                 <Link
                   to="/blog"
-                  className="text-lg font-medium hover:text-primary-hl transition-colors"
+                  className="text-lg font-medium hover:text-primary-hl transition-all duration-300 relative group"
                 >
-                  TIN TỨC & KHUYẾN MÃI
+                  <span className="relative z-10">TIN TỨC & KHUYẾN MÃI</span>
+                  <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-hl transition-all duration-300 group-hover:w-full"></div>
                 </Link>
               </nav>
             </div>

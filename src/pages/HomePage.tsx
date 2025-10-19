@@ -4,6 +4,8 @@ import HeroSection from '@/components/HeroSection';
 import { Banner } from '@/components/BannerHealth';
 import { BlogCard } from '@/components/Blog';
 import FeaturesPage from '@/pages/FeaturesPage';
+import TestimonialsSection from '@/components/TestimonialsSection';
+import { FAQSection, Footer } from '@/components/FAQSection';
 import { Button } from '@/components/ui/button';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
 import { Users, Building2, Calendar, DollarSign, Search, Shield, Clock, Heart } from 'lucide-react';
@@ -240,6 +242,9 @@ const Home = () => {
         </div>
       </motion.div>
       
+      {/* Testimonials Section */}
+      <TestimonialsSection />
+      
       {/* Health Benefits Banner - Giữ nguyên */}
       <motion.div 
         className="py-24 bg-white"
@@ -307,6 +312,12 @@ const Home = () => {
           </motion.div>
         </div>
       </motion.div>
+      
+      {/* FAQ Section */}
+      <FAQSection />
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

@@ -117,26 +117,31 @@ export const siteFeature = () => [
   {
     icon: <Rocket size={50} color="#FCBA6B" />,
     title: 'Đặt sân dễ dàng',
+    content: 'Tìm và đặt sân pickleball chỉ với vài cú click, không cần gọi điện hay đến tận nơi',
   },
 
   {
     icon: <RefreshCcw size={50} color="#FCBA6B" />,
     title: 'Quản lý sân hiệu quả',
+    content: 'Công cụ quản lý thông minh giúp chủ sân theo dõi lịch đặt và tối ưu hóa doanh thu',
   },
 
   {
     icon: <CreditCard size={50} color="#FCBA6B" />,
     title: 'Thanh toán an toàn',
+    content: 'Hệ thống thanh toán đa dạng, bảo mật cao với PayOS và các phương thức khác',
   },
 
   {
     icon: <MessagesSquare size={50} color="#FCBA6B" />,
     title: 'Hỗ trợ 24/7',
+    content: 'Đội ngũ hỗ trợ chuyên nghiệp luôn sẵn sàng giải đáp mọi thắc mắc của bạn',
   },
 
   {
     icon: <Gift size={50} color="#FCBA6B" />,
     title: 'Kết nối cộng đồng',
+    content: 'Tham gia cộng đồng pickleball lớn nhất Quy Nhơn, kết bạn và thi đấu',
   },
 ];
 
