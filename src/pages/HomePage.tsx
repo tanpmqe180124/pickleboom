@@ -93,7 +93,7 @@ const Home = () => {
   };
 
   const handleRegisterCourt = () => {
-    navigate('/playertype');
+    navigate('/login');
   };
 
   return (
