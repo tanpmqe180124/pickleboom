@@ -30,7 +30,7 @@ const Header = () => {
           <div className="flex space-x-1 px-4">
             <span className="cursor-pointer text-sm hover:text-primary-hl transition-colors duration-200 flex items-center gap-1">
               <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-              Hotline: 0389145575 (9h-23h)
+              Hotline: 098 962 78 87 (9h-23h)
             </span>
           </div>
           <div className="flex space-x-1 px-4">
