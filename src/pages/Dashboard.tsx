@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { 
   ChevronLeft, 
   User, 
@@ -452,20 +451,6 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium">Sân A - 15:00</p>
-                    <p className="text-sm text-gray-600">Hôm nay</p>
-                  </div>
-                  <Badge variant="default">Hoàn thành</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium">Sân B - 10:00</p>
-                    <p className="text-sm text-gray-600">Hôm qua</p>
-                  </div>
-                  <Badge variant="secondary">Đang chờ</Badge>
-                </div>
                 <div className="text-center py-4">
                   <Button variant="outline" className="w-full">
                     Xem tất cả lịch sử
