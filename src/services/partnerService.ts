@@ -92,6 +92,14 @@ export interface PartnerBookingParams {
   EndDate?: string;
 }
 
+export interface DashboardDto {
+  totalRevenue: number;
+  courts: number;
+  totalBookings: number;
+  paidBookings: number;
+  cancelledBookings: number;
+}
+
 // ========== PARTNER SERVICE ==========
 export const partnerService = {
   // ========== COURT SERVICES ==========
@@ -459,7 +467,29 @@ export const partnerService = {
   },
 
   // ========== DASHBOARD SERVICES ==========
-  // Get partner dashboard stats
+  // Get partner dashboard overview
+  getDashboard: async (partnerId: string): Promise<DashboardDto> => {
+    try {
+      const response = await api.get(`/Partner/dashboard?id=${partnerId}`);
+      // Backend returns: { Message, StatusCode, Data: DashboardDto }
+      // DashboardDto properties are PascalCase from backend
+      const data = response.data?.Data || response.data?.data || response.data;
+      
+      // Convert PascalCase to camelCase for frontend
+      return {
+        totalRevenue: data?.TotalRevenue || data?.totalRevenue || 0,
+        courts: data?.Courts || data?.courts || 0,
+        totalBookings: data?.TotalBookings || data?.totalBookings || 0,
+        paidBookings: data?.PaidBookings || data?.paidBookings || 0,
+        cancelledBookings: data?.CancelledBookings || data?.cancelledBookings || 0,
+      };
+    } catch (error) {
+      console.error('Error fetching partner dashboard:', error);
+      throw error;
+    }
+  },
+
+  // Get partner dashboard stats (deprecated - use getDashboard instead)
   getDashboardStats: async (): Promise<any> => {
     try {
       const response = await api.get('/Partner/dashboard/stats');

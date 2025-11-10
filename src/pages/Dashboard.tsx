@@ -20,15 +20,22 @@ import { useBookingStore } from '@/stores/useBookingStore';
 import { useEffect, useState } from 'react';
 import { useInViewAnimation } from '@/hooks/useInViewAnimation';
 import { userService } from '@/services/userService';
+import { partnerService, DashboardDto } from '@/services/partnerService';
+import { useAuth } from '@/contexts/AuthContext';
 import AdminLink from '@/components/AdminLink';
 import PartnerLink from '@/components/PartnerLink';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { logout, user, setUser } = useAuthStore();
+  const { userRole, userID } = useAuth();
   const resetBooking = useBookingStore((state) => state.resetBooking);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [userInfo, setUserInfo] = useState<any>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardDto | null>(null);
+  const [isLoadingDashboard, setIsLoadingDashboard] = useState(false);
+  
+  const isPartner = userRole === 'Partner' || userRole?.toLowerCase() === 'partner';
   
   // Animation refs
   const [headerRef, headerInView] = useInViewAnimation<HTMLDivElement>({ threshold: 0.1 });
@@ -72,6 +79,35 @@ const Dashboard = () => {
 
     loadUserInfo();
   }, [user?.userId, user?.fullName, setUser]);
+
+  // Load partner dashboard data when user is partner
+  useEffect(() => {
+    const loadPartnerDashboard = async () => {
+      if (isPartner && userID) {
+        setIsLoadingDashboard(true);
+        try {
+          console.log('Loading partner dashboard for partnerId:', userID);
+          const data = await partnerService.getDashboard(userID);
+          console.log('Partner dashboard data loaded:', data);
+          setDashboardData(data);
+        } catch (error) {
+          console.error('Error loading partner dashboard:', error);
+          // Set default values on error
+          setDashboardData({
+            totalRevenue: 0,
+            courts: 0,
+            totalBookings: 0,
+            paidBookings: 0,
+            cancelledBookings: 0,
+          });
+        } finally {
+          setIsLoadingDashboard(false);
+        }
+      }
+    };
+
+    loadPartnerDashboard();
+  }, [isPartner, userID]);
 
   const handleLogout = async () => {
     resetBooking();
@@ -131,22 +167,79 @@ const Dashboard = () => {
     }
   ];
 
-  const stats = [
+  // Stats for regular users (hardcoded)
+  const defaultStats = [
     {
       title: 'Lần chơi tháng này',
       value: '12',
       change: '+3',
-      changeType: 'positive',
+      changeType: 'positive' as const,
       icon: Trophy
     },
     {
       title: 'Sân yêu thích',
       value: 'Sân A',
       change: 'Thường xuyên',
-      changeType: 'neutral',
+      changeType: 'neutral' as const,
       icon: MapPin
     }
   ];
+
+  // Stats for partners (from API)
+  const partnerStats = dashboardData ? [
+    {
+      title: 'Tổng doanh thu',
+      value: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(dashboardData.totalRevenue),
+      change: '',
+      changeType: 'positive' as const,
+      icon: TrendingUp
+    },
+    {
+      title: 'Tổng số sân',
+      value: dashboardData.courts.toString(),
+      change: '',
+      changeType: 'neutral' as const,
+      icon: MapPin
+    },
+    {
+      title: 'Tổng booking',
+      value: dashboardData.totalBookings.toString(),
+      change: '',
+      changeType: 'neutral' as const,
+      icon: Calendar
+    },
+    {
+      title: 'Booking đã thanh toán',
+      value: dashboardData.paidBookings.toString(),
+      change: '',
+      changeType: 'positive' as const,
+      icon: Trophy
+    },
+    {
+      title: 'Booking đã hủy',
+      value: dashboardData.cancelledBookings.toString(),
+      change: '',
+      changeType: 'negative' as const,
+      icon: Calendar
+    }
+  ] : (isLoadingDashboard ? [] : [
+    {
+      title: 'Tổng doanh thu',
+      value: '0 ₫',
+      change: '',
+      changeType: 'neutral' as const,
+      icon: TrendingUp
+    },
+    {
+      title: 'Tổng số sân',
+      value: '0',
+      change: '',
+      changeType: 'neutral' as const,
+      icon: MapPin
+    }
+  ]);
+
+  const stats = isPartner ? partnerStats : defaultStats;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -247,13 +340,19 @@ const Dashboard = () => {
         {/* Stats Section */}
         <div 
           ref={statsRef}
-          className={`grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 transition-all duration-700 transform ${
+          className={`grid grid-cols-1 md:grid-cols-2 ${isPartner ? 'lg:grid-cols-3' : ''} gap-6 mb-8 transition-all duration-700 transform ${
             statsInView 
               ? 'opacity-100 translate-y-0' 
               : 'opacity-0 translate-y-4'
           }`}
         >
-          {stats.map((stat, index) => (
+          {isLoadingDashboard && isPartner ? (
+            <div className="col-span-full flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <span className="ml-2 text-gray-600">Đang tải dữ liệu...</span>
+            </div>
+          ) : (
+            stats.map((stat, index) => (
             <Card 
               key={index} 
               className={`hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 ${
@@ -289,7 +388,8 @@ const Dashboard = () => {
                 </div>
               </CardContent>
             </Card>
-          ))}
+            ))
+          )}
         </div>
 
         {/* Quick Actions */}
@@ -395,27 +495,56 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Tổng số lần chơi</span>
-                  <span className="font-semibold">47</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Thời gian chơi (giờ)</span>
-                  <span className="font-semibold">94</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Sân yêu thích</span>
-                  <span className="font-semibold">Sân A</span>
-                </div>
+                {isPartner && dashboardData ? (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Tổng doanh thu</span>
+                      <span className="font-semibold">
+                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(dashboardData.totalRevenue)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Tổng số sân</span>
+                      <span className="font-semibold">{dashboardData.courts}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Tổng booking</span>
+                      <span className="font-semibold">{dashboardData.totalBookings}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Booking đã thanh toán</span>
+                      <span className="font-semibold text-green-600">{dashboardData.paidBookings}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Booking đã hủy</span>
+                      <span className="font-semibold text-red-600">{dashboardData.cancelledBookings}</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Tổng số lần chơi</span>
+                      <span className="font-semibold">47</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Thời gian chơi (giờ)</span>
+                      <span className="font-semibold">94</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Sân yêu thích</span>
+                      <span className="font-semibold">Sân A</span>
+                    </div>
+                  </>
+                )}
                 <div className="pt-4 border-t">
-          <Button
+                  <Button
                     variant="outline" 
                     className="w-full"
-            onClick={handleLogout}
-          >
+                    onClick={handleLogout}
+                  >
                     <LogOut size={16} className="mr-2" />
-            Đăng xuất
-          </Button>
+                    Đăng xuất
+                  </Button>
                 </div>
               </div>
             </CardContent>
