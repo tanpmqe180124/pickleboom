@@ -429,37 +429,15 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Recent Activity & Quick Actions */}
+        {/* Personal Statistics */}
         <div 
           ref={activityRef}
-          className={`grid grid-cols-1 lg:grid-cols-2 gap-8 transition-all duration-700 transform ${
+          className={`transition-all duration-700 transform ${
             activityInView 
               ? 'opacity-100 translate-y-0' 
               : 'opacity-0 translate-y-4'
           }`}
         >
-          {/* Recent Bookings */}
-          <Card className="hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Calendar size={20} />
-                <span>Lịch sử gần đây</span>
-              </CardTitle>
-              <CardDescription>
-                Các lần đặt sân gần nhất của bạn
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="text-center py-4">
-                  <Button variant="outline" className="w-full">
-                    Xem tất cả lịch sử
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Quick Stats */}
           <Card 
             ref={personalRef}
